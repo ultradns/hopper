@@ -1,11 +1,15 @@
 <project name="dnsjava" default="all" basedir=".">
-    <property name="build_dir" value="${basedir}"/>
-    <property name="src_dir" value="${basedir}"/>
+    <property name="build.dir" value="${basedir}/build/classes"/>
+    <property name="src.dir" value="${basedir}/src"/>
+    <property name="dist.dir" value="${basedir}/dist"/>
+    <property name="tests.build.dir" location="${basedir}/build/test" />  
+    <property name="tests.dir" value="${basedir}/tests"/>
+    
     <property name="doc_dir" value="${basedir}/doc"/>
-    <property name="dist_dir" value="${basedir}"/>
-    <property name="tests_dir" value="${basedir}/tests"/>
+    
+    
     <property name="reports_dir" value="${basedir}/reports"/>
-    <property name="version" value="2.1.1"/>
+    <property name="version" value="3.0.0"/>
     <property name="jarname" value="dnsjava-${version}.jar"/>
     <property name="zipname" value="dnsjava-${version}.zip"/>
     <property name="targzname" value="dnsjava-${version}.tar.gz"/>
@@ -16,12 +20,25 @@
 
     <target name="all" description="Compile and Jar" depends="jar">
     </target>
+    
+    
+    <target name="-prep">
+      <delete dir="${dist.dir}"/>
+      <delete dir="${build.dir}"/>
+      <delete dir="${tests.build.dir}"/>
+      <mkdir dir="${tests.build.dir}"/>
+      <mkdir dir="${build.dir}"/>
+      <mkdir dir="${dist.dir}"/>
+    </target>
+    
 
-    <target name="compile" description="Compile everything">
-	<javac destdir="${build_dir}" debug="true" includeantruntime="false">
-	    <src path="${src_dir}"/>
-	    <exclude name="tests/**"/>
-	</javac>
+    <target name="compile" depends="-prep" description="Compile Project">
+      <javac destdir="${build.dir}" debug="true" includeantruntime="false">
+	      <src path="${src.dir}"/>
+	      <!-- todo
+	      <compilerarg value="-Xlint" />
+	      -->
+      </javac>
     </target>
 
     <target name="spi" description="Compile the Name Service Provider code">
@@ -58,7 +75,7 @@
 			Export-Package: org.dnsjava.DNS;version=${version},org.dnsjava.dns.spi;version=${version},org.dnsjava.dns.utils;version=${version},org.dnsjava.dns.windows;version=${version}
 			Bundle-Vendor: dnsjava.org
 			Bundle-RequiredExecutionEnvironment: J2SE-1.4
-			Import-Package: !org.dnsjava.DNS*,!sun.*,*
+			Import-Package: !org.dnsjava.dns*,!sun.*,*
 		</echo>
 		<bndwrap
 			definitions="${dist_dir}"
@@ -67,17 +84,13 @@
 		<delete file="${dist_dir}/dnsjava-${version}.bnd"/>
 	</target>
 
-    <target name="clean" description="Remove old class files">
-	<delete>
-	    <fileset dir="${build_dir}" includes="**/*.class"/>
-	    <fileset dir="${build_dir}" includes="*.bnd *.jar *.zip *.tar.gz jcoverage.ser"/>
-	</delete>
+    <target name="clean" depends="-prep" description="Remove old class files">
     </target>
 
     <target name="docs" description="Makes Javadoc documentation">
 	<javadoc destdir="${doc_dir}"
 		 sourcepath="${src_dir}"
-		 packagenames="org.dnsjava.DNS,org.dnsjava.dns.utils,org.dnsjava.dns.spi"
+		 packagenames="org.dnsjava.dns,org.dnsjava.dns.utils,org.dnsjava.dns.spi"
 		 windowtitle="dnsjava documentation">
 
 	    <link href="${j2se.javadoc}"/>
@@ -107,44 +120,45 @@
 	</tar>
     </target>
 
-    <target name="compile_tests" depends="compile">
-	<javac destdir="${tests_dir}" debug="true" includeantruntime="false">
-	    <src path="${tests_dir}"/>
-	    <exclude name="**/*Luna*.java"/>
-            <classpath>
-              <pathelement location="${basedir}/lib/junit-4.8.2.jar" />
-              <pathelement location="${build_dir}" />
-            </classpath>
-	</javac>
+    <target name="compile-tests" depends="compile" description="Compiles Unit Tests">
+      <javac destdir="${tests.build.dir}" debug="true" includeantruntime="false">
+	      <src path="${tests.dir}"/>
+	      <exclude name="**/*Luna*.java"/>
+        <classpath>
+          <pathelement location="${basedir}/lib/junit-4.8.2.jar" />
+          <pathelement location="${build.dir}" />
+        </classpath>
+      </javac>
     </target>
 
     <target name="test">
       <path id="tests_classpath">
-	<path location="${basedir}"/>
-	<path location="${tests_dir}"/>
+        <path location="${build.dir}"/>
+        <path location="${basedir}"/>
+        <path location="${tests.build.dir}"/>
       </path>
-      <antcall target="-run_tests">
+      <antcall target="-run-tests">
         <reference torefid="classpath_name" refid="tests_classpath"/>
       </antcall>
     </target>
 
-    <target name="-run_tests" depends="compile_tests">
+    <target name="-run-tests" depends="compile-tests">
       <junit fork="yes" forkmode="perTest" dir="${basedir}" haltonerror="on" haltonfailure="on">
-	<classpath>
-	  <path refid="classpath_name"/>
+	      <classpath>
+	        <path refid="classpath_name"/>
           <pathelement location="${basedir}/lib/junit-4.8.2.jar" />
-	</classpath>
-	<formatter type="plain" usefile="no"/>
-	<test name="${testcase}" if="testcase"/>
-	<batchtest unless="testcase">
-	  <fileset dir="${tests_dir}">
-	  <include name="**/*Test.class"/>
-	</fileset>
-	</batchtest>
+	      </classpath>
+	      <formatter type="plain" usefile="no"/>
+	      <test name="${testcase}" if="testcase"/>
+	      <batchtest unless="testcase">
+	        <fileset dir="${tests.build.dir}">
+	          <include name="**/*Test.class"/>
+	        </fileset>
+	      </batchtest>
       </junit>
     </target>
     
-    <target name="coverage_report" depends="clean,compile_tests" if="jcoverage_dir">
+    <target name="coverage_report" depends="clean,compile-tests" if="jcoverage_dir">
       <taskdef resource="tasks.properties">
 	<classpath>
 		<path location="${jcoverage_dir}/jcoverage.jar"/>
@@ -173,7 +187,7 @@
 	<path location="${jcoverage_dir}/oro.jar"/>
 	<path location="${jcoverage_dir}/gnu.getopt.jar"/>
       </path>
-      <antcall target="-run_tests">
+      <antcall target="-run-tests">
 	<param name="classpath_name" value="itests_classpath"/>
       </antcall>
       <report srcdir="${basedir}" destdir="${reports_dir}/coverage"/>
