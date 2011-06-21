@@ -1,12 +1,17 @@
-dnsjava v2.0
+UltraDNS fork of dnsjava (originally based on v2.0)
 
-http://www.xbill.org/dnsjava
-http://www.dnsjava.org/
+http://ultradns.com
 
-Author:
+
+
+
+Original Author:
 
 Brian Wellington (bwelling@xbill.org)
 March 12, 2004
+
+http://www.xbill.org/dnsjava (original)
+http://www.dnsjava.org/
 
 Overview:
 
@@ -31,7 +36,7 @@ Run 'ant' from the toplevel directory to build dnsjava (a Makefile is also
 provided, but does not have all of the features of the ant script).  JDK 1.4
 or higher is required.
 
-To compile name service provider support (org.xbill.DNS.spi), run 'ant spi'.
+To compile name service provider support (com.ultradns.dnsjava.dns.spi), run 'ant spi'.
 
 
 Replacing the standard Java DNS functionality:
@@ -50,11 +55,8 @@ Testing dnsjava:
 
 Matt Rutherford <rutherfo@cs.colorado.edu> contributed a number of unit
 tests, which are in the tests subdirectory.  The hierarchy under tests
-mirrors the org.xbill.DNS classes.  To build the unit tests, run
-'ant compile_tests', and to run then, run 'ant run_tests'.  The tests require
-JUnit (http://www.junit.org) to be installed.
-
-Some high-level test programs are in org/xbill/DNS/tests.
+mirrors the com.ultradns.dnsjava.dns classes.  To build the unit tests, run
+'ant compile-tests', and to run then, run 'ant test'.  
 
 
 Limitations:

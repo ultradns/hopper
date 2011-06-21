@@ -3,7 +3,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import org.dnsjava.dns.*;
+import com.ultradns.dnsjava.dns.*;
 
 /** @author Brian Wellington &lt;bwelling@xbill.org&gt; */
 
