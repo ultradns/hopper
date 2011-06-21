@@ -1,6 +1,6 @@
 // Copyright (c) 1999-2004 Brian Wellington (bwelling@xbill.org)
 
-import org.xbill.DNS.*;
+import org.dnsjava.dns.*;
 
 /** @author Brian Wellington &lt;bwelling@xbill.org&gt; */
 

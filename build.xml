@@ -10,6 +10,7 @@
     <property name="zipname" value="dnsjava-${version}.zip"/>
     <property name="targzname" value="dnsjava-${version}.tar.gz"/>
 
+
     <property name="j2se.javadoc"
       value="http://java.sun.com/j2se/1.4/docs/api/"/>
 
@@ -17,14 +18,14 @@
     </target>
 
     <target name="compile" description="Compile everything">
-	<javac destdir="${build_dir}" debug="true" target="1.4" source="1.4">
+	<javac destdir="${build_dir}" debug="true" includeantruntime="false">
 	    <src path="${src_dir}"/>
 	    <exclude name="tests/**"/>
 	</javac>
     </target>
 
     <target name="spi" description="Compile the Name Service Provider code">
-	<javac destdir="${build_dir}" debug="true" target="1.4" source="1.4">
+	<javac destdir="${build_dir}" debug="true" includeantruntime="false">
 	    <src path="${src_dir}"/>
 	    <include name="org/xbill/DNS/spi/*.java"/>
 	</javac>
@@ -107,8 +108,13 @@
     </target>
 
     <target name="compile_tests" depends="compile">
-	<javac destdir="${tests_dir}" debug="true" target="1.4" source="1.4">
+	<javac destdir="${tests_dir}" debug="true" includeantruntime="false">
 	    <src path="${tests_dir}"/>
+	    <exclude name="**/*Luna*.java"/>
+            <classpath>
+              <pathelement location="${basedir}/lib/junit-4.8.2.jar" />
+              <pathelement location="${build_dir}" />
+            </classpath>
 	</javac>
     </target>
 
@@ -118,14 +124,15 @@
 	<path location="${tests_dir}"/>
       </path>
       <antcall target="_run_tests">
-	<param name="classpath_name" value="tests_classpath"/>
+        <reference torefid="classpath_name" refid="tests_classpath"/>
       </antcall>
     </target>
 
     <target name="_run_tests" depends="compile_tests">
       <junit fork="yes" forkmode="perTest" dir="${basedir}" haltonerror="on" haltonfailure="on">
 	<classpath>
-	  <path refid="${classpath_name}"/>
+	  <path refid="classpath_name"/>
+          <pathelement location="${basedir}/lib/junit-4.8.2.jar" />
 	</classpath>
 	<formatter type="plain" usefile="no"/>
 	<test name="${testcase}" if="testcase"/>

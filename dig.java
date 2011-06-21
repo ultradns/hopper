@@ -2,7 +2,7 @@
 
 import java.io.*;
 import java.net.*;
-import org.xbill.DNS.*;
+import org.dnsjava.dns.*;
 
 /** @author Brian Wellington &lt;bwelling@xbill.org&gt; */
 
