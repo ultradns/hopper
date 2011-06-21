@@ -158,6 +158,12 @@
       </junit>
     </target>
     
+    <target name="restyle">
+      <exec executable="astyle">
+        <arg line=" -A2 -s --mode=java -H -c -j --recursive ${src.dir}/*.java"/>
+      </exec>
+    </target>
+    
     <target name="coverage_report" depends="clean,compile-tests" if="jcoverage_dir">
       <taskdef resource="tasks.properties">
 	<classpath>

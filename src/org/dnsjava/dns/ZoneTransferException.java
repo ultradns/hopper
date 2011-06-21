@@ -10,14 +10,14 @@ package org.dnsjava.dns;
 
 public class ZoneTransferException extends Exception {
 
-public
-ZoneTransferException() {
-	super();
-}
+    public
+    ZoneTransferException() {
+        super();
+    }
 
-public
-ZoneTransferException(String s) {
-	super(s);
-}
+    public
+    ZoneTransferException(String s) {
+        super(s);
+    }
 
 }

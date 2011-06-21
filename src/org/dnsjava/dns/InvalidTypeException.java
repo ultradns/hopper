@@ -10,9 +10,9 @@ package org.dnsjava.dns;
 
 public class InvalidTypeException extends IllegalArgumentException {
 
-public
-InvalidTypeException(int type) {
-	super("Invalid DNS type: " + type);
-}
+    public
+    InvalidTypeException(int type) {
+        super("Invalid DNS type: " + type);
+    }
 
 }
