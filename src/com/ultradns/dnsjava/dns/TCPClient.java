@@ -10,8 +10,8 @@ import java.nio.channels.*;
 final class TCPClient extends Client {
 
     public
-    TCPClient(long endTime) throws IOException {
-        super(SocketChannel.open(), endTime);
+    TCPClient(long endTime, long connectEndTime) throws IOException {
+        super(SocketChannel.open(), endTime, connectEndTime);
     }
 
     void
@@ -30,7 +30,7 @@ final class TCPClient extends Client {
         try {
             while (!channel.finishConnect()) {
                 if (!key.isConnectable()) {
-                    blockUntil(key, endTime);
+                    blockUntil(key, connectEndTime);
                 }
             }
         } finally {
@@ -116,9 +116,9 @@ final class TCPClient extends Client {
     }
 
     static byte []
-    sendrecv(SocketAddress local, SocketAddress remote, byte [] data, long endTime)
+    sendrecv(SocketAddress local, SocketAddress remote, byte [] data, long endTime, long connectEndTime)
     throws IOException {
-        TCPClient client = new TCPClient(endTime);
+        TCPClient client = new TCPClient(endTime, connectEndTime);
         try {
             if (local != null) {
                 client.bind(local);
@@ -132,8 +132,8 @@ final class TCPClient extends Client {
     }
 
     static byte []
-    sendrecv(SocketAddress addr, byte [] data, long endTime) throws IOException {
-        return sendrecv(null, addr, data, endTime);
+    sendrecv(SocketAddress addr, byte [] data, long endTime, long connectEndTime) throws IOException {
+        return sendrecv(null, addr, data, endTime, connectEndTime);
     }
 
 }

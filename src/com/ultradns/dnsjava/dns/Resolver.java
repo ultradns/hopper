@@ -73,6 +73,19 @@ public interface Resolver {
      */
     void setTimeout(int secs);
 
+	/**
+	 * Sets the amount of time to wait to connect to host before giving up.
+	 * @param secs The number of seconds to wait.
+	 * @param msecs The number of milliseconds to wait.
+	 */
+	void setConnectTimeout(int secs, int msecs);
+
+	/**
+	 * Sets the amount of time to wait to connect to host before giving up.
+	 * @param secs The number of seconds to wait.
+	 */
+	void setConnectTimeout(int secs);
+
     /**
      * Sends a message and waits for a response.
      * @param query The query to send.

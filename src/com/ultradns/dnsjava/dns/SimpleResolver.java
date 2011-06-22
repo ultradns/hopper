@@ -32,6 +32,7 @@ public class SimpleResolver implements Resolver {
     private OPTRecord queryOPT;
     private TSIG tsig;
     private long timeoutValue = 10 * 1000;
+	private long connectTimeoutValue = 120 * 1000;
 
     private static final short DEFAULT_UDPSIZE = 512;
 
@@ -180,6 +181,19 @@ public class SimpleResolver implements Resolver {
         return timeoutValue;
     }
 
+	public void setConnectTimeout(int secs, int msecs) {
+	   connectTimeoutValue = (long)secs * 1000 + msecs;
+	}
+
+	public void setConnectTimeout(int secs) {
+	   setConnectTimeout(secs, 0);
+	}
+
+	long
+	getConnectTimeout() {
+	   return connectTimeoutValue;
+	}
+
     private Message
     parseMessage(byte [] b) throws WireParseException {
         try {
@@ -255,7 +269,8 @@ public class SimpleResolver implements Resolver {
         int udpSize = maxUDPSize(query);
         boolean tcp = false;
         long endTime = System.currentTimeMillis() + timeoutValue;
-        do {
+        long connectEndTime = System.currentTimeMillis() + connectTimeoutValue;
+	    do {
             byte [] in;
 
             if (useTCP || out.length > udpSize) {
@@ -263,10 +278,10 @@ public class SimpleResolver implements Resolver {
             }
             if (tcp)
                 in = TCPClient.sendrecv(localAddress, address, out,
-                                        endTime);
+                                        endTime, connectEndTime);
             else
                 in = UDPClient.sendrecv(localAddress, address, out,
-                                        udpSize, endTime);
+                                        udpSize, endTime, connectEndTime);
 
             /*
              * Check that the response is long enough.
@@ -341,7 +356,8 @@ public class SimpleResolver implements Resolver {
         Name qname = query.getQuestion().getName();
         ZoneTransferIn xfrin = ZoneTransferIn.newAXFR(qname, address, tsig);
         xfrin.setTimeout((int)(getTimeout() / 1000));
-        xfrin.setLocalAddress(localAddress);
+        xfrin.setConnectTimeout((int)(getConnectTimeout() / 1000));
+	    xfrin.setLocalAddress(localAddress);
         try {
             xfrin.run();
         } catch (ZoneTransferException e) {

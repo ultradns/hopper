@@ -363,6 +363,15 @@ public class ExtendedResolver implements Resolver {
         setTimeout(secs, 0);
     }
 
+	public void setConnectTimeout(int secs, int msecs) {
+	   for (int i = 0; i < resolvers.size(); i++)
+	       ((Resolver)resolvers.get(i)).setConnectTimeout(secs, msecs);
+	}
+
+	public void setConnectTimeout(int secs) {
+	   setConnectTimeout(secs, 0);
+	}
+
     /**
      * Sends a message and waits for a response.  Multiple servers are queried,
      * and queries are sent multiple times until either a successful response

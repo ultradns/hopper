@@ -44,8 +44,8 @@ final class UDPClient extends Client {
     private boolean bound = false;
 
     public
-    UDPClient(long endTime) throws IOException {
-        super(DatagramChannel.open(), endTime);
+    UDPClient(long endTime, long connectEndTime) throws IOException {
+        super(DatagramChannel.open(), endTime, connectEndTime);
     }
 
     private void
@@ -142,9 +142,9 @@ final class UDPClient extends Client {
 
     static byte []
     sendrecv(SocketAddress local, SocketAddress remote, byte [] data, int max,
-             long endTime)
+             long endTime, long connectEndTime)
     throws IOException {
-        UDPClient client = new UDPClient(endTime);
+        UDPClient client = new UDPClient(endTime, connectEndTime);
         try {
             client.bind(local);
             client.connect(remote);
@@ -156,9 +156,9 @@ final class UDPClient extends Client {
     }
 
     static byte []
-    sendrecv(SocketAddress addr, byte [] data, int max, long endTime)
+    sendrecv(SocketAddress addr, byte [] data, int max, long endTime, long connectEndTime)
     throws IOException {
-        return sendrecv(null, addr, data, max, endTime);
+        return sendrecv(null, addr, data, max, endTime, connectEndTime);
     }
 
 }
