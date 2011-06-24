@@ -53,21 +53,21 @@
 	</javac>
     </target>
 
-    <target name="jar" description="Makes dnsjava.jar" depends="compile">
+    <target name="jar" description="Makes dnsjava.jar" depends="-git-version,compile">
 	<jar jarfile="${dist_dir}/${jarname}"
 		basedir="${build_dir}" includes="**/*.class **/*.properties">
 	    <exclude name="com/ultradns/dnsjava/dns/tests/*.class"/>
 	    <exclude name="tests/**"/>
 	    <manifest>
 		<attribute name="Implementation-Title" value="dnsjava"/>
-		<attribute name="Implementation-Version" value="${version}"/>
+		<attribute name="Implementation-Version" value="${full.version}"/>
 	    </manifest>
 	    <metainf dir="com/ultradns/dnsjava/dns/spi/">
 		<include name="services/*"/>
 	    </metainf>
 	</jar>
     </target>
-	
+<!-- todo, update this 	
 	<target name="bundle" description="Creates an OSGi bundle" depends="jar">
 		<get src="http://www.aqute.biz/repo/biz/aQute/bnd/0.0.384/bnd-0.0.384.jar"
 			dest="${build_dir}/bnd.jar"/>
@@ -88,6 +88,7 @@
 			output="${dist_dir}/com.ultradns.dnsjava.dns_${version}.jar"/>
 		<delete file="${dist_dir}/dnsjava-${version}.bnd"/>
 	</target>
+-->
 
     <target name="clean" depends="-prep" description="Remove old class files">
     </target>

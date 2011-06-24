@@ -45,6 +45,43 @@
     	<ivy:resolve/>
     	<ivy:retrieve pattern="${lib.dir}/[conf]/[artifact].[ext]" />
     </target>
+
+
+    <target name="git-version">
+      <condition property="env_ver" value="${env.VERSION}" else="${version}">
+        <isset property="env.VERSION"/>
+      </condition>
+      <echo message="environment version is ${env_ver}"/>
+      <property name="major.version" value="${env_ver}"/>
+
+      <exec executable="git" outputproperty="revision">
+            <arg line="rev-parse --short HEAD"/>
+        </exec>
+       <echo>Revision found: ${revision}</echo>
+       <property name="full.version" value="${major.version}.${revision}"/>
+       <echo>Version is: ${full.version}</echo>
+    </target>
+
+
+
+    <!-- =================================
+          target: publish
+         ================================= -->
+    <target name="publish" depends="git-version" description="--> publish this project in the local ivy repository">
+        <ivy:info/>
+        <property name="ivy.new.revision" value="${major.version}"/>
+        <property name="ivy.new.build.number" value="${revision}"/>
+        <echo message="version=${ivy.new.revision}" />
+
+        <ivy:publish artifactspattern="${dist.dir}/[artifact].[ext]"
+                                resolver="local"
+                                pubrevision="${ivy.new.revision}.${revision}"
+                                pubdate="${now}"
+                                status="integration"
+                                forcedeliver="true"
+        />
+        <echo message="project ${ant.project.name} published locally with version ${ivy.new.revision}.${ivy.new.build.number}" />
+    </target>
     
     <!-- ================================= 
           target: report              
