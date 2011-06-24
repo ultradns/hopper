@@ -4,11 +4,10 @@
     <property name="dist.dir" value="${basedir}/dist"/>
     <property name="tests.build.dir" location="${basedir}/build/test" />  
     <property name="tests.dir" value="${basedir}/tests"/>
+    <property name="reports.dir" value="${basedir}/reports"/>
     
     <property name="doc_dir" value="${basedir}/doc"/>
     
-    
-    <property name="reports_dir" value="${basedir}/reports"/>
     <property name="version" value="3.0.0"/>
     <property name="jarname" value="dnsjava-${version}.jar"/>
     <property name="zipname" value="dnsjava-${version}.zip"/>
@@ -23,12 +22,14 @@
     
     
     <target name="-prep">
+      <delete dir="${reports.dir}"/>
       <delete dir="${dist.dir}"/>
       <delete dir="${build.dir}"/>
       <delete dir="${tests.build.dir}"/>
       <mkdir dir="${tests.build.dir}"/>
       <mkdir dir="${build.dir}"/>
       <mkdir dir="${dist.dir}"/>
+      <mkdir dir="${reports.dir}"/>
     </target>
     
 
@@ -102,7 +103,7 @@
     </target>
 
     <target name="reportsclean" description="Remove old reports">
-	<delete dir="${reports_dir}"/>
+	<delete dir="${reports.dir}"/>
     </target>
 
     <property name="source_excludes"
@@ -143,18 +144,22 @@
     </target>
 
     <target name="-run-tests" depends="compile-tests">
-      <junit fork="yes" forkmode="perTest" dir="${basedir}" haltonerror="on" haltonfailure="on">
-	      <classpath>
-	        <path refid="classpath_name"/>
-          <pathelement location="${basedir}/lib/junit-4.8.2.jar" />
-	      </classpath>
-	      <formatter type="plain" usefile="no"/>
-	      <test name="${testcase}" if="testcase"/>
-	      <batchtest unless="testcase">
-	        <fileset dir="${tests.build.dir}">
+      <mkdir dir="${reports.dir}/units"/>
+      <junit fork="yes" forkmode="perTest" 
+             dir="${basedir}" printsummary="yes"
+             haltonerror="on" haltonfailure="on">
+
+          <classpath>
+	      <path refid="classpath_name"/>
+              <pathelement location="${basedir}/lib/junit-4.8.2.jar" />
+          </classpath>
+          <formatter type="xml"/>
+          <test name="${testcase}" if="testcase"/>
+	  <batchtest unless="testcase" todir="${reports.dir}/units">
+              <fileset dir="${tests.build.dir}">
 	          <include name="**/*Test.class"/>
-	        </fileset>
-	      </batchtest>
+	      </fileset>
+          </batchtest>
       </junit>
     </target>
     
@@ -196,7 +201,7 @@
       <antcall target="-run-tests">
 	<param name="classpath_name" value="itests_classpath"/>
       </antcall>
-      <report srcdir="${basedir}" destdir="${reports_dir}/coverage"/>
+      <report srcdir="${basedir}" destdir="${reports.dir}/coverage"/>
       <delete dir="${basedir}/iclasses"/>
     </target>
 
