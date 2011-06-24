@@ -1,6 +1,11 @@
 build
 dist
 eclipse-build
+reports
+lib/test
+lib/runtime
+lib/compile
+lib/default
 *.class
 .classpath
 .project

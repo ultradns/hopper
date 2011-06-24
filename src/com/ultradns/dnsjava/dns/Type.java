@@ -190,13 +190,13 @@ public final class Type {
 
 
     private static class TypeMnemonic extends Mnemonic {
-        private HashMap objects;
+        private HashMap<Integer, Record> objects;
 
         public
         TypeMnemonic() {
             super("Type", CASE_UPPER);
             setPrefix("TYPE");
-            objects = new HashMap();
+            objects = new HashMap<Integer, Record>();
         }
 
         public void
