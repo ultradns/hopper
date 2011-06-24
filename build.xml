@@ -13,6 +13,10 @@
     <property name="zipname" value="dnsjava-${version}.zip"/>
     <property name="targzname" value="dnsjava-${version}.tar.gz"/>
 
+    <!-- import ivy -->
+    <property name="lib.dir" value="${basedir}/lib"/>
+    <import file="${basedir}/lib/ivy/common.xml" />    
+
 
     <property name="j2se.javadoc"
       value="http://java.sun.com/j2se/1.4/docs/api/"/>
@@ -126,13 +130,13 @@
 	      <src path="${tests.dir}"/>
 	      <exclude name="**/*Luna*.java"/>
         <classpath>
-          <pathelement location="${basedir}/lib/junit-4.8.2.jar" />
+          <fileset dir="${lib.dir}/test" includes="*.jar" excludes="ant.jar"/>
           <pathelement location="${build.dir}" />
         </classpath>
       </javac>
     </target>
 
-    <target name="test">
+    <target name="test" depends="clean-resolve">
       <path id="tests_classpath">
         <path location="${build.dir}"/>
         <path location="${basedir}"/>
@@ -151,7 +155,7 @@
 
           <classpath>
 	      <path refid="classpath_name"/>
-              <pathelement location="${basedir}/lib/junit-4.8.2.jar" />
+              <fileset dir="${lib.dir}/test" includes="*.jar" excludes="ant.jar"/> 
           </classpath>
           <formatter type="xml"/>
           <test name="${testcase}" if="testcase"/>

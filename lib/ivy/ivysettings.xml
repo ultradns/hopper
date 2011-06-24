@@ -1,0 +1,29 @@
+<ivysettings>
+  <!-- settings for ultra processes to use our svnrepo -->
+  <!-- to include this add: ivy:configure file="lib/ivy/ivysettings.xml" -->
+
+  <properties file="${ivy.settings.dir}/runtime_ivysettings.properties" />
+  <caches defaultCacheDir="${default.cache.dir}"/>
+
+  <resolvers>
+
+    <!-- maven central --> 
+    <ibiblio name="org.maven" root="http://repo1.maven.org/content/groups/public/"  m2compatible="true">
+    </ibiblio>
+
+    <chain name="neustar" returnFirst="true">
+      <resolver ref="org.maven"/>
+    </chain>
+
+    <filesystem name="localjars">
+      <artifact pattern="${basedir}/lib/[artifact]-[revision].[ext]" />
+      <artifact pattern="${basedir}/lib/[artifact].[ext]" />
+    </filesystem>
+  </resolvers>
+
+  <settings defaultResolver="neustar"/>
+    <modules>
+      <module organisation="*" name="ivysvnresolver" resolver="neustar"/>
+    </modules>
+</ivysettings>
+
