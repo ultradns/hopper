@@ -1,0 +1,19 @@
+<ivy-module version="2.0">
+    <info organisation="com.ultradns" module="dnsjava"/>
+    <configurations defaultconfmapping="default->default">
+      <conf name="default" visibility="public" extends="runtime" />
+      <conf name="compile" transitive="true" visibility="private" />
+      <conf name="runtime" extends="compile" description="everything needed to run this module" />
+      <conf name="test" extends="runtime" transitive="true" visibility="public" />
+    </configurations>
+    
+    <dependencies defaultconf="default">
+        <!-- testing, you need these, really -->
+        <dependency org="junit" force="true" name="junit" rev="4.8.2" conf="test->default"/>
+        <dependency org="org.mockito" name="mockito-all" rev="1.8.5" conf="test->default"/>
+        <dependency org="emma" force="true" name="emma" rev="2.0.5312" conf="test->default"/>
+        <dependency org="emma" force="true" name="emma_ant" rev="2.0.5312" conf="test->default"/>
+        <dependency org="pmd" name="pmd" rev="4.2.5" conf="test->default"/>
+
+    </dependencies>
+</ivy-module>

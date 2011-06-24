@@ -562,8 +562,7 @@ public class Zone implements Serializable {
     /**
      * Returns the contents of the Zone in master file format.
      */
-    public synchronized String
-    toMasterFile() {
+    public synchronized String toMasterFile() {
         Iterator zentries = data.entrySet().iterator();
         StringBuffer sb = new StringBuffer();
         nodeToString(sb, originNode);
@@ -579,9 +578,7 @@ public class Zone implements Serializable {
     /**
      * Returns the contents of the Zone as a string (in master file format).
      */
-    public String
-    toString() {
+    public String toString() {
         return toMasterFile();
     }
-
 }
