@@ -12,7 +12,7 @@ public class ZoneTransferInTest extends TestCase {
 	public void test_connecttimeout() throws IOException, UnknownHostException, ZoneTransferException {
 		String zoneName = "test.zone.";
 		//Lets hope nobody turns on port 53 on this host ever, so it will be unreachable.
-		String unreachableHost = "240.10.10.10";
+		String unreachableHost = "8.99.99.99";
 		int connectTimeout = 10;
 		int timeout = 900;
 
