@@ -57,6 +57,7 @@ public class ZoneTransferIn {
     private TSIG tsig;
     private TSIG.StreamVerifier verifier;
     private long timeout = 900 * 1000;
+	private long connectTimeout = 120 * 1000;
 
     private int state;
     private long end_serial;
@@ -249,6 +250,19 @@ public class ZoneTransferIn {
         timeout = 1000L * secs;
     }
 
+	/**
+	 * Sets connection timeout to the transfer host.  The default is 120 seconds (2
+	 * minutes). If system timeout is less than this timeout then this timeout have no effect.
+	 * @param secs The maximum amount of time that this zone transfer can take.
+	 */
+	public void
+	setConnectTimeout(int secs) {
+	   if (secs < 0)
+	       throw new IllegalArgumentException("connect timeout cannot be " +
+	               "negative");
+	   connectTimeout = 1000L * secs;
+	}
+
     /**
      * Sets an alternate DNS class for this zone transfer.
      * @param dclass The class to use instead of class IN.
@@ -271,7 +285,8 @@ public class ZoneTransferIn {
     private void
     openConnection() throws IOException {
         long endTime = System.currentTimeMillis() + timeout;
-        client = new TCPClient(endTime);
+	    long connectEndTime = System.currentTimeMillis() + connectTimeout;
+        client = new TCPClient(endTime, connectEndTime);
         if (localAddress != null) {
             client.bind(localAddress);
         }

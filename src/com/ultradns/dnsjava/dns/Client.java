@@ -2,19 +2,24 @@
 
 package com.ultradns.dnsjava.dns;
 
-import java.io.*;
-import java.net.*;
-import java.nio.channels.*;
 import com.ultradns.dnsjava.dns.utils.hexdump;
+
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.nio.channels.SelectableChannel;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 
 class Client {
     protected long endTime;
+	protected long connectEndTime;
     protected SelectionKey key;
 
-    protected Client(SelectableChannel channel, long endTime) throws IOException {
+    protected Client(SelectableChannel channel, long endTime, long connectEndTime) throws IOException {
         boolean done = false;
         Selector selector = null;
         this.endTime = endTime;
+	    this.connectEndTime = connectEndTime;
         try {
             selector = Selector.open();
             channel.configureBlocking(false);
