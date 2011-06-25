@@ -53,16 +53,17 @@
 	</javac>
     </target>
 
-    <target name="jar" description="Makes dnsjava.jar" depends="-git-version,compile">
-	<jar jarfile="${dist_dir}/${jarname}"
-		basedir="${build_dir}" includes="**/*.class **/*.properties">
+    <target name="jar" description="Makes dnsjava.jar" depends="git-version,compile">
+        <echo message="version=${full.version}" file="${dist.dir}/${ant.project.name}.properties" append="false" />
+	<jar jarfile="${dist.dir}/${jarname}"
+		basedir="${build.dir}" includes="**/*.class **/*.properties">
 	    <exclude name="com/ultradns/dnsjava/dns/tests/*.class"/>
 	    <exclude name="tests/**"/>
 	    <manifest>
 		<attribute name="Implementation-Title" value="dnsjava"/>
 		<attribute name="Implementation-Version" value="${full.version}"/>
 	    </manifest>
-	    <metainf dir="com/ultradns/dnsjava/dns/spi/">
+	    <metainf dir="${src.dir}/com/ultradns/dnsjava/dns/spi/">
 		<include name="services/*"/>
 	    </metainf>
 	</jar>
