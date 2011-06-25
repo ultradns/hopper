@@ -11,13 +11,19 @@
     <ibiblio name="org.maven" root="http://repo1.maven.org/maven2/"  m2compatible="true">
     </ibiblio>
 
+    <url name="releases" m2compatible="true">
+      <artifact pattern="${nexus.url}/content/repositories/releases/[organisation]/[module]/[revision]/[artifact].[ext]"/>
+      <ivy pattern="${nexus.url}/content/repositories/releases/[organisation]/[module]/[revision]/ivy.xml"/>
+    </url>
+
+
     <chain name="neustar" returnFirst="true">
       <resolver ref="org.maven"/>
     </chain>
 
     <filesystem name="localjars">
-      <artifact pattern="${basedir}/lib/[artifact]-[revision].[ext]" />
-      <artifact pattern="${basedir}/lib/[artifact].[ext]" />
+      <artifact pattern="${basedir}/dist/[artifact]-[revision].[ext]" />
+      <artifact pattern="${basedir}/dist/[artifact].[ext]" />
     </filesystem>
   </resolvers>
 

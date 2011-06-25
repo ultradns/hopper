@@ -1,4 +1,4 @@
-<project name="dnsjava" default="all" basedir=".">
+<project name="dnsjava" default="all"  xmlns:ivy="antlib:org.apache.ivy.ant">
     <property name="build.dir" value="${basedir}/build/classes"/>
     <property name="src.dir" value="${basedir}/src"/>
     <property name="dist.dir" value="${basedir}/dist"/>
@@ -9,7 +9,6 @@
     <property name="doc_dir" value="${basedir}/doc"/>
     
     <property name="version" value="3.0.0"/>
-    <property name="jarname" value="dnsjava-${version}.jar"/>
     <property name="zipname" value="dnsjava-${version}.zip"/>
     <property name="targzname" value="dnsjava-${version}.tar.gz"/>
 
@@ -54,8 +53,8 @@
     </target>
 
     <target name="jar" description="Makes dnsjava.jar" depends="git-version,compile">
-        <echo message="version=${full.version}" file="${dist.dir}/${ant.project.name}.properties" append="false" />
-	<jar jarfile="${dist.dir}/${jarname}"
+        <echo message="full.version=${full.version}" file="${dist.dir}/${ant.project.name}.properties" append="false" />
+	<jar jarfile="${dist.dir}/${ant.project.name}.jar"
 		basedir="${build.dir}" includes="**/*.class **/*.properties">
 	    <exclude name="com/ultradns/dnsjava/dns/tests/*.class"/>
 	    <exclude name="tests/**"/>
@@ -85,7 +84,7 @@
 		</echo>
 		<bndwrap
 			definitions="${dist_dir}"
-			jars="${dist_dir}/${jarname}"
+			jars="${dist_dir}/${ant.project.name}.jar"
 			output="${dist_dir}/com.ultradns.dnsjava.dns_${version}.jar"/>
 		<delete file="${dist_dir}/dnsjava-${version}.bnd"/>
 	</target>
@@ -174,6 +173,19 @@
         <arg line=" -A2 -s --mode=java -H -c -j --recursive ${src.dir}/*.java"/>
       </exec>
     </target>
+
+    <target name="installjar" depends="" description="--> install 3rd party jar to repo">
+        <property file="${dist.dir}/${ant.project.name}.properties" />
+        <echo message="Publishing version: ${full.version}"/>
+        <ivy:info/>
+        <ivy:configure settingsId="releases.settings" realm="Sonatype Nexus Repository Manager" override="true"
+         host="${nexus.host}" username="${nexus.user}" passwd="${nexus.passwd}" />
+
+        <ivy:install organisation="${ivy.organisation}"
+                 module="${ivy.module}" revision="${full.version}"
+                 from="localjars" to="releases" />
+    </target>
+
     
     <target name="coverage_report" depends="clean,compile-tests" if="jcoverage_dir">
       <taskdef resource="tasks.properties">
