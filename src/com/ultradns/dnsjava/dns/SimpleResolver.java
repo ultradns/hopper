@@ -277,7 +277,7 @@ public class SimpleResolver implements Resolver {
                 tcp = true;
             }
             if (tcp)
-                in = TCPClient.sendrecv(localAddress, address, out,
+                in = TCPClientImpl.sendrecv(localAddress, address, out,
                                         endTime, connectEndTime);
             else
                 in = UDPClient.sendrecv(localAddress, address, out,

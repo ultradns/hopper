@@ -54,7 +54,7 @@ class Client {
         }
     }
 
-    void cleanup() throws IOException {
+    public void cleanup() throws IOException {
         key.selector().close();
         key.channel().close();
     }

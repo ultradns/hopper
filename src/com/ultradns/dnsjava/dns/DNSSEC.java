@@ -133,7 +133,8 @@ public class DNSSEC {
         int size = rrset.size();
         Record [] records = new Record[size];
 
-        Iterator it = rrset.rrs();
+        @SuppressWarnings("rawtypes")
+		Iterator it = rrset.rrs();
         Name name = rrset.getName();
         Name wild = null;
         int sigLabels = rrsig.getLabels() + 1; // Add the root label back.
@@ -194,7 +195,9 @@ public class DNSSEC {
      * A DNSSEC exception.
      */
     public static class DNSSECException extends Exception {
-        DNSSECException(String s) {
+		private static final long serialVersionUID = 8213345600121330380L;
+
+		DNSSECException(String s) {
             super(s);
         }
     }
@@ -203,7 +206,9 @@ public class DNSSEC {
      * An algorithm is unsupported by this DNSSEC implementation.
      */
     public static class UnsupportedAlgorithmException extends DNSSECException {
-        UnsupportedAlgorithmException(int alg) {
+		private static final long serialVersionUID = 2917488650100837008L;
+
+		UnsupportedAlgorithmException(int alg) {
             super("Unsupported algorithm: " + alg);
         }
     }
@@ -212,7 +217,9 @@ public class DNSSEC {
      * The cryptographic data in a DNSSEC key is malformed.
      */
     public static class MalformedKeyException extends DNSSECException {
-        MalformedKeyException(KEYBase rec) {
+		private static final long serialVersionUID = -921363279387420934L;
+
+		MalformedKeyException(KEYBase rec) {
             super("Invalid key data: " + rec.rdataToString());
         }
     }
@@ -222,10 +229,9 @@ public class DNSSEC {
      * do not match.
      */
     public static class KeyMismatchException extends DNSSECException {
-        private KEYBase key;
-        private SIGBase sig;
+		private static final long serialVersionUID = -4465275064584370965L;
 
-        KeyMismatchException(KEYBase key, SIGBase sig) {
+		KeyMismatchException(KEYBase key, SIGBase sig) {
             super("key " +
                   key.getName() + "/" +
                   DNSSEC.Algorithm.string(key.getAlgorithm()) + "/" +
@@ -241,7 +247,8 @@ public class DNSSEC {
      * A DNSSEC verification failed because the signature has expired.
      */
     public static class SignatureExpiredException extends DNSSECException {
-        private Date when, now;
+		private static final long serialVersionUID = -1254741812830779109L;
+		private Date when, now;
 
         SignatureExpiredException(Date when, Date now) {
             super("signature expired");
@@ -270,7 +277,8 @@ public class DNSSEC {
      * A DNSSEC verification failed because the signature has not yet become valid.
      */
     public static class SignatureNotYetValidException extends DNSSECException {
-        private Date when, now;
+		private static final long serialVersionUID = -317747998761825856L;
+		private Date when, now;
 
         SignatureNotYetValidException(Date when, Date now) {
             super("signature is not yet valid");
@@ -300,7 +308,9 @@ public class DNSSEC {
      * verification failed.
      */
     public static class SignatureVerificationException extends DNSSECException {
-        SignatureVerificationException() {
+		private static final long serialVersionUID = -3667841929088389539L;
+
+		SignatureVerificationException() {
             super("signature verification failed");
         }
     }
@@ -309,7 +319,9 @@ public class DNSSEC {
      * The key data provided is inconsistent.
      */
     public static class IncompatibleKeyException extends IllegalArgumentException {
-        IncompatibleKeyException() {
+		private static final long serialVersionUID = 7438083661136317598L;
+
+		IncompatibleKeyException() {
             super("incompatible keys");
         }
     }
@@ -439,7 +451,6 @@ public class DNSSEC {
     /** Builds a DNSKEY record from a PublicKey */
     static byte []
     fromPublicKey(PublicKey key, int alg) throws DNSSECException {
-        byte [] data = null;
 
         switch (alg) {
         case Algorithm.RSAMD5:
@@ -501,7 +512,7 @@ public class DNSSEC {
         DNSInput in = new DNSInput(dns);
         DNSOutput out = new DNSOutput();
 
-        int t = in.readU8();
+        in.readU8();
 
         byte [] r = in.readByteArray(DSA_LEN);
         int rlen = DSA_LEN;
@@ -546,7 +557,7 @@ public class DNSSEC {
         if (tmp != ASN1_SEQ) {
             throw new IOException();
         }
-        int seqlen = in.readU8();
+        in.readU8();
 
         tmp = in.readU8();
         if (tmp != ASN1_INT) {
@@ -642,7 +653,33 @@ public class DNSSEC {
                digestRRset(rrsig, rrset), rrsig.getSignature());
     }
 
-    private static byte []
+    /**
+     * Sign some data
+     * @param privkey Sign data with this key
+     * @param pubkey Sign data with this key
+     * @param alg Which signing algorithm to use
+     * @param data To be signed
+     * @return The signature
+     * @throws DNSSECException If things go poorly
+     */
+    public static byte []
+    sign(PrivateKey privkey, PublicKey pubkey, int alg, byte [] data) 
+    throws DNSSECException {
+    	return sign(privkey, pubkey, alg, data, null);
+    }
+
+                        		
+     /**
+     * Sign some data with a specified JCE provider
+     * @param privkey Sign data with this key
+     * @param pubkey Sign data with this key
+     * @param alg Which signing algorithm to use
+     * @param data To be signed
+     * @param provider JCE provider
+     * @return The signature
+     * @throws DNSSECException If things go poorly
+     */
+    public static byte []
     sign(PrivateKey privkey, PublicKey pubkey, int alg, byte [] data,
          String provider) throws DNSSECException {
         byte [] signature;

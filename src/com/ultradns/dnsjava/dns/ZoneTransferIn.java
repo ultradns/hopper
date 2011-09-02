@@ -54,7 +54,8 @@ public class ZoneTransferIn {
     private SocketAddress localAddress;
     private SocketAddress address;
     private TCPClient client;
-    private TSIG tsig;
+    
+	private TSIG tsig;
     private TSIG.StreamVerifier verifier;
     private long timeout = 900 * 1000;
 	private long connectTimeout = 120 * 1000;
@@ -286,7 +287,9 @@ public class ZoneTransferIn {
     openConnection() throws IOException {
         long endTime = System.currentTimeMillis() + timeout;
 	    long connectEndTime = System.currentTimeMillis() + connectTimeout;
-        client = new TCPClient(endTime, connectEndTime);
+	    if(client == null) {
+	        client = new TCPClientImpl(endTime, connectEndTime);
+	    }
         if (localAddress != null) {
             client.bind(localAddress);
         }
@@ -442,7 +445,10 @@ public class ZoneTransferIn {
             break;
 
         case END:
-            fail("extra data");
+        	if(!Options.check("ignoreextradata")) {
+        		// strict behavior, raise error on extra records
+        		fail("extra data");
+        	}
             break;
 
         default:
@@ -505,7 +511,10 @@ public class ZoneTransferIn {
 
                 Record question = response.getQuestion();
                 if (question != null && question.getType() != qtype) {
-                    fail("invalid question section");
+                	if(!Options.check("ignoreresponsequestiontype")) {
+                		// be strict
+                		fail("invalid question section");
+                	}
                 }
 
                 if (answers.length == 0 && qtype == Type.IXFR) {
@@ -595,4 +604,11 @@ public class ZoneTransferIn {
         return (axfr == null && ixfr == null);
     }
 
+    /**
+     * Set the TCP Client
+     * @param client Which is used for networking
+     */
+    public void setClient(TCPClient client) {
+		this.client = client;
+	}
 }
