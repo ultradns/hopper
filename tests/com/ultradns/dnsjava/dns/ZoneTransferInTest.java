@@ -17,9 +17,7 @@ import java.net.UnknownHostException;
 import junit.framework.TestCase;
 
 import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.Hex;
-import org.junit.Assert;
 
 /**
  * @author Marty Kube marty@beavercreekconsulting.com
@@ -54,11 +52,11 @@ public class ZoneTransferInTest extends TestCase {
 		long endTime, timeTakenInSecs;
 		try {
 			zoneTransferIn.run();
-			Assert.fail("Zone transfer did not throw any exception");
+			fail("Zone transfer did not throw any exception");
 		} catch (SocketTimeoutException e) {
 			endTime = System.currentTimeMillis();
 			timeTakenInSecs = (endTime - startTime) / 1000;
-			org.junit.Assert.assertTrue(timeTakenInSecs <= timeout);
+			assertTrue(timeTakenInSecs <= timeout);
 		}
 	}
 
@@ -101,8 +99,8 @@ public class ZoneTransferInTest extends TestCase {
 		Options.set("ignoreextradata");
 		newIXFR = ZoneTransferIn.newIXFR(new Name("example.biz."), 2008021850l, false, "localhost", null);
 		newIXFR.setClient(new StringTCPClient(ixfrResponseExtraDataHex));
-		Assert.assertNull(newIXFR.run());
-		Assert.assertTrue(newIXFR.isCurrent());
+		assertNull(newIXFR.run());
+		assertTrue(newIXFR.isCurrent());
 	}
 
 	/**
@@ -139,8 +137,8 @@ public class ZoneTransferInTest extends TestCase {
 		Options.set("ignoreextradata");
 		newIXFR = ZoneTransferIn.newIXFR(new Name("example.biz."), 2011071501l, false, "localhost", null);
 		newIXFR.setClient(new StringTCPClient(ixfrResponseWrongQuestionHex));
-		Assert.assertNull(newIXFR.run());
-		Assert.assertTrue(newIXFR.isCurrent());
+		assertNull(newIXFR.run());
+		assertTrue(newIXFR.isCurrent());
 	}
 
 	/**

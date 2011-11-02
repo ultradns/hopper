@@ -70,7 +70,7 @@ public class DSRecord extends Record {
     DSRecord(Name name, int dclass, long ttl, int footprint, int digestid,
              DNSKEYRecord key) {
         this(name, dclass, ttl, footprint, key.getAlgorithm(), digestid,
-             DNSSEC.generateDS(key, digestid));
+             DNSSEC.generateDSDigest(key, digestid));
     }
 
     void

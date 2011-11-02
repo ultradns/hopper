@@ -6,7 +6,7 @@
     <property name="tests.dir" value="${basedir}/tests"/>
     <property name="reports.dir" value="${basedir}/reports"/>
     
-    <property name="doc_dir" value="${basedir}/doc"/>
+    <property name="doc.dir" value="${basedir}/doc"/>
     
     <property name="version" value="3.0.0"/>
     <property name="zipname" value="dnsjava-${version}.zip"/>
@@ -93,7 +93,7 @@
     </target>
 
     <target name="docs" description="Makes Javadoc documentation">
-	<javadoc destdir="${doc_dir}"
+	<javadoc destdir="${doc.dir}"
 		 sourcepath="${src_dir}"
 		 packagenames="com.ultradns.dnsjava.dns,com.ultradns.dnsjava.dns.utils,com.ultradns.dnsjava.dns.spi"
 		 windowtitle="dnsjava documentation">
@@ -103,7 +103,7 @@
     </target>
 
     <target name="docsclean" description="Remove old documentation">
-	<delete dir="${doc_dir}"/>
+	<delete dir="${doc.dir}"/>
     </target>
 
     <target name="reportsclean" description="Remove old reports">

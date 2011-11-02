@@ -34,12 +34,23 @@
 //
 package com.ultradns.dnsjava.dns;
 
-import	java.io.IOException;
-import	java.util.Arrays;
-import	junit.framework.Test;
-import	junit.framework.TestCase;
-import	junit.framework.TestSuite;
+import java.io.IOException;
+import java.util.Arrays;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.binary.Hex;
+
+/**
+ * Test cases for DS Records
+ * 
+ * @author Brian Wellington bwelling@xbill.org
+ * @author Marty Kube marty@beavercreekconsulting.com
+ *
+ */
 public class DSRecordTest extends TestCase
 {
     public void test_ctor_0arg()
@@ -188,9 +199,6 @@ public class DSRecordTest extends TestCase
 
     public void test_rdataFromString() throws IOException
     {
-	byte[] raw = new byte[] { (byte)0xAB, (byte)0xCD, (byte)0xEF, 
-				  (byte)0x01, (byte)0x23, (byte)0x45,
-				  (byte)0x67, (byte)0x89 };
 	Tokenizer t = new Tokenizer(0xABCD + " " + 0xEF + " " + 0x01 + " 23456789AB");
 
 	DSRecord dr = new DSRecord();
@@ -229,6 +237,37 @@ public class DSRecordTest extends TestCase
 
 	assertTrue(Arrays.equals(exp, out.toByteArray()));
     }
+    
+	public void testDigest() throws TextParseException, IOException, DecoderException {
+
+		// the following expected results are from a dnssec-signzone run (Version:
+		// 9.7.1-P2)
+		String ksk = "signzone.biz. 86400 IN DNSKEY 257 3 8 AwEAAceDrbuyohhRgE//F5zcnCyQrI/zB2Ve2SG2aeenNUP3husgP31bPz8KNmfnpbBTwU08r3pUnamXjV36VltEjgPzqo3xjrDeGugT4jLuP07m/pLEzsn/vvuztTCh15p6Z4sFq+P1J/WPpR3hODAA5ywJBVNX8QOvmZpxUw8GlcXn";
+		String ds1 = "signzone.biz.           IN DS 10045 8 1 CB2623B9580376827F15ED348CFBF3DF87321855";
+		String ds2 = "signzone.biz.           IN DS 10045 8 2 C4C8E23D9DA3878EA86113A60F8A01F5A5FADDBC03DC0FD3950BDC4A D9326AFA";
+
+		// pick off the key RRData
+		String kskRRData = ksk.substring(30);
+		// pick off the digest values
+		String expectedDigestSHA1 = ds1.substring(40);
+		String expectedDigestSHA256 = ds2.substring(40).replaceAll(" ", "");
+
+		// Construct a DNSKEY
+		DNSKEYRecord kskRecord = (DNSKEYRecord) Record.fromString(new Name("signzone.biz."), Type.DNSKEY, DClass.IN,
+				86400, kskRRData, null);
+
+		// Check DS Record for SHA1 digest
+		DSRecord dsRecordSHA1 = new DSRecord(new Name("signzone.biz."), DClass.IN, 86400, kskRecord.getFootprint(),
+				DSRecord.Digest.SHA1, kskRecord);
+		byte [] actualDigestSHA1 = dsRecordSHA1.getDigest();
+		assertTrue(Arrays.equals(Hex.decodeHex(expectedDigestSHA1.toCharArray()), actualDigestSHA1));
+
+		// Check DS Record for SHA256 digest
+		DSRecord dsRecordSHA256 = new DSRecord(new Name("signzone.biz."), DClass.IN, 86400, kskRecord.getFootprint(),
+				DSRecord.Digest.SHA256, kskRecord);
+		byte [] actualDigestSHA256 = dsRecordSHA256.getDigest();
+		assertTrue(Arrays.equals(Hex.decodeHex(expectedDigestSHA256.toCharArray()), actualDigestSHA256));
+	}
 
     public static Test suite()
     {
