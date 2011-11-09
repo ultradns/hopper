@@ -257,13 +257,13 @@ public class DSRecordTest extends TestCase
 				86400, kskRRData, null);
 
 		// Check DS Record for SHA1 digest
-		DSRecord dsRecordSHA1 = new DSRecord(new Name("signzone.biz."), DClass.IN, 86400, kskRecord.getFootprint(),
+		DSRecord dsRecordSHA1 = new DSRecord(new Name("signzone.biz."), DClass.IN, 86400,
 				DSRecord.Digest.SHA1, kskRecord);
 		byte [] actualDigestSHA1 = dsRecordSHA1.getDigest();
 		assertTrue(Arrays.equals(Hex.decodeHex(expectedDigestSHA1.toCharArray()), actualDigestSHA1));
 
 		// Check DS Record for SHA256 digest
-		DSRecord dsRecordSHA256 = new DSRecord(new Name("signzone.biz."), DClass.IN, 86400, kskRecord.getFootprint(),
+		DSRecord dsRecordSHA256 = new DSRecord(new Name("signzone.biz."), DClass.IN, 86400,
 				DSRecord.Digest.SHA256, kskRecord);
 		byte [] actualDigestSHA256 = dsRecordSHA256.getDigest();
 		assertTrue(Arrays.equals(Hex.decodeHex(expectedDigestSHA256.toCharArray()), actualDigestSHA256));
