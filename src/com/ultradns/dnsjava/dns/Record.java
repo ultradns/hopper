@@ -28,8 +28,7 @@ public abstract class Record implements Cloneable, Comparable, Serializable {
         byteFormat.setMinimumIntegerDigits(3);
     }
 
-    protected
-    Record() {}
+    protected Record() {}
 
     Record(Name name, int type, int dclass, long ttl) {
         if (!name.isAbsolute()) {
@@ -47,8 +46,7 @@ public abstract class Record implements Cloneable, Comparable, Serializable {
     /**
      * Creates an empty record of the correct type; must be overriden
      */
-    abstract Record
-    getObject();
+    abstract Record getObject();
 
     private static final Record
     getEmptyRecord(Name name, int type, int dclass, long ttl, boolean hasData) {
@@ -74,8 +72,7 @@ public abstract class Record implements Cloneable, Comparable, Serializable {
     /**
      * Converts the type-specific RR to wire format - must be overriden
      */
-    abstract void
-    rrFromWire(DNSInput in) throws IOException;
+    abstract void rrFromWire(DNSInput in) throws IOException;
 
     private static Record
     newRecord(Name name, int type, int dclass, long ttl, int length, DNSInput in)

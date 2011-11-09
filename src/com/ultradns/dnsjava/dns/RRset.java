@@ -27,23 +27,21 @@ public class RRset implements Serializable {
     private short position;
 
     /** Creates an empty RRset */
-    public
-    RRset() {
+    public RRset() {
         rrs = new ArrayList(1);
         nsigs = 0;
         position = 0;
     }
 
     /** Creates an RRset and sets its contents to the specified record */
-    public
-    RRset(Record record) {
+    public RRset(Record record) {
         this();
         safeAddRR(record);
     }
 
     /** Creates an RRset with the contents of an existing RRset */
-    public
-    RRset(RRset rrset) {
+    public RRset(RRset rrset) {
+    	// whoa... yuck - TODO: fix this..
         synchronized (rrset) {
             rrs = (List) ((ArrayList)rrset.rrs).clone();
             nsigs = rrset.nsigs;
@@ -197,8 +195,7 @@ public class RRset implements Serializable {
      * Returns the type of the records
      * @see Type
      */
-    public int
-    getType() {
+    public int getType() {
         return first().getRRsetType();
     }
 
@@ -206,14 +203,12 @@ public class RRset implements Serializable {
      * Returns the class of the records
      * @see DClass
      */
-    public int
-    getDClass() {
+    public int getDClass() {
         return first().getDClass();
     }
 
     /** Returns the ttl of the records */
-    public synchronized long
-    getTTL() {
+    public synchronized long getTTL() {
         return first().getTTL();
     }
 
@@ -245,8 +240,7 @@ public class RRset implements Serializable {
     }
 
     /** Converts the RRset to a String */
-    public String
-    toString() {
+    public String toString() {
         if (rrs == null) {
             return ("{empty}");
         }

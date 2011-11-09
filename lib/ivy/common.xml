@@ -56,7 +56,18 @@
 
       <exec executable="git" outputproperty="revision">
             <arg line="rev-parse --short HEAD"/>
-        </exec>
+      </exec>
+
+      <script language="javascript"> <![CDATA[
+        importClass(java.lang.Integer);
+        rev = project.getProperty("revision");
+        revInt = Integer.valueOf(rev, 16);
+        echo = project.createTask("echo");
+        echo.setMessage("git revision: " + rev + " => " + revInt);
+        echo.perform();
+        project.setProperty("revision", revInt);
+       ]]> </script>
+
        <echo>Revision found: ${revision}</echo>
        <property name="full.version" value="${major.version}.${revision}"/>
        <echo>Version is: ${full.version}</echo>

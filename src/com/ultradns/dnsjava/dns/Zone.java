@@ -55,13 +55,11 @@ public class Zone implements Serializable {
             }
         }
 
-        public boolean
-        hasNext() {
+        public boolean hasNext() {
             return (current != null || wantLastSOA);
         }
 
-        public Object
-        next() {
+        public Object next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
@@ -89,14 +87,12 @@ public class Zone implements Serializable {
             return set;
         }
 
-        public void
-        remove() {
+        public void remove() {
             throw new UnsupportedOperationException();
         }
     }
 
-    private void
-    validate() throws IOException {
+    private void validate() throws IOException {
         originNode = exactName(origin);
         if (originNode == null) {
             throw new IOException(origin + ": no data specified");
@@ -115,8 +111,7 @@ public class Zone implements Serializable {
         }
     }
 
-    private final void
-    maybeAddRecord(Record record) throws IOException {
+    private final void maybeAddRecord(Record record) throws IOException {
         int rtype = record.getType();
         Name name = record.getName();
 
@@ -136,8 +131,7 @@ public class Zone implements Serializable {
      * @param file The master file to read from.
      * @see Master
      */
-    public
-    Zone(Name zone, String file) throws IOException {
+    public Zone(Name zone, String file) throws IOException {
         data = new TreeMap();
 
         if (zone == null) {
@@ -159,8 +153,7 @@ public class Zone implements Serializable {
      * @param records The records to add to the zone.
      * @see Master
      */
-    public
-    Zone(Name zone, Record [] records) throws IOException {
+    public Zone(Name zone, Record [] records) throws IOException {
         data = new TreeMap();
 
         if (zone == null) {
@@ -173,8 +166,8 @@ public class Zone implements Serializable {
         validate();
     }
 
-    private void
-    fromXFR(ZoneTransferIn xfrin) throws IOException, ZoneTransferException {
+    private void fromXFR(ZoneTransferIn xfrin) 
+    		throws IOException, ZoneTransferException {
         data = new TreeMap();
 
         origin = xfrin.getName();
@@ -194,8 +187,8 @@ public class Zone implements Serializable {
      * @param xfrin The incoming zone transfer to execute.
      * @see ZoneTransferIn
      */
-    public
-    Zone(ZoneTransferIn xfrin) throws IOException, ZoneTransferException {
+    public Zone(ZoneTransferIn xfrin) 
+    		throws IOException, ZoneTransferException {
         fromXFR(xfrin);
     }
 
@@ -203,45 +196,38 @@ public class Zone implements Serializable {
      * Creates a Zone by performing a zone transfer to the specified host.
      * @see ZoneTransferIn
      */
-    public
-    Zone(Name zone, int dclass, String remote)
-    throws IOException, ZoneTransferException {
+    public Zone(Name zone, int dclass, String remote) 
+    		throws IOException, ZoneTransferException {
         ZoneTransferIn xfrin = ZoneTransferIn.newAXFR(zone, remote, null);
         xfrin.setDClass(dclass);
         fromXFR(xfrin);
     }
 
     /** Returns the Zone's origin */
-    public Name
-    getOrigin() {
+    public Name getOrigin() {
         return origin;
     }
 
     /** Returns the Zone origin's NS records */
-    public RRset
-    getNS() {
+    public RRset getNS() {
         return NS;
     }
 
     /** Returns the Zone's SOA record */
-    public SOARecord
-    getSOA() {
+    public SOARecord getSOA() {
         return SOA;
     }
 
     /** Returns the Zone's class */
-    public int
-    getDClass() {
+    public int getDClass() {
         return dclass;
     }
 
-    private synchronized Object
-    exactName(Name name) {
+    private synchronized Object exactName(Name name) {
         return data.get(name);
     }
 
-    private synchronized RRset []
-    allRRsets(Object types) {
+    private synchronized RRset[] allRRsets(Object types) {
         if (types instanceof List) {
             List typelist = (List) types;
             return (RRset []) typelist.toArray(new RRset[typelist.size()]);
@@ -251,8 +237,7 @@ public class Zone implements Serializable {
         }
     }
 
-    private synchronized RRset
-    oneRRset(Object types, int type) {
+    private synchronized RRset oneRRset(Object types, int type) {
         if (type == Type.ANY) {
             throw new IllegalArgumentException("oneRRset(ANY)");
         }
@@ -528,8 +513,7 @@ public class Zone implements Serializable {
     /**
      * Returns an Iterator over the RRsets in the zone.
      */
-    public Iterator
-    iterator() {
+    public Iterator iterator() {
         return new ZoneIterator(false);
     }
 
@@ -538,13 +522,11 @@ public class Zone implements Serializable {
      * construct an AXFR response.  This is identical to {@link #iterator} except
      * that the SOA is returned at the end as well as the beginning.
      */
-    public Iterator
-    AXFR() {
+    public Iterator AXFR() {
         return new ZoneIterator(true);
     }
 
-    private void
-    nodeToString(StringBuffer sb, Object node) {
+    private void nodeToString(StringBuffer sb, Object node) {
         RRset [] sets = allRRsets(node);
         for (int i = 0; i < sets.length; i++) {
             RRset rrset = sets[i];
