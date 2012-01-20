@@ -387,7 +387,7 @@ public class DNSSEC {
     }
 
     /** Converts a KEY/DNSKEY record into a PublicKey */
-    static PublicKey
+    static public PublicKey
     toPublicKey(KEYBase r) throws DNSSECException {
         int alg = r.getAlgorithm();
         try {
