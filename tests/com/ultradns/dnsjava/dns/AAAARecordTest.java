@@ -34,11 +34,14 @@
 //
 package	com.ultradns.dnsjava.dns;
 
-import	java.io.IOException;
-import	java.net.InetAddress;
-import	java.net.UnknownHostException;
-import	java.util.Arrays;
-import	junit.framework.TestCase;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.Arrays;
+
+import junit.framework.TestCase;
+
+import org.junit.Assert;
 
 public class AAAARecordTest extends TestCase
 {
@@ -110,6 +113,17 @@ public class AAAARecordTest extends TestCase
 	ar.rrFromWire(di);
 	
 	assertEquals(m_addr, ar.getAddress());
+    }
+
+    public void test_rrFromWire_IPV4_MappedAddress() throws IOException
+    {
+    	// Make sure we have an IPV6 address even when passed an address that has an IPV4 representation
+    	String ipv4MappedStr = "::FFFF:12.23.4.5";
+    	byte[] wireFormat = Address.toByteArray(ipv4MappedStr, Address.IPv6);
+    	DNSInput di = new DNSInput(wireFormat);
+    	AAAARecord ar = new AAAARecord();
+    	ar.rrFromWire(di);
+    	Assert.assertArrayEquals(wireFormat, ar.getAddress().getAddress());
     }
 
     public void test_rdataFromString() throws IOException

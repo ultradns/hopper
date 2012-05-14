@@ -9,7 +9,7 @@
     
     <dependencies defaultconf="default">
         <!-- testing, you need these, really -->
-        <dependency org="junit" force="true" name="junit" rev="3.8.2" conf="test->default"/>
+        <dependency org="junit" force="true" name="junit" rev="4.3" conf="test->default"/>
         <dependency org="org.mockito" name="mockito-all" rev="1.8.5" conf="test->default"/>
         <dependency org="emma" force="true" name="emma" rev="2.0.5312" conf="test->default"/>
         <dependency org="emma" force="true" name="emma_ant" rev="2.0.5312" conf="test->default"/>

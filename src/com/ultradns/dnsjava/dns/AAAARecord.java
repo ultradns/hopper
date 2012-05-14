@@ -13,9 +13,12 @@ import java.net.*;
 
 public class AAAARecord extends Record {
 
-    private static final long serialVersionUID = -4588601512069748050L;
+	private static final long serialVersionUID = -7749806497566704077L;
 
-    private InetAddress address;
+	/**
+     * Has to be an IPV6 Address, see http://www.ietf.org/rfc/rfc3596.txt
+     */
+    private Inet6Address address;
 
     AAAARecord() {}
 
@@ -32,15 +35,22 @@ public class AAAARecord extends Record {
         if (Address.familyOf(address) != Address.IPv6) {
             throw new IllegalArgumentException("invalid IPv6 address");
         }
-        this.address = address;
+        if(!(address instanceof Inet6Address)) {
+            throw new IllegalArgumentException("invalid IPv6 address");
+        }
+        this.address = (Inet6Address) address;
     }
 
     void rrFromWire(DNSInput in) throws IOException {
-        address = InetAddress.getByAddress(in.readByteArray(16));
-    }
+        address = Inet6Address.getByAddress(null, in.readByteArray(16), null);
+	}
 
     void rdataFromString(Tokenizer st, Name origin) throws IOException {
-        address = st.getAddress(Address.IPv6);
+    	InetAddress shouldBeIPV6 = st.getAddress(Address.IPv6);
+        if(!(shouldBeIPV6 instanceof Inet6Address)) {
+            throw new IllegalArgumentException("invalid IPv6 address");
+        }
+        address = (Inet6Address) shouldBeIPV6;
     }
 
     /** Converts rdata to a String */
