@@ -16,7 +16,7 @@ import java.net.SocketAddress;
  * Interface for TCP client
  * @author Marty Kube marty@beavercreekconsulting.com
  */
-interface TCPClient {
+public interface TCPClient {
 
 	void bind(SocketAddress addr) throws IOException;
 
