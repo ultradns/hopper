@@ -114,9 +114,9 @@ public class SetResponse {
     // mutator making this not thread-safe
     public void addRRset(RRset rrset) {
         if (data == null) {
-            data = new ArrayList();
+            data = new ArrayList<RRset>();
         }
-        List l = (List) data;
+        List<RRset> l = (List<RRset>) data;
         l.add(rrset);
     }
 
@@ -160,8 +160,8 @@ public class SetResponse {
         if (type != SUCCESSFUL) {
             return null;
         }
-        List l = (List) data;
-        return (RRset[]) l.toArray(new RRset[l.size()]);
+        List<RRset> l = (List<RRset>) data;
+        return l.toArray(new RRset[0]);
     }
 
     /**

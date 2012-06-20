@@ -86,7 +86,7 @@ public class ResolverConfig {
         }
     }
 
-    private void addServer(String server, List list) {
+    private void addServer(String server, List<String> list) {
         if (list.contains(server)) {
             return;
         }
@@ -96,7 +96,7 @@ public class ResolverConfig {
         list.add(server);
     }
 
-    private void addSearch(String search, List list) {
+    private void addSearch(String search, List<Name> list) {
         Name name;
         if (Options.check("verbose")) {
             System.out.println("adding search " + search);
@@ -127,12 +127,12 @@ public class ResolverConfig {
         return -1;
     }
 
-    private void configureFromLists(List lserver, List lsearch) {
+    private void configureFromLists(List<String> lserver, List<Name> lsearch) {
         if (servers == null && lserver.size() > 0) {
-            servers = (String[]) lserver.toArray(new String[0]);
+            servers = lserver.toArray(new String[0]);
         }
         if (searchlist == null && lsearch.size() > 0) {
-            searchlist = (Name[]) lsearch.toArray(new Name[0]);
+            searchlist = lsearch.toArray(new Name[0]);
         }
     }
 
@@ -149,8 +149,8 @@ public class ResolverConfig {
      */
     private boolean findProperty() {
         String prop;
-        List lserver = new ArrayList(0);
-        List lsearch = new ArrayList(0);
+        List<String> lserver = new ArrayList<String>(0);
+        List<Name> lsearch = new ArrayList<Name>(0);
         StringTokenizer st;
 
         prop = System.getProperty("dns.server");
@@ -178,9 +178,9 @@ public class ResolverConfig {
      * example).
      */
     private boolean findSunJVM() {
-        List lserver = new ArrayList(0);
+        List<String> lserver = new ArrayList<String>(0);
         List lserver_tmp;
-        List lsearch = new ArrayList(0);
+        List<Name> lsearch = new ArrayList<Name>(0);
         List lsearch_tmp;
 
         try {
@@ -241,8 +241,8 @@ public class ResolverConfig {
         }
         InputStreamReader isr = new InputStreamReader(in);
         BufferedReader br = new BufferedReader(isr);
-        List lserver = new ArrayList(0);
-        List lsearch = new ArrayList(0);
+        List<String> lserver = new ArrayList<String>(0);
+        List<Name> lsearch = new ArrayList<Name>(0);
         int lndots = -1;
         try {
             String line;
@@ -316,8 +316,8 @@ public class ResolverConfig {
 
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
         try {
-            List lserver = new ArrayList();
-            List lsearch = new ArrayList();
+            List<String> lserver = new ArrayList<String>();
+            List<Name> lsearch = new ArrayList<Name>();
             String line = null;
             boolean readingServers = false;
             boolean readingSearches = false;
@@ -445,8 +445,8 @@ public class ResolverConfig {
         String re1 = "^\\d+(\\.\\d+){3}$";
         String re2 = "^[0-9a-f]+(:[0-9a-f]*)+:[0-9a-f]+$";
         try {
-            ArrayList lserver = new ArrayList();
-            ArrayList lsearch = new ArrayList();
+            ArrayList<String> lserver = new ArrayList<String>();
+            ArrayList<Name> lsearch = new ArrayList<Name>();
             String line;
             Process p = Runtime.getRuntime().exec("getprop");
             InputStream in = p.getInputStream();

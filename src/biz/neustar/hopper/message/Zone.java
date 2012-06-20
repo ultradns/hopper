@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
 import java.util.TreeMap;
 
@@ -35,7 +36,7 @@ public class Zone implements Serializable {
     /** A secondary zone */
     public static final int SECONDARY = 2;
 
-    private Map data;
+    private Map<Name, Object> data;
     private Name origin;
     private Object originNode;
     private int dclass = DClass.IN;
@@ -43,8 +44,8 @@ public class Zone implements Serializable {
     private SOARecord SOA;
     private boolean hasWild;
 
-    class ZoneIterator implements Iterator {
-        private Iterator zentries;
+    class ZoneIterator implements Iterator<RRset> {
+        private Iterator<Map.Entry<Name, Object>> zentries;
         private RRset[] current;
         private int count;
         private boolean wantLastSOA;
@@ -72,7 +73,7 @@ public class Zone implements Serializable {
             return (current != null || wantLastSOA);
         }
 
-        public Object next() {
+        public RRset next() {
             if (!hasNext()) {
                 throw new NoSuchElementException();
             }
@@ -80,11 +81,11 @@ public class Zone implements Serializable {
                 wantLastSOA = false;
                 return oneRRset(originNode, Type.SOA);
             }
-            Object set = current[count++];
+            RRset set = current[count++];
             if (count == current.length) {
                 current = null;
                 while (zentries.hasNext()) {
-                    Map.Entry entry = (Map.Entry) zentries.next();
+                	Map.Entry<Name, Object> entry = zentries.next();
                     if (entry.getKey().equals(origin)) {
                         continue;
                     }
@@ -114,7 +115,7 @@ public class Zone implements Serializable {
         RRset rrset = oneRRset(originNode, Type.SOA);
         if (rrset == null || rrset.size() != 1)
             throw new IOException(origin + ": exactly 1 SOA must be specified");
-        Iterator it = rrset.rrs();
+        Iterator<Record> it = rrset.rrs();
         SOA = (SOARecord) it.next();
 
         NS = oneRRset(originNode, Type.NS);
@@ -146,7 +147,7 @@ public class Zone implements Serializable {
      * @see Master
      */
     public Zone(Name zone, String file) throws IOException {
-        data = new TreeMap();
+        data = new TreeMap<Name, Object>();
 
         if (zone == null) {
             throw new IllegalArgumentException("no zone name specified");
@@ -171,7 +172,7 @@ public class Zone implements Serializable {
      * @see Master
      */
     public Zone(Name zone, Record[] records) throws IOException {
-        data = new TreeMap();
+        data = new TreeMap<Name, Object>();
 
         if (zone == null) {
             throw new IllegalArgumentException("no zone name specified");
@@ -185,12 +186,12 @@ public class Zone implements Serializable {
 
     private void fromXFR(ZoneTransferIn xfrin) throws IOException,
             ZoneTransferException {
-        data = new TreeMap();
+        data = new TreeMap<Name, Object>();
 
         origin = xfrin.getName();
-        List records = xfrin.run();
-        for (Iterator it = records.iterator(); it.hasNext();) {
-            Record record = (Record) it.next();
+        List<Record> records = xfrin.run();
+        for (Iterator<Record> it = records.iterator(); it.hasNext();) {
+            Record record = it.next();
             maybeAddRecord(record);
         }
         if (!xfrin.isAXFR())
@@ -248,8 +249,8 @@ public class Zone implements Serializable {
 
     private synchronized RRset[] allRRsets(Object types) {
         if (types instanceof List) {
-            List typelist = (List) types;
-            return (RRset[]) typelist.toArray(new RRset[typelist.size()]);
+            List<RRset> typelist = (List<RRset>) types;
+            return typelist.toArray(new RRset[typelist.size()]);
         } else {
             RRset set = (RRset) types;
             return new RRset[] { set };
@@ -261,9 +262,9 @@ public class Zone implements Serializable {
             throw new IllegalArgumentException("oneRRset(ANY)");
         }
         if (types instanceof List) {
-            List list = (List) types;
+        	List<RRset> list = (List<RRset>) types;
             for (int i = 0; i < list.size(); i++) {
-                RRset set = (RRset) list.get(i);
+                RRset set = list.get(i);
                 if (set.getType() == type) {
                     return set;
                 }
@@ -296,9 +297,9 @@ public class Zone implements Serializable {
         }
         int rtype = rrset.getType();
         if (types instanceof List) {
-            List list = (List) types;
+        	List<RRset> list = (List<RRset>) types;
             for (int i = 0; i < list.size(); i++) {
-                RRset set = (RRset) list.get(i);
+                RRset set = list.get(i);
                 if (set.getType() == rtype) {
                     list.set(i, rrset);
                     return;
@@ -310,7 +311,7 @@ public class Zone implements Serializable {
             if (set.getType() == rtype) {
                 data.put(name, rrset);
             } else {
-                LinkedList list = new LinkedList();
+                LinkedList<RRset> list = new LinkedList<RRset>();
                 list.add(set);
                 list.add(rrset);
                 data.put(name, list);
@@ -324,9 +325,9 @@ public class Zone implements Serializable {
             return;
         }
         if (types instanceof List) {
-            List list = (List) types;
+        	List<RRset> list = (List<RRset>) types;
             for (int i = 0; i < list.size(); i++) {
-                RRset set = (RRset) list.get(i);
+                RRset set = list.get(i);
                 if (set.getType() == type) {
                     list.remove(i);
                     if (list.size() == 0) {
@@ -532,7 +533,7 @@ public class Zone implements Serializable {
     /**
      * Returns an Iterator over the RRsets in the zone.
      */
-    public Iterator iterator() {
+    public Iterator<RRset> iterator() {
         return new ZoneIterator(false);
     }
 
@@ -541,7 +542,7 @@ public class Zone implements Serializable {
      * construct an AXFR response. This is identical to {@link #iterator} except
      * that the SOA is returned at the end as well as the beginning.
      */
-    public Iterator AXFR() {
+    public Iterator<RRset> AXFR() {
         return new ZoneIterator(true);
     }
 
@@ -549,7 +550,7 @@ public class Zone implements Serializable {
         RRset[] sets = allRRsets(node);
         for (int i = 0; i < sets.length; i++) {
             RRset rrset = sets[i];
-            Iterator it = rrset.rrs();
+            Iterator<Record> it = rrset.rrs();
             while (it.hasNext()) {
                 sb.append(it.next() + "\n");
             }
@@ -564,11 +565,11 @@ public class Zone implements Serializable {
      * Returns the contents of the Zone in master file format.
      */
     public synchronized String toMasterFile() {
-        Iterator zentries = data.entrySet().iterator();
+        Iterator<Entry<Name, Object>> zentries = data.entrySet().iterator();
         StringBuffer sb = new StringBuffer();
         nodeToString(sb, originNode);
         while (zentries.hasNext()) {
-            Map.Entry entry = (Map.Entry) zentries.next();
+            Entry<Name, Object> entry = zentries.next();
             if (!origin.equals(entry.getKey())) {
                 nodeToString(sb, entry.getValue());
             }

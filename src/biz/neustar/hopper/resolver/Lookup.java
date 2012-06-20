@@ -47,7 +47,7 @@ public final class Lookup {
 
     private static Resolver defaultResolver;
     private static Name[] defaultSearchPath;
-    private static Map defaultCaches;
+    private static Map<Integer, Cache> defaultCaches;
     private static int defaultNdots;
 
     private Resolver resolver;
@@ -63,7 +63,7 @@ public final class Lookup {
     private boolean foundAlias;
     private boolean done;
     private boolean doneCurrent;
-    private List aliases;
+    private List<Name> aliases;
     private Record[] answers;
     private int result;
     private String error;
@@ -106,7 +106,7 @@ public final class Lookup {
             throw new RuntimeException("Failed to initialize resolver");
         }
         defaultSearchPath = ResolverConfig.getCurrentConfig().searchPath();
-        defaultCaches = new HashMap();
+        defaultCaches = new HashMap<Integer, Cache>();
         defaultNdots = ResolverConfig.getCurrentConfig().ndots();
     }
 
@@ -143,7 +143,7 @@ public final class Lookup {
      */
     public static synchronized Cache getDefaultCache(int dclass) {
         DClass.check(dclass);
-        Cache c = (Cache) defaultCaches.get(Mnemonic.toInteger(dclass));
+        Cache c = defaultCaches.get(Mnemonic.toInteger(dclass));
         if (c == null) {
             c = new Cache(dclass);
             defaultCaches.put(Mnemonic.toInteger(dclass), c);
@@ -448,7 +448,7 @@ public final class Lookup {
             return;
         }
         if (aliases == null) {
-            aliases = new ArrayList();
+            aliases = new ArrayList<Name>();
         }
         aliases.add(oldname);
         lookup(name);
@@ -457,12 +457,11 @@ public final class Lookup {
     private void processResponse(Name name, SetResponse response) {
         if (response.isSuccessful()) {
             RRset[] rrsets = response.answers();
-            List l = new ArrayList();
-            Iterator it;
+            List<Record> l = new ArrayList<Record>();
             int i;
 
             for (i = 0; i < rrsets.length; i++) {
-                it = rrsets[i].rrs();
+            	Iterator<Record> it = rrsets[i].rrs();
                 while (it.hasNext()) {
                     l.add(it.next());
                 }
@@ -666,7 +665,7 @@ public final class Lookup {
         if (aliases == null) {
             return noAliases;
         }
-        return (Name[]) aliases.toArray(new Name[aliases.size()]);
+        return aliases.toArray(new Name[aliases.size()]);
     }
 
     /**

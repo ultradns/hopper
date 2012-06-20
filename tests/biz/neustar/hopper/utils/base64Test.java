@@ -187,7 +187,6 @@ public class base64Test extends TestCase {
     }
 
     public void test_fromString_empty1() {
-        byte[] data = new byte[0];
         byte[] out = base64.fromString("");
         assertEquals(new byte[0], out);
     }

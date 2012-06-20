@@ -295,7 +295,7 @@ public class TokenizerTest extends TestCase {
 
     public void test_multiple_ungets() throws IOException {
         m_t = new Tokenizer("a simple one");
-        Tokenizer.Token tt = m_t.get();
+        m_t.get();
 
         m_t.unget();
         try {

@@ -5,6 +5,7 @@ package biz.neustar.hopper.resolver;
 import java.io.IOException;
 import java.util.List;
 
+import biz.neustar.hopper.message.EDNSOption;
 import biz.neustar.hopper.message.Message;
 import biz.neustar.hopper.message.TSIG;
 import biz.neustar.hopper.record.OPTRecord;
@@ -72,7 +73,7 @@ public interface Resolver {
      *             An invalid field was specified.
      * @see OPTRecord
      */
-    void setEDNS(int level, int payloadSize, int flags, List options);
+    void setEDNS(int level, int payloadSize, int flags, List<EDNSOption> options);
 
     /**
      * Specifies the TSIG key that messages will be signed with

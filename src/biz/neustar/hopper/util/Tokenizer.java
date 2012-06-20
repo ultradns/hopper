@@ -132,7 +132,8 @@ public class Tokenizer {
     }
 
     static class TokenizerException extends TextParseException {
-        String message;
+		private static final long serialVersionUID = 5863956631701750243L;
+		String message;
 
         public TokenizerException(String filename, int line, String message) {
             super(filename + ":" + line + ": " + message);

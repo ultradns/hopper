@@ -142,8 +142,9 @@ public class Cache {
         }
     }
 
-    private static class CacheMap extends LinkedHashMap {
-        private int maxsize = -1;
+    private static class CacheMap extends LinkedHashMap<Name, Object> {
+		private static final long serialVersionUID = 7432563408722065412L;
+		private int maxsize = -1;
 
         CacheMap(int maxsize) {
             super(16, (float) 0.75, true);
@@ -162,7 +163,7 @@ public class Cache {
             this.maxsize = maxsize;
         }
 
-        protected boolean removeEldestEntry(Map.Entry eldest) {
+        protected boolean removeEldestEntry(Map.Entry<Name, Object> eldest) {
             return maxsize >= 0 && size() > maxsize;
         }
     }
@@ -218,9 +219,8 @@ public class Cache {
 
     private synchronized Element[] allElements(Object types) {
         if (types instanceof List) {
-            List typelist = (List) types;
-            int size = typelist.size();
-            return (Element[]) typelist.toArray(new Element[size]);
+            List<Element> typelist = (List<Element>) types;
+            return typelist.toArray(new Element[0]);
         } else {
             Element set = (Element) types;
             return new Element[] { set };
@@ -235,9 +235,9 @@ public class Cache {
             throw new IllegalArgumentException("oneElement(ANY)");
         }
         if (types instanceof List) {
-            List list = (List) types;
+            List<Element> list = (List<Element>) types;
             for (int i = 0; i < list.size(); i++) {
-                Element set = (Element) list.get(i);
+                Element set = list.get(i);
                 if (set.getType() == type) {
                     found = set;
                     break;
@@ -278,9 +278,9 @@ public class Cache {
         }
         int type = element.getType();
         if (types instanceof List) {
-            List list = (List) types;
+            List<Element> list = (List<Element>) types;
             for (int i = 0; i < list.size(); i++) {
-                Element elt = (Element) list.get(i);
+                Element elt = list.get(i);
                 if (elt.getType() == type) {
                     list.set(i, element);
                     return;
@@ -292,7 +292,7 @@ public class Cache {
             if (elt.getType() == type) {
                 data.put(name, element);
             } else {
-                LinkedList list = new LinkedList();
+                LinkedList<Element> list = new LinkedList<Element>();
                 list.add(elt);
                 list.add(element);
                 data.put(name, list);
@@ -306,9 +306,9 @@ public class Cache {
             return;
         }
         if (types instanceof List) {
-            List list = (List) types;
+            List<Element> list = (List<Element>) types;
             for (int i = 0; i < list.size(); i++) {
-                Element elt = (Element) list.get(i);
+                Element elt = list.get(i);
                 if (elt.getType() == type) {
                     list.remove(i);
                     if (list.size() == 0) {
@@ -608,13 +608,13 @@ public class Cache {
         }
     }
 
-    private static void markAdditional(RRset rrset, Set names) {
+    private static void markAdditional(RRset rrset, Set<Name> names) {
         Record first = rrset.first();
         if (first.getAdditionalName() == null) {
             return;
         }
 
-        Iterator it = rrset.rrs();
+        Iterator<Record> it = rrset.rrs();
         while (it.hasNext()) {
             Record r = (Record) it.next();
             Name name = r.getAdditionalName();
@@ -648,7 +648,7 @@ public class Cache {
         RRset[] answers, auth, addl;
         SetResponse response = null;
         boolean verbose = Options.check("verbosecache");
-        HashSet additionalNames;
+        Set<Name> additionalNames;
 
         if ((rcode != Rcode.NOERROR && rcode != Rcode.NXDOMAIN)
                 || question == null) {
@@ -661,7 +661,7 @@ public class Cache {
 
         curname = qname;
 
-        additionalNames = new HashSet();
+        additionalNames = new HashSet<Name>();
 
         answers = in.getSectionRRsets(Section.ANSWER);
         for (int i = 0; i < answers.length; i++) {
@@ -871,7 +871,7 @@ public class Cache {
     public String toString() {
         StringBuffer sb = new StringBuffer();
         synchronized (this) {
-            Iterator it = data.values().iterator();
+            Iterator<Object> it = data.values().iterator();
             while (it.hasNext()) {
                 Element[] elements = allElements(it.next());
                 for (int i = 0; i < elements.length; i++) {

@@ -2,8 +2,6 @@
 
 package biz.neustar.hopper.record.impl;
 
-import static biz.neustar.hopper.record.Record.checkName;
-
 import java.io.IOException;
 
 import biz.neustar.hopper.message.Compression;

@@ -38,8 +38,6 @@ import biz.neustar.hopper.record.impl.Address;
  */
 public class ClientSubnetOption extends EDNSOption {
 
-    private static final long serialVersionUID = -3868158449890266347L;
-
     private int family;
     private int sourceNetmask;
     private int scopeNetmask;

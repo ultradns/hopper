@@ -54,7 +54,9 @@ public class SingleNameBaseTest extends TestCase {
     }
 
     private static class TestClass extends SingleNameBase {
-        public TestClass() {
+		private static final long serialVersionUID = 1L;
+
+		public TestClass() {
         }
 
         public TestClass(Name name, int type, int dclass, long ttl) {

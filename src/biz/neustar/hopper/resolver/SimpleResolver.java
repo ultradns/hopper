@@ -12,6 +12,7 @@ import java.util.List;
 import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.exception.WireParseException;
 import biz.neustar.hopper.exception.ZoneTransferException;
+import biz.neustar.hopper.message.EDNSOption;
 import biz.neustar.hopper.message.Flags;
 import biz.neustar.hopper.message.Header;
 import biz.neustar.hopper.message.Message;
@@ -160,7 +161,8 @@ public class SimpleResolver implements Resolver {
         this.ignoreTruncation = flag;
     }
 
-    public void setEDNS(int level, int payloadSize, int flags, List options) {
+    @Override
+    public void setEDNS(int level, int payloadSize, int flags, List<EDNSOption> options) {
         if (level != 0 && level != -1)
             throw new IllegalArgumentException("invalid EDNS level - "
                     + "must be 0 or -1");
@@ -373,14 +375,14 @@ public class SimpleResolver implements Resolver {
         } catch (ZoneTransferException e) {
             throw new WireParseException(e.getMessage());
         }
-        List records = xfrin.getAXFR();
+        List<Record> records = xfrin.getAXFR();
         Message response = new Message(query.getHeader().getID());
         response.getHeader().setFlag(Flags.AA);
         response.getHeader().setFlag(Flags.QR);
         response.addRecord(query.getQuestion(), Section.QUESTION);
-        Iterator it = records.iterator();
+        Iterator<Record> it = records.iterator();
         while (it.hasNext()) {
-            response.addRecord((Record) it.next(), Section.ANSWER);
+            response.addRecord(it.next(), Section.ANSWER);
         }
         return response;
     }

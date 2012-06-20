@@ -34,7 +34,7 @@ public class Message implements Cloneable {
     public static final int MAXLENGTH = 65535;
 
     private Header header;
-    private List[] sections;
+    private List<Record>[] sections;
     private int size;
     private TSIG tsigkey;
     private TSIGRecord querytsig;
@@ -114,7 +114,7 @@ public class Message implements Cloneable {
             for (int i = 0; i < 4; i++) {
                 int count = header.getCount(i);
                 if (count > 0) {
-                    sections[i] = new ArrayList(count);
+                    sections[i] = new ArrayList<Record>(count);
                 }
                 for (int j = 0; j < count; j++) {
                     int pos = in.current();
@@ -173,7 +173,7 @@ public class Message implements Cloneable {
      */
     public void addRecord(Record r, int section) {
         if (sections[section] == null) {
-            sections[section] = new LinkedList();
+            sections[section] = new LinkedList<Record>();
         }
         header.incCount(section);
         sections[section].add(r);
@@ -270,11 +270,11 @@ public class Message implements Cloneable {
      * @see Section
      */
     public Record getQuestion() {
-        List l = sections[Section.QUESTION];
+        List<Record> l = sections[Section.QUESTION];
         if (l == null || l.size() == 0) {
             return null;
         }
-        return (Record) l.get(0);
+        return l.get(0);
     }
 
     /**
@@ -289,8 +289,8 @@ public class Message implements Cloneable {
         if (count == 0) {
             return null;
         }
-        List l = sections[Section.ADDITIONAL];
-        Record rec = (Record) l.get(count - 1);
+        List<Record> l = sections[Section.ADDITIONAL];
+        Record rec = l.get(count - 1);
         if (rec.getType() != Type.TSIG) {
             return null;
         }
@@ -354,8 +354,8 @@ public class Message implements Cloneable {
         if (sections[section] == null) {
             return emptyRecordArray;
         }
-        List l = sections[section];
-        return (Record[]) l.toArray(new Record[l.size()]);
+        List<Record> l = sections[section];
+        return l.toArray(new Record[l.size()]);
     }
 
     private static boolean sameSet(Record r1, Record r2) {
@@ -375,15 +375,15 @@ public class Message implements Cloneable {
         if (sections[section] == null) {
             return emptyRRsetArray;
         }
-        List sets = new LinkedList();
+        List<RRset> sets = new LinkedList<RRset>();
         Record[] recs = getSectionArray(section);
-        Set hash = new HashSet();
+        Set<Name> hash = new HashSet<Name>();
         for (int i = 0; i < recs.length; i++) {
             Name name = recs[i].getName();
             boolean newset = true;
             if (hash.contains(name)) {
                 for (int j = sets.size() - 1; j >= 0; j--) {
-                    RRset set = (RRset) sets.get(j);
+                    RRset set = sets.get(j);
                     if (set.getType() == recs[i].getRRsetType()
                             && set.getDClass() == recs[i].getDClass()
                             && set.getName().equals(name)) {
@@ -399,7 +399,7 @@ public class Message implements Cloneable {
                 hash.add(name);
             }
         }
-        return (RRset[]) sets.toArray(new RRset[sets.size()]);
+        return sets.toArray(new RRset[sets.size()]);
     }
 
     void toWire(DNSOutput out) {
@@ -630,7 +630,7 @@ public class Message implements Cloneable {
         Message m = new Message();
         for (int i = 0; i < sections.length; i++) {
             if (sections[i] != null) {
-                m.sections[i] = new LinkedList(sections[i]);
+                m.sections[i] = new LinkedList<Record>(sections[i]);
             }
         }
         m.header = (Header) header.clone();

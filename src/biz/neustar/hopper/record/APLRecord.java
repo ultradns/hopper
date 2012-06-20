@@ -98,7 +98,7 @@ public class APLRecord extends Record {
 
     private static final long serialVersionUID = -1348173791712935864L;
 
-    private List elements;
+    private List<Element> elements;
 
     public APLRecord() {
     }
@@ -124,15 +124,11 @@ public class APLRecord extends Record {
      * @param elements
      *            The list of APL elements.
      */
-    public APLRecord(Name name, int dclass, long ttl, List elements) {
+    public APLRecord(Name name, int dclass, long ttl, List<Element> elements) {
         super(name, Type.APL, dclass, ttl);
-        this.elements = new ArrayList(elements.size());
-        for (Iterator it = elements.iterator(); it.hasNext();) {
-            Object o = it.next();
-            if (!(o instanceof Element)) {
-                throw new IllegalArgumentException("illegal element");
-            }
-            Element element = (Element) o;
+        this.elements = new ArrayList<Element>(elements.size());
+        for (Iterator<Element> it = elements.iterator(); it.hasNext();) {
+            Element element = it.next();
             if (element.family != Address.IPv4
                     && element.family != Address.IPv6) {
                 throw new IllegalArgumentException("unknown family");
@@ -156,7 +152,7 @@ public class APLRecord extends Record {
     }
 
     protected void rrFromWire(DNSInput in) throws IOException {
-        elements = new ArrayList(1);
+        elements = new ArrayList<Element>(1);
         while (in.remaining() != 0) {
             int family = in.readU16();
             int prefix = in.readU8();
@@ -183,7 +179,7 @@ public class APLRecord extends Record {
     }
 
     protected void rdataFromString(Tokenizer st, Name origin) throws IOException {
-        elements = new ArrayList(1);
+        elements = new ArrayList<Element>(1);
         while (true) {
             Tokenizer.Token t = st.get();
             if (!t.isString()) {
@@ -244,8 +240,8 @@ public class APLRecord extends Record {
 
     public String rrToString() {
         StringBuffer sb = new StringBuffer();
-        for (Iterator it = elements.iterator(); it.hasNext();) {
-            Element element = (Element) it.next();
+        for (Iterator<Element> it = elements.iterator(); it.hasNext();) {
+            Element element = it.next();
             sb.append(element);
             if (it.hasNext()) {
                 sb.append(" ");
@@ -255,7 +251,7 @@ public class APLRecord extends Record {
     }
 
     /** Returns the list of APL elements. */
-    public List getElements() {
+    public List<Element> getElements() {
         return elements;
     }
 
@@ -269,8 +265,8 @@ public class APLRecord extends Record {
     }
 
     public void rrToWire(DNSOutput out, Compression c, boolean canonical) {
-        for (Iterator it = elements.iterator(); it.hasNext();) {
-            Element element = (Element) it.next();
+        for (Iterator<Element> it = elements.iterator(); it.hasNext();) {
+            Element element = it.next();
             int length = 0;
             byte[] data;
             if (element.family == Address.IPv4

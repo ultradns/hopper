@@ -40,7 +40,7 @@ final class UDPClient extends Client {
     static {
         new Thread(new Runnable() {
             public void run() {
-                int n = prng.nextInt();
+                prng.nextInt();
                 prng_initializing = false;
             }
         }).start();

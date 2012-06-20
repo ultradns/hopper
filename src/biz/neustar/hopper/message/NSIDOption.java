@@ -13,8 +13,6 @@ import biz.neustar.hopper.record.OPTRecord;
  */
 public class NSIDOption extends GenericEDNSOption {
 
-    private static final long serialVersionUID = 74739759292589056L;
-
     NSIDOption() {
         super(EDNSOption.Code.NSID);
     }

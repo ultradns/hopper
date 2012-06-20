@@ -41,7 +41,7 @@ public class Master {
     private boolean needSOATTL;
 
     private Generator generator;
-    private List generators;
+    private List<Generator> generators;
     private boolean noExpandGenerate;
 
     Master(File file, Name origin, long initialTTL) throws IOException {
@@ -265,7 +265,7 @@ public class Master {
         generator = new Generator(start, end, step, nameSpec, currentType,
                 currentDClass, currentTTL, rdataSpec, origin);
         if (generators == null) {
-            generators = new ArrayList(1);
+            generators = new ArrayList<Generator>(1);
         }
         generators.add(generator);
     }
@@ -437,11 +437,12 @@ public class Master {
      * 
      * @see Generator
      */
-    public Iterator generators() {
+    public Iterator<Generator> generators() {
         if (generators != null) {
             return Collections.unmodifiableList(generators).iterator();
         } else {
-            return Collections.EMPTY_LIST.iterator();
+        	List<Generator> nothing = Collections.emptyList();
+            return nothing.iterator();
         }
     }
 

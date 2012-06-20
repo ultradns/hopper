@@ -102,7 +102,7 @@ public class RRsetTest extends TestCase {
         } catch (IllegalStateException e) {
         }
 
-        Iterator itr = m_rs.rrs();
+        Iterator<Record> itr = m_rs.rrs();
         assertNotNull(itr);
         assertFalse(itr.hasNext());
 
@@ -141,7 +141,7 @@ public class RRsetTest extends TestCase {
         assertEquals(m_ttl, m_rs.getTTL());
         assertEquals(Type.A, m_rs.getType());
 
-        Iterator itr = m_rs.rrs();
+        Iterator<Record> itr = m_rs.rrs();
         assertEquals(m_a1, itr.next());
         assertEquals(m_a2, itr.next());
 
@@ -202,7 +202,7 @@ public class RRsetTest extends TestCase {
 
         assertEquals(2, rs2.size());
         assertEquals(m_a1, rs2.first());
-        Iterator itr = rs2.rrs();
+        Iterator<Record> itr = rs2.rrs();
         assertEquals(m_a1, itr.next());
         assertEquals(m_a2, itr.next());
         assertFalse(itr.hasNext());
@@ -276,7 +276,7 @@ public class RRsetTest extends TestCase {
         m_rs.addRR(m_a1);
         assertEquals(m_a1.getTTL(), m_rs.getTTL());
 
-        Iterator itr = m_rs.rrs();
+        Iterator<Record> itr = m_rs.rrs();
         while (itr.hasNext()) {
             Record r = (Record) itr.next();
             assertEquals(m_a1.getTTL(), r.getTTL());
@@ -288,7 +288,7 @@ public class RRsetTest extends TestCase {
         m_rs.addRR(m_s1);
         m_rs.addRR(m_a2);
 
-        Iterator itr = m_rs.rrs();
+        Iterator<Record> itr = m_rs.rrs();
         assertTrue(itr.hasNext());
         assertEquals(m_a1, itr.next());
         assertTrue(itr.hasNext());
@@ -305,7 +305,7 @@ public class RRsetTest extends TestCase {
         m_rs.addRR(m_a1);
         m_rs.addRR(m_a2);
 
-        Iterator itr = m_rs.rrs(false);
+        Iterator<Record> itr = m_rs.rrs(false);
         assertTrue(itr.hasNext());
         assertEquals(m_a1, itr.next());
         assertTrue(itr.hasNext());

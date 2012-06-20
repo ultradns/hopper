@@ -85,7 +85,7 @@ public class base16Test extends TestCase {
 
     public void test_fromString_nonHexChars() {
         String data = "GG";
-        byte[] out = base16.fromString(data);
+        base16.fromString(data);
         /*
          * the output is basically encoded as (-1<<4) + -1, not sure we want an
          * assertion for this.

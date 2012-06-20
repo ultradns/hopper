@@ -51,7 +51,9 @@ public class SingleCompressedNameBaseTest extends TestCase {
     }
 
     private static class TestClass extends SingleCompressedNameBase {
-        public TestClass() {
+		private static final long serialVersionUID = 1L;
+
+		public TestClass() {
         }
 
         public TestClass(Name name, int type, int dclass, long ttl,

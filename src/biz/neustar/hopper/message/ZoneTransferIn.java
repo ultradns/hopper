@@ -34,7 +34,6 @@ import biz.neustar.hopper.exception.WireParseException;
 import biz.neustar.hopper.exception.ZoneTransferException;
 import biz.neustar.hopper.record.Record;
 import biz.neustar.hopper.record.SOARecord;
-import biz.neustar.hopper.record.TSIGRecord;
 import biz.neustar.hopper.resolver.SimpleResolver;
 import biz.neustar.hopper.resolver.TCPClient;
 import biz.neustar.hopper.resolver.TCPClientImpl;
@@ -82,8 +81,8 @@ public class ZoneTransferIn {
 
     private int rtype;
 
-    private List axfr;
-    private List ixfr;
+    private List<Record> axfr;
+    private List<Delta> ixfr;
 
     public static class Delta {
         /**
@@ -97,14 +96,14 @@ public class ZoneTransferIn {
         public long end;
 
         /** A list of records added between the start and end versions */
-        public List adds;
+        public List<Record> adds;
 
         /** A list of records deleted between the start and end versions */
-        public List deletes;
+        public List<Record> deletes;
 
         private Delta() {
-            adds = new ArrayList();
-            deletes = new ArrayList();
+            adds = new ArrayList<Record>();
+            deletes = new ArrayList<Record>();
         }
     }
 
@@ -417,12 +416,12 @@ public class ZoneTransferIn {
             if (qtype == Type.IXFR && type == Type.SOA
                     && getSOASerial(rec) == ixfr_serial) {
                 rtype = Type.IXFR;
-                ixfr = new ArrayList();
+                ixfr = new ArrayList<Delta>();
                 logxfr("got incremental response");
                 state = IXFR_DELSOA;
             } else {
                 rtype = Type.AXFR;
-                axfr = new ArrayList();
+                axfr = new ArrayList<Record>();
                 axfr.add(initialsoa);
                 logxfr("got nonincremental response");
                 state = AXFR;
@@ -526,7 +525,7 @@ public class ZoneTransferIn {
             Message response = parseMessage(in);
             if (response.getHeader().getRcode() == Rcode.NOERROR
                     && verifier != null) {
-                TSIGRecord tsigrec = response.getTSIG();
+                response.getTSIG();
 
                 int error = verifier.verify(response, in);
                 if (error != Rcode.NOERROR) {
@@ -610,7 +609,7 @@ public class ZoneTransferIn {
     /**
      * Gets the AXFR-style response.
      */
-    public List getAXFR() {
+    public List<Record> getAXFR() {
         return axfr;
     }
 
@@ -626,7 +625,7 @@ public class ZoneTransferIn {
     /**
      * Gets the IXFR-style response.
      */
-    public List getIXFR() {
+    public List<Delta> getIXFR() {
         return ixfr;
     }
 

@@ -2,9 +2,6 @@
 
 package biz.neustar.hopper.record.impl;
 
-import static biz.neustar.hopper.record.Record.checkU16;
-import static biz.neustar.hopper.record.Record.checkU8;
-
 import java.io.IOException;
 import java.security.PublicKey;
 

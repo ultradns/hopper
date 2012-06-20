@@ -248,14 +248,14 @@ public class Generator {
      *             were performed.
      */
     public Record[] expand() throws IOException {
-        List list = new ArrayList();
+        List<Record> list = new ArrayList<Record>();
         for (long i = start; i < end; i += step) {
             String namestr = substitute(namePattern, current);
             Name name = Name.fromString(namestr, origin);
             String rdata = substitute(rdataPattern, current);
             list.add(Record.fromString(name, type, dclass, ttl, rdata, origin));
         }
-        return (Record[]) list.toArray(new Record[list.size()]);
+        return list.toArray(new Record[0]);
     }
 
     /**

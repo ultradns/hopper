@@ -30,13 +30,13 @@ public class RRset implements Serializable {
      * rrs contains both normal and RRSIG records, with the RRSIG records at the
      * end.
      */
-    private List rrs;
+    private List<Record> rrs;
     private short nsigs;
     private short position;
 
     /** Creates an empty RRset */
     public RRset() {
-        rrs = new ArrayList(1);
+        rrs = new ArrayList<Record>(1);
         nsigs = 0;
         position = 0;
     }
@@ -51,7 +51,7 @@ public class RRset implements Serializable {
     public RRset(RRset rrset) {
         // whoa... yuck - TODO: fix this..
         synchronized (rrset) {
-            rrs = (List) ((ArrayList) rrset.rrs).clone();
+            rrs = new ArrayList<Record>(rrset.rrs);
             nsigs = rrset.nsigs;
             position = rrset.position;
         }
@@ -87,7 +87,7 @@ public class RRset implements Serializable {
                 r.setTTL(first.getTTL());
             } else {
                 for (int i = 0; i < rrs.size(); i++) {
-                    Record tmp = (Record) rrs.get(i);
+                    Record tmp = rrs.get(i);
                     tmp = tmp.cloneRecord();
                     tmp.setTTL(r.getTTL());
                     rrs.set(i, tmp);
@@ -114,7 +114,7 @@ public class RRset implements Serializable {
         nsigs = 0;
     }
 
-    private synchronized Iterator iterator(boolean data, boolean cycle) {
+    private synchronized Iterator<Record> iterator(boolean data, boolean cycle) {
         int size, start, total;
 
         total = rrs.size();
@@ -125,7 +125,8 @@ public class RRset implements Serializable {
             size = nsigs;
         }
         if (size == 0) {
-            return Collections.EMPTY_LIST.iterator();
+        	List<Record> nothing = Collections.emptyList();
+            return nothing.iterator();
         }
 
         if (data) {
@@ -141,7 +142,7 @@ public class RRset implements Serializable {
             start = total - nsigs;
         }
 
-        List list = new ArrayList(size);
+        List<Record> list = new ArrayList<Record>(size);
         if (data) {
             list.addAll(rrs.subList(start, size));
             if (start != 0) {
@@ -161,7 +162,7 @@ public class RRset implements Serializable {
      *            If true, cycle through the records so that each Iterator will
      *            start with a different record.
      */
-    public synchronized Iterator rrs(boolean cycle) {
+    public synchronized Iterator<Record> rrs(boolean cycle) {
         return iterator(true, cycle);
     }
 
@@ -169,12 +170,12 @@ public class RRset implements Serializable {
      * Returns an Iterator listing all (data) records. This cycles through the
      * records, so each Iterator will start with a different record.
      */
-    public synchronized Iterator rrs() {
+    public synchronized Iterator<Record> rrs() {
         return iterator(true, true);
     }
 
     /** Returns an Iterator listing all signature records */
-    public synchronized Iterator sigs() {
+    public synchronized Iterator<Record> sigs() {
         return iterator(false, false);
     }
 
@@ -225,13 +226,13 @@ public class RRset implements Serializable {
         if (rrs.size() == 0) {
             throw new IllegalStateException("rrset is empty");
         }
-        return (Record) rrs.get(0);
+        return rrs.get(0);
     }
 
-    private String iteratorToString(Iterator it) {
+    private String iteratorToString(Iterator<Record> it) {
         StringBuffer sb = new StringBuffer();
         while (it.hasNext()) {
-            Record rr = (Record) it.next();
+            Record rr = it.next();
             sb.append("[");
             sb.append(rr.rdataToString());
             sb.append("]");

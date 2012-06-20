@@ -103,14 +103,14 @@ public final class TypeBitmap implements Serializable {
         return sb.toString();
     }
 
-    private static void mapToWire(DNSOutput out, TreeSet map, int mapbase) {
-        int arraymax = (((Integer) map.last()).intValue()) & 0xFF;
+    private static void mapToWire(DNSOutput out, TreeSet<Integer> map, int mapbase) {
+        int arraymax = (map.last().intValue()) & 0xFF;
         int arraylength = (arraymax / 8) + 1;
         int[] array = new int[arraylength];
         out.writeU8(mapbase);
         out.writeU8(arraylength);
-        for (Iterator it = map.iterator(); it.hasNext();) {
-            int typecode = ((Integer) it.next()).intValue();
+        for (Iterator<Integer> it = map.iterator(); it.hasNext();) {
+            int typecode = it.next().intValue();
             array[(typecode & 0xFF) / 8] |= (1 << (7 - typecode % 8));
         }
         for (int j = 0; j < arraylength; j++) {
@@ -124,10 +124,10 @@ public final class TypeBitmap implements Serializable {
         }
 
         int mapbase = -1;
-        TreeSet map = new TreeSet();
+        TreeSet<Integer> map = new TreeSet<Integer>();
 
-        for (Iterator it = types.iterator(); it.hasNext();) {
-            int t = ((Integer) it.next()).intValue();
+        for (Iterator<Integer> it = types.iterator(); it.hasNext();) {
+            int t = it.next().intValue();
             int base = t >> 8;
             if (base != mapbase) {
                 if (map.size() > 0) {
