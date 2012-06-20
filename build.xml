@@ -61,9 +61,6 @@
 		<attribute name="Implementation-Title" value="dnsjava"/>
 		<attribute name="Implementation-Version" value="${full.version}"/>
 	    </manifest>
-	    <metainf dir="${src.dir}/com/ultradns/dnsjava/dns/spi/">
-		<include name="services/*"/>
-	    </metainf>
 	</jar>
     </target>
 <!-- todo, update this 	
