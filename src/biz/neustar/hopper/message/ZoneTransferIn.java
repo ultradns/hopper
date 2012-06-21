@@ -84,32 +84,6 @@ public class ZoneTransferIn {
     private List<Record> axfr;
     private List<Delta> ixfr;
 
-    /**
-     * All changes between two versions of a zone in an IXFR response.
-     */
-    public static class Delta {
-
-        /** A list of records added between the start and end versions */
-        private List<Record> adds;
-
-        /** A list of records deleted between the start and end versions */
-        private List<Record> deletes;
-
-        public Delta() {
-            adds = new ArrayList<Record>();
-            deletes = new ArrayList<Record>();
-        }
-
-		protected List<Record> getAdds() {
-			return adds;
-		}
-
-		protected List<Record> getDeletes() {
-			return deletes;
-		}
-
-    }
-
     private ZoneTransferIn() {
     }
 
@@ -435,7 +409,7 @@ public class ZoneTransferIn {
         case IXFR_DELSOA:
             delta = new Delta();
             ixfr.add(delta);
-            delta.deletes.add(rec);
+            delta.getDeletes().add(rec);
             state = IXFR_DEL;
             break;
 
@@ -447,12 +421,12 @@ public class ZoneTransferIn {
                 return;
             }
             delta = (Delta) ixfr.get(ixfr.size() - 1);
-            delta.deletes.add(rec);
+            delta.getDeletes().add(rec);
             break;
 
         case IXFR_ADDSOA:
             delta = (Delta) ixfr.get(ixfr.size() - 1);
-            delta.adds.add(rec);
+            delta.getAdds().add(rec);
             state = IXFR_ADD;
             break;
 
@@ -472,7 +446,7 @@ public class ZoneTransferIn {
                 }
             }
             delta = (Delta) ixfr.get(ixfr.size() - 1);
-            delta.adds.add(rec);
+            delta.getAdds().add(rec);
             break;
 
         case AXFR:
