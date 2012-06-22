@@ -47,7 +47,7 @@ public class EmptyRecordTest extends TestCase {
         EmptyRecord ar = new EmptyRecord();
         assertNull(ar.getName());
         assertEquals(0, ar.getType());
-        assertEquals(0, ar.getDClass());
+        assertNull(ar.getDClass());
         assertEquals(0, ar.getTTL());
     }
 
@@ -66,7 +66,7 @@ public class EmptyRecordTest extends TestCase {
         assertEquals(3, i.current());
         assertNull(er.getName());
         assertEquals(0, er.getType());
-        assertEquals(0, er.getDClass());
+        assertNull(er.getDClass());
         assertEquals(0, er.getTTL());
     }
 
@@ -76,7 +76,7 @@ public class EmptyRecordTest extends TestCase {
         er.rdataFromString(t, null);
         assertNull(er.getName());
         assertEquals(0, er.getType());
-        assertEquals(0, er.getDClass());
+        assertNull(er.getDClass());
         assertEquals(0, er.getTTL());
 
         assertEquals("these", t.getString());

@@ -3,6 +3,7 @@
 package biz.neustar.hopper.record;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
@@ -34,8 +35,8 @@ public class MXRecord extends U16NameBase {
      * @param target
      *            The host that mail is sent to
      */
-    public MXRecord(Name name, int dclass, long ttl, int priority, Name target) {
-        super(name, Type.MX, dclass, ttl, priority, "priority", target,
+    public MXRecord(Name name, DClass in, long ttl, int priority, Name target) {
+        super(name, Type.MX, in, ttl, priority, "priority", target,
                 "target");
     }
 

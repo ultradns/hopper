@@ -2,6 +2,9 @@
 
 package biz.neustar.hopper.message;
 
+import java.util.List;
+import java.util.Arrays;
+
 import biz.neustar.hopper.exception.InvalidDClassException;
 import biz.neustar.hopper.util.Mnemonic;
 
@@ -12,53 +15,34 @@ import biz.neustar.hopper.util.Mnemonic;
  * @author Brian Wellington
  */
 
-public final class DClass {
-
-    /** Internet */
-    public static final int IN = 1;
-
-    /** Chaos network (MIT) */
-    public static final int CH = 3;
-
-    /** Chaos network (MIT, alternate name) */
-    public static final int CHAOS = 3;
-
-    /** Hesiod name server (MIT) */
-    public static final int HS = 4;
-
-    /** Hesiod name server (MIT, alternate name) */
-    public static final int HESIOD = 4;
-
-    /** Special value used in dynamic update messages */
-    public static final int NONE = 254;
-
-    /** Matches any class */
-    public static final int ANY = 255;
-
-    private static class DClassMnemonic extends Mnemonic {
-        public DClassMnemonic() {
-            super("DClass", CASE_UPPER);
-            setPrefix("CLASS");
-        }
-
-        public void check(int val) {
-            DClass.check(val);
-        }
+public enum DClass {
+    
+    IN(1), /** Internet */
+    CH(3, "CHAOS"), /** Chaos network (MIT, alternate name) */
+    HS(4, "HESIOD"), /** Hesiod name server (MIT, alternate name) */
+    NONE(254), /** Special value used in dynamic update messages */
+    ANY(255), /** Matches any class */
+    ;
+    
+    final static String PREFIX = "CLASS";
+    final int value;
+    final List<String> alternativeNames;
+    private DClass(int value, String ...altNames) {
+        check(value);
+        this.value = value;
+        this.alternativeNames = Arrays.asList(altNames);
     }
-
-    private static Mnemonic classes = new DClassMnemonic();
-
-    static {
-        classes.add(IN, "IN");
-        classes.add(CH, "CH");
-        classes.addAlias(CH, "CHAOS");
-        classes.add(HS, "HS");
-        classes.addAlias(HS, "HESIOD");
-        classes.add(NONE, "NONE");
-        classes.add(ANY, "ANY");
+    
+    public int getNumericValue() {
+        return value;
     }
-
-    private DClass() {
+    
+    public String getName() {
+        return name();
+    }
+    
+    public List<String> getAlternativeNames() {
+        return alternativeNames;
     }
 
     /**
@@ -80,8 +64,23 @@ public final class DClass {
      * @throws InvalidDClassException
      *             The class is out of range.
      */
-    public static String string(int i) {
-        return classes.getText(i);
+    public static String getString(int i) {
+        check(i);
+        String name = null;
+        DClass result = getValue(i);
+        if (result != null) {
+            name = result.getName();
+        }
+        
+        if (name == null) {
+            name = Integer.toString(i);
+        }
+        
+        return PREFIX + name;
+    }
+    
+    public static String getString(DClass value) {
+        return value.name();
     }
 
     /**
@@ -89,8 +88,49 @@ public final class DClass {
      * 
      * @return The class code, or -1 on error.
      */
-    public static int value(String s) {
-        return classes.getValue(s);
+    public static int getNumericValue(String s) {
+        int numericValue = -1;
+        
+        DClass value = getValue(s);
+        if (value != null) {
+            numericValue = value.value;
+        } else {// if we didn't find it, maybe it's a numeric value
+            try {
+                String name = s.replace(PREFIX, "");
+                numericValue = Integer.valueOf(name);
+                check(numericValue);
+            } catch (NumberFormatException nfe) {
+                /* eat it and return -1 */
+            }
+        }
+        
+        return numericValue;
     }
 
+    public static DClass getValue(int numeric) {
+        DClass result = null;
+        for (DClass value : DClass.values()) {
+            if (value.value == numeric) {
+                result = value;
+            }
+        }
+        return result;
+    }
+    
+    public static DClass getValue(String s) {
+        DClass result = null;
+        String name = s.replace(PREFIX, "");
+        for (DClass value : DClass.values()) {
+            if (value.name().equalsIgnoreCase(name)) {
+                result = value;
+            } else {// check the alternatives
+                for (String alt : value.alternativeNames) {
+                    if (alt.equalsIgnoreCase(name)) {
+                        result = value;
+                    }
+                }
+            }
+        }
+        return result;
+    }
 }

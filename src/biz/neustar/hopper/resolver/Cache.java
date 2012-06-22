@@ -171,19 +171,19 @@ public class Cache {
     private CacheMap data;
     private int maxncache = -1;
     private int maxcache = -1;
-    private int dclass;
+    private DClass dclass;
 
     private static final int defaultMaxEntries = 50000;
 
     /**
      * Creates an empty Cache
      * 
-     * @param dclass
+     * @param dclass2
      *            The DNS class of this cache
      * @see DClass
      */
-    public Cache(int dclass) {
-        this.dclass = dclass;
+    public Cache(DClass dclass2) {
+        this.dclass = dclass2;
         data = new CacheMap(defaultMaxEntries);
     }
 
@@ -657,7 +657,7 @@ public class Cache {
 
         qname = question.getName();
         qtype = question.getType();
-        qclass = question.getDClass();
+        qclass = question.getDClass().getNumericValue();
 
         curname = qname;
 
@@ -665,7 +665,7 @@ public class Cache {
 
         answers = in.getSectionRRsets(Section.ANSWER);
         for (int i = 0; i < answers.length; i++) {
-            if (answers[i].getDClass() != qclass) {
+            if (answers[i].getDClass().getNumericValue() != qclass) {
                 continue;
             }
             int type = answers[i].getType();
@@ -861,7 +861,7 @@ public class Cache {
     /**
      * Returns the DNS class of this cache.
      */
-    public int getDClass() {
+    public DClass getDClass() {
         return dclass;
     }
 

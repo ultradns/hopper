@@ -58,13 +58,13 @@ public class U16NameBaseTest extends TestCase {
 		public TestClass() {
 		}
 
-		public TestClass(Name name, int type, int dclass, long ttl) {
+		public TestClass(Name name, int type, DClass dclass, long ttl) {
 			super(name, type, dclass, ttl);
 		}
 
-		public TestClass(Name name, int type, int dclass, long ttl, int u16Field, String u16Description,
+		public TestClass(Name name, int type, DClass in, long ttl, int u16Field, String u16Description,
 				Name nameField, String nameDescription) {
-			super(name, type, dclass, ttl, u16Field, u16Description, nameField, nameDescription);
+			super(name, type, in, ttl, u16Field, u16Description, nameField, nameDescription);
 		}
 
 		public int getU16Field() {
@@ -92,7 +92,7 @@ public class U16NameBaseTest extends TestCase {
 		TestClass tc = new TestClass();
 		assertNull(tc.getName());
 		assertEquals(0, tc.getType());
-		assertEquals(0, tc.getDClass());
+		assertNull(tc.getDClass());
 		assertEquals(0, tc.getTTL());
 		assertEquals(0, tc.getU16Field());
 		assertNull(tc.getNameField());

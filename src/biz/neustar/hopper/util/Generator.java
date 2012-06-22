@@ -37,7 +37,7 @@ public class Generator {
     public final int type;
 
     /** The class of the generated records. */
-    public final int dclass;
+    public final DClass dclass;
 
     /** The ttl of the generated records. */
     public final long ttl;
@@ -93,13 +93,12 @@ public class Generator {
      *             The dclass is not a valid class.
      */
     public Generator(long start, long end, long step, String namePattern,
-            int type, int dclass, long ttl, String rdataPattern, Name origin) {
+            int type, DClass dclass, long ttl, String rdataPattern, Name origin) {
         if (start < 0 || end < 0 || start > end || step <= 0)
             throw new IllegalArgumentException("invalid range specification");
         if (!supportedType(type)) {
             throw new IllegalArgumentException("unsupported type");
         }
-        DClass.check(dclass);
 
         this.start = start;
         this.end = end;
@@ -273,7 +272,7 @@ public class Generator {
         sb.append(namePattern + " ");
         sb.append(ttl + " ");
         if (dclass != DClass.IN || !Options.check("noPrintIN")) {
-            sb.append(DClass.string(dclass) + " ");
+            sb.append(dclass.getName() + " ");
         }
         sb.append(Type.string(type) + " ");
         sb.append(rdataPattern + " ");

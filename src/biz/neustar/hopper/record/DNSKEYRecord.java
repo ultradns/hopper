@@ -5,6 +5,7 @@ package biz.neustar.hopper.record;
 import java.io.IOException;
 import java.security.PublicKey;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSSEC;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
@@ -65,7 +66,7 @@ public class DNSKEYRecord extends KEYBase {
      * @param key
      *            Binary representation of the key
      */
-    public DNSKEYRecord(Name name, int dclass, long ttl, int flags, int proto,
+    public DNSKEYRecord(Name name, DClass dclass, long ttl, int flags, int proto,
             int alg, byte[] key) {
         super(name, Type.DNSKEY, dclass, ttl, flags, proto, alg, key);
     }
@@ -84,7 +85,7 @@ public class DNSKEYRecord extends KEYBase {
      * @throws DNSSEC.DNSSECException
      *             The PublicKey could not be converted into DNS format.
      */
-    public DNSKEYRecord(Name name, int dclass, long ttl, int flags, int proto,
+    public DNSKEYRecord(Name name, DClass dclass, long ttl, int flags, int proto,
             int alg, PublicKey key) throws DNSSEC.DNSSECException {
         super(name, Type.DNSKEY, dclass, ttl, flags, proto, alg, DNSSEC
                 .fromPublicKey(key, alg));

@@ -10,6 +10,7 @@ import java.util.List;
 
 import biz.neustar.hopper.exception.WireParseException;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -124,8 +125,8 @@ public class APLRecord extends Record {
      * @param elements
      *            The list of APL elements.
      */
-    public APLRecord(Name name, int dclass, long ttl, List<Element> elements) {
-        super(name, Type.APL, dclass, ttl);
+    public APLRecord(Name name, DClass in, long ttl, List<Element> elements) {
+        super(name, Type.APL, in, ttl);
         this.elements = new ArrayList<Element>(elements.size());
         for (Iterator<Element> it = elements.iterator(); it.hasNext();) {
             Element element = it.next();

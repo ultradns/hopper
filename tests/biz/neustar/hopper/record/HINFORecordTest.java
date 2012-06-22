@@ -51,7 +51,7 @@ public class HINFORecordTest extends TestCase {
         HINFORecord dr = new HINFORecord();
         assertNull(dr.getName());
         assertEquals(0, dr.getType());
-        assertEquals(0, dr.getDClass());
+        assertNull(dr.getDClass());
         assertEquals(0, dr.getTTL());
     }
 

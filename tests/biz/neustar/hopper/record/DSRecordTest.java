@@ -61,7 +61,7 @@ public class DSRecordTest extends TestCase {
         DSRecord dr = new DSRecord();
         assertNull(dr.getName());
         assertEquals(0, dr.getType());
-        assertEquals(0, dr.getDClass());
+        assertNull(dr.getDClass());
         assertEquals(0, dr.getTTL());
         assertEquals(0, dr.getAlgorithm());
         assertEquals(0, dr.getDigestID());

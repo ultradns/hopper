@@ -2,6 +2,7 @@
 
 package biz.neustar.hopper.record;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.impl.SingleNameBase;
@@ -29,8 +30,8 @@ public class MBRecord extends SingleNameBase {
      * @param mailbox
      *            The host containing the mailbox for the domain.
      */
-    public MBRecord(Name name, int dclass, long ttl, Name mailbox) {
-        super(name, Type.MB, dclass, ttl, mailbox, "mailbox");
+    public MBRecord(Name name, DClass in, long ttl, Name mailbox) {
+        super(name, Type.MB, in, ttl, mailbox, "mailbox");
     }
 
     /** Gets the mailbox for the domain */

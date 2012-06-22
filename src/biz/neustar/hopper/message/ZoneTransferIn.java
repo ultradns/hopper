@@ -61,7 +61,7 @@ public class ZoneTransferIn {
 
     private Name zname;
     private int qtype;
-    private int dclass;
+    private DClass dclass;
     private long ixfr_serial;
     private boolean want_fallback;
 
@@ -291,12 +291,11 @@ public class ZoneTransferIn {
     /**
      * Sets an alternate DNS class for this zone transfer.
      * 
-     * @param dclass
+     * @param in
      *            The class to use instead of class IN.
      */
-    public void setDClass(int dclass) {
-        DClass.check(dclass);
-        this.dclass = dclass;
+    public void setDClass(DClass in) {
+        this.dclass = in;
     }
 
     /**

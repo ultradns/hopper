@@ -2,6 +2,7 @@
 
 package biz.neustar.hopper.record;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.impl.U16NameBase;
@@ -32,7 +33,7 @@ public class RTRecord extends U16NameBase {
      * @param intermediateHost
      *            The domain name of the host to use as a router.
      */
-    public RTRecord(Name name, int dclass, long ttl, int preference,
+    public RTRecord(Name name, DClass dclass, long ttl, int preference,
             Name intermediateHost) {
         super(name, Type.RT, dclass, ttl, preference, "preference",
                 intermediateHost, "intermediateHost");

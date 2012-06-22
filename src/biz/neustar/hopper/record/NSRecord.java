@@ -2,6 +2,7 @@
 
 package biz.neustar.hopper.record;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.impl.SingleCompressedNameBase;
@@ -29,7 +30,7 @@ public class NSRecord extends SingleCompressedNameBase {
      * @param target
      *            The name server for the given domain
      */
-    public NSRecord(Name name, int dclass, long ttl, Name target) {
+    public NSRecord(Name name, DClass dclass, long ttl, Name target) {
         super(name, Type.NS, dclass, ttl, target, "target");
     }
 

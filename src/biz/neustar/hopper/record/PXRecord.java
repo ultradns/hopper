@@ -5,6 +5,7 @@ package biz.neustar.hopper.record;
 import java.io.IOException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -42,7 +43,7 @@ public class PXRecord extends Record {
      * @param mapX400
      *            The X.400 component of the mail address.
      */
-    public PXRecord(Name name, int dclass, long ttl, int preference,
+    public PXRecord(Name name, DClass dclass, long ttl, int preference,
             Name map822, Name mapX400) {
         super(name, Type.PX, dclass, ttl);
 

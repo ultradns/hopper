@@ -5,6 +5,7 @@ package biz.neustar.hopper.record;
 import java.io.IOException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -46,7 +47,7 @@ public class NSECRecord extends Record {
      * @param types
      *            An array containing the types present.
      */
-    public NSECRecord(Name name, int dclass, long ttl, Name next, int[] types) {
+    public NSECRecord(Name name, DClass dclass, long ttl, Name next, int[] types) {
         super(name, Type.NSEC, dclass, ttl);
         this.next = checkName("next", next);
         for (int i = 0; i < types.length; i++) {

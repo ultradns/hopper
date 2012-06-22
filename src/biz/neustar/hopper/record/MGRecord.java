@@ -2,6 +2,7 @@
 
 package biz.neustar.hopper.record;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.impl.SingleNameBase;
@@ -30,7 +31,7 @@ public class MGRecord extends SingleNameBase {
      *            The mailbox that is a member of the group specified by the
      *            domain.
      */
-    public MGRecord(Name name, int dclass, long ttl, Name mailbox) {
+    public MGRecord(Name name, DClass dclass, long ttl, Name mailbox) {
         super(name, Type.MG, dclass, ttl, mailbox, "mailbox");
     }
 

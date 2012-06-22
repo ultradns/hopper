@@ -207,7 +207,7 @@ public class RRset implements Serializable {
      * 
      * @see DClass
      */
-    public int getDClass() {
+    public DClass getDClass() {
         return first().getDClass();
     }
 
@@ -252,7 +252,7 @@ public class RRset implements Serializable {
         sb.append("{ ");
         sb.append(getName() + " ");
         sb.append(getTTL() + " ");
-        sb.append(DClass.string(getDClass()) + " ");
+        sb.append(getDClass().getName() + " ");
         sb.append(Type.string(getType()) + " ");
         sb.append(iteratorToString(iterator(true, false)));
         if (nsigs > 0) {

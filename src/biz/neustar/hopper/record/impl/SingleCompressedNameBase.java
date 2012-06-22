@@ -3,6 +3,7 @@
 package biz.neustar.hopper.record.impl;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
 
@@ -20,7 +21,7 @@ public abstract class SingleCompressedNameBase extends SingleNameBase {
     protected SingleCompressedNameBase() {
     }
 
-    protected SingleCompressedNameBase(Name name, int type, int dclass,
+    protected SingleCompressedNameBase(Name name, int type, DClass dclass,
             long ttl, Name singleName, String description) {
         super(name, type, dclass, ttl, singleName, description);
     }

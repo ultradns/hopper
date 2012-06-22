@@ -260,7 +260,7 @@ public class RRsetTest extends TestCase {
             UnknownHostException {
         m_rs.addRR(m_a1);
 
-        m_a2 = new ARecord(m_name, DClass.CHAOS, m_ttl,
+        m_a2 = new ARecord(m_name, DClass.CH, m_ttl,
                 InetAddress.getByName("192.169.232.11"));
 
         try {

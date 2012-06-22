@@ -34,9 +34,10 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
 
     private static final long serialVersionUID = 2694906050116005466L;
 
-    protected Name name;
-    protected int type, dclass;
-    protected long ttl;
+    private Name name;
+    private int type; 
+    private DClass dclass;
+    private long ttl;
 
     private static final DecimalFormat byteFormat = new DecimalFormat();
 
@@ -47,12 +48,11 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
     protected Record() {
     }
 
-    protected Record(Name name, int type, int dclass, long ttl) {
+    protected Record(Name name, int type, DClass dclass, long ttl) {
         if (!name.isAbsolute()) {
             throw new RelativeNameException(name);
         }
         Type.check(type);
-        DClass.check(dclass);
         TTL.check(ttl);
         this.name = name;
         this.type = type;
@@ -65,7 +65,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      */
     protected abstract Record getObject();
 
-    private static final Record getEmptyRecord(Name name, int type, int dclass,
+    private static final Record getEmptyRecord(Name name, int type, DClass dclass,
             long ttl, boolean hasData) {
         Record proto, rec;
 
@@ -91,7 +91,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      */
     protected abstract void rrFromWire(DNSInput in) throws IOException;
 
-    private static Record newRecord(Name name, int type, int dclass, long ttl,
+    private static Record newRecord(Name name, int type, DClass dclass, long ttl,
             int length, DNSInput in) throws IOException {
 
         Record rec;
@@ -129,14 +129,13 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      *            The rdata of the record, in uncompressed DNS wire format. Only
      *            the first length bytes are used.
      */
-    public static Record newRecord(Name name, int type, int dclass, long ttl,
+    public static Record newRecord(Name name, int type, DClass dclass, long ttl,
             int length, byte[] data) {
 
         if (!name.isAbsolute()) {
             throw new RelativeNameException(name);
         }
         Type.check(type);
-        DClass.check(dclass);
         TTL.check(ttl);
 
         DNSInput in;
@@ -167,7 +166,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      *            The complete rdata of the record, in uncompressed DNS wire
      *            format.
      */
-    public static Record newRecord(Name name, int type, int dclass, long ttl,
+    public static Record newRecord(Name name, int type, DClass dclass, long ttl,
             byte[] data) {
         return newRecord(name, type, dclass, ttl, data.length, data);
     }
@@ -185,12 +184,11 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      *            The record's time to live.
      * @return An object of a subclass of Record
      */
-    public static Record newRecord(Name name, int type, int dclass, long ttl) {
+    public static Record newRecord(Name name, int type, DClass dclass, long ttl) {
         if (!name.isAbsolute()) {
             throw new RelativeNameException(name);
         }
         Type.check(type);
-        DClass.check(dclass);
         TTL.check(ttl);
 
         return getEmptyRecord(name, type, dclass, ttl, false);
@@ -209,13 +207,14 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      *            The record's class.
      * @return An object of a subclass of Record
      */
-    public static Record newRecord(Name name, int type, int dclass) {
+    public static Record newRecord(Name name, int type, DClass dclass) {
         return newRecord(name, type, dclass, 0);
     }
 
     public static Record fromWire(DNSInput in, int section, boolean isUpdate)
             throws IOException {
-        int type, dclass;
+        int type;
+        DClass dclass;
         long ttl;
         int length;
         Name name;
@@ -223,7 +222,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
 
         name = new Name(in);
         type = in.readU16();
-        dclass = in.readU16();
+        dclass = DClass.getValue(in.readU16());
 
         if (section == Section.QUESTION) {
             return newRecord(name, type, dclass);
@@ -250,13 +249,19 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
     }
 
     public void toWire(DNSOutput out, int section, Compression c) {
-        name.toWire(out, c);
-        out.writeU16(type);
-        out.writeU16(dclass);
+        toWire(out, section, c, name, type, dclass.getNumericValue(), ttl);
+    }
+    
+    protected void toWire(DNSOutput out, int section, Compression c, 
+            Name inName, int inType, int inClass, long inTtl) {
+        
+        inName.toWire(out, c);
+        out.writeU16(inType);
+        out.writeU16(inClass);
         if (section == Section.QUESTION) {
             return;
         }
-        out.writeU32(ttl);
+        out.writeU32(inTtl);
         int lengthPosition = out.current();
         out.writeU16(0); /* until we know better */
         rrToWire(out, c, false);
@@ -273,27 +278,32 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
         return out.toByteArray();
     }
 
-    private void toWireCanonical(DNSOutput out, boolean noTTL) {
-        name.toWireCanonical(out);
-        out.writeU16(type);
-        out.writeU16(dclass);
-        if (noTTL) {
-            out.writeU32(0);
-        } else {
-            out.writeU32(ttl);
-        }
+    protected void toWireCanonical(DNSOutput out, boolean noTTL) {
+        toWireCanonical(out, name, type, dclass.getNumericValue(), noTTL ? 0 : ttl);
+    }
+    
+    // this is needed for overriding in the OPTRecord, which needs to reuse the CLASS as payload.
+    protected void toWireCanonical(DNSOutput out, 
+            Name inName, int inType, int inClass, long inTtl) {
+        
+        inName.toWireCanonical(out);
+        out.writeU16(inType);
+        out.writeU16(inClass);
+        out.writeU32(inTtl);
+
         int lengthPosition = out.current();
         out.writeU16(0); /* until we know better */
         rrToWire(out, null, true);
         int rrlength = out.current() - lengthPosition - 2;
         out.writeU16At(rrlength, lengthPosition);
     }
+  
 
     /*
      * Converts a Record into canonical DNS uncompressed wire format (all names
      * are converted to lowercase), optionally ignoring the TTL.
      */
-    private byte[] toWireCanonical(boolean noTTL) {
+    protected byte[] toWireCanonical(boolean noTTL) {
         DNSOutput out = new DNSOutput();
         toWireCanonical(out, noTTL);
         return out.toByteArray();
@@ -333,7 +343,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      * Converts a Record into a String representation
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(name);
         if (sb.length() < 8) {
             sb.append("\t");
@@ -349,7 +359,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
         }
         sb.append("\t");
         if (dclass != DClass.IN || !Options.check("noPrintIN")) {
-            sb.append(DClass.string(dclass));
+            sb.append(DClass.getString(dclass));
             sb.append("\t");
         }
         sb.append(Type.string(type));
@@ -434,7 +444,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      * Converts a byte array into a String.
      */
     protected static String byteArrayToString(byte[] array, boolean quote) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         if (quote) {
             sb.append('"');
         }
@@ -460,7 +470,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      * Converts a byte array into the unknown RR format.
      */
     protected static String unknownToString(byte[] data) {
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append("\\# ");
         sb.append(data.length);
         sb.append(" ");
@@ -475,7 +485,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      *            The owner name of the record.
      * @param type
      *            The record's type.
-     * @param dclass
+     * @param defaultClass
      *            The record's class.
      * @param ttl
      *            The record's time to live.
@@ -488,7 +498,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      * @throws IOException
      *             The text format was invalid.
      */
-    public static Record fromString(Name name, int type, int dclass, long ttl,
+    public static Record fromString(Name name, int type, DClass defaultClass, long ttl,
             Tokenizer st, Name origin) throws IOException {
         Record rec;
 
@@ -496,7 +506,6 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
             throw new RelativeNameException(name);
         }
         Type.check(type);
-        DClass.check(dclass);
         TTL.check(ttl);
 
         Tokenizer.Token t = st.get();
@@ -510,10 +519,10 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
                 throw st.exception("invalid unknown RR encoding: "
                         + "length mismatch");
             DNSInput in = new DNSInput(data);
-            return newRecord(name, type, dclass, ttl, length, in);
+            return newRecord(name, type, defaultClass, ttl, length, in);
         }
         st.unget();
-        rec = getEmptyRecord(name, type, dclass, ttl, true);
+        rec = getEmptyRecord(name, type, defaultClass, ttl, true);
         rec.rdataFromString(st, origin);
         t = st.get();
         if (t.type != Tokenizer.EOL && t.type != Tokenizer.EOF) {
@@ -541,7 +550,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      * @throws IOException
      *             The text format was invalid.
      */
-    public static Record fromString(Name name, int type, int dclass, long ttl,
+    public static Record fromString(Name name, int type, DClass dclass, long ttl,
             String s, Name origin) throws IOException {
         return fromString(name, type, dclass, ttl, new Tokenizer(s), origin);
     }
@@ -585,7 +594,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
     /**
      * Returns the record's class
      */
-    public int getDClass() {
+    public DClass getDClass() {
         return dclass;
     }
 
@@ -670,7 +679,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      * Creates a new record identical to the current record, but with a
      * different class and ttl. This is most useful for dynamic update.
      */
-    public Record withDClass(int dclass, long ttl) {
+    public Record withDClass(DClass dclass, long ttl) {
         Record rec = cloneRecord();
         rec.dclass = dclass;
         rec.ttl = ttl;
@@ -679,8 +688,9 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
 
     /* Sets the TTL to the specified value. This is intentionally not public. */
     // JD - made public since the project internally mutates the object anyway
-    public void setTTL(long ttl) {
+    public Record setTTL(long ttl) {
         this.ttl = ttl;
+        return this;
     }
 
     /**
@@ -706,7 +716,8 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
         if (n != 0) {
             return (n);
         }
-        n = dclass - arg.dclass;
+        // TODO: just compare the enum value... 
+        n = dclass.getNumericValue() - arg.dclass.getNumericValue();
         if (n != 0) {
             return (n);
         }

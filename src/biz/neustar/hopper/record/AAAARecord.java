@@ -7,6 +7,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -42,8 +43,8 @@ public class AAAARecord extends Record {
      * @param address
      *            The address suffix
      */
-    public AAAARecord(Name name, int dclass, long ttl, InetAddress address) {
-        super(name, Type.AAAA, dclass, ttl);
+    public AAAARecord(Name name, DClass in, long ttl, InetAddress address) {
+        super(name, Type.AAAA, in, ttl);
         if (Address.familyOf(address) != Address.IPv6) {
             throw new IllegalArgumentException("invalid IPv6 address");
         }

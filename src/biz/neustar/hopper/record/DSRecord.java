@@ -5,6 +5,7 @@ package biz.neustar.hopper.record;
 import java.io.IOException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.DNSSEC;
@@ -65,9 +66,9 @@ public class DSRecord extends Record {
      * @param digest
      *            A hash of the original key.
      */
-    public DSRecord(Name name, int dclass, long ttl, int footprint, int alg,
+    public DSRecord(Name name, DClass in, long ttl, int footprint, int alg,
             int digestid, byte[] digest) {
-        super(name, Type.DS, dclass, ttl);
+        super(name, Type.DS, in, ttl);
         this.footprint = checkU16("footprint", footprint);
         this.alg = checkU8("alg", alg);
         this.digestid = checkU8("digestid", digestid);
@@ -82,9 +83,9 @@ public class DSRecord extends Record {
      * @param key
      *            The key to digest
      */
-    public DSRecord(Name name, int dclass, long ttl, int digestid,
+    public DSRecord(Name name, DClass in, long ttl, int digestid,
             DNSKEYRecord key) {
-        this(name, dclass, ttl, key.getFootprint(), key.getAlgorithm(),
+        this(name, in, ttl, key.getFootprint(), key.getAlgorithm(),
                 digestid, DNSSEC.generateDSDigest(key, digestid));
     }
 

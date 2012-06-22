@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -59,7 +60,7 @@ public class NSEC3PARAMRecord extends Record {
      * @param salt
      *            The salt to use (may be null).
      */
-    public NSEC3PARAMRecord(Name name, int dclass, long ttl, int hashAlg,
+    public NSEC3PARAMRecord(Name name, DClass dclass, long ttl, int hashAlg,
             int flags, int iterations, byte[] salt) {
         super(name, Type.NSEC3PARAM, dclass, ttl);
         this.hashAlg = checkU8("hashAlg", hashAlg);

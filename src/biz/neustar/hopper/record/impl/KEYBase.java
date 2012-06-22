@@ -7,6 +7,7 @@ import java.security.PublicKey;
 
 import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.DNSSEC;
@@ -32,7 +33,7 @@ public abstract class KEYBase extends Record {
     protected KEYBase() {
     }
 
-    public KEYBase(Name name, int type, int dclass, long ttl, int flags,
+    public KEYBase(Name name, int type, DClass dclass, long ttl, int flags,
             int proto, int alg, byte[] key) {
         super(name, type, dclass, ttl);
         this.flags = checkU16("flags", flags);

@@ -40,6 +40,7 @@ public class OPTRecord extends Record {
     private static final long serialVersionUID = -6254521894809367938L;
 
     private List<EDNSOption> options;
+    private int payloadSize;
 
     public OPTRecord() {
     }
@@ -70,12 +71,15 @@ public class OPTRecord extends Record {
      */
     public OPTRecord(int payloadSize, int xrcode, int version, int flags,
             List<EDNSOption> options) {
-        super(Name.root, Type.OPT, payloadSize, 0);
+
+        super(Name.root, Type.OPT, null, 0);
+        this.payloadSize = payloadSize;
+        
         checkU16("payloadSize", payloadSize);
         checkU8("xrcode", xrcode);
         checkU8("version", version);
         checkU16("flags", flags);
-        ttl = ((long) xrcode << 24) + ((long) version << 16) + flags;
+        setTTL(((long) xrcode << 24) + ((long) version << 16) + flags);
         if (options != null) {
             this.options = new ArrayList<EDNSOption>(options);
         }
@@ -144,7 +148,7 @@ public class OPTRecord extends Record {
 
     /** Returns the maximum allowed payload size. */
     public int getPayloadSize() {
-        return dclass;
+        return payloadSize;
     }
 
     /**
@@ -153,19 +157,29 @@ public class OPTRecord extends Record {
      * @see Rcode
      */
     public int getExtendedRcode() {
-        return (int) (ttl >>> 24);
+        return (int) (getTTL() >>> 24);
     }
 
     /** Returns the highest supported EDNS version */
     public int getVersion() {
-        return (int) ((ttl >>> 16) & 0xFF);
+        return (int) ((getTTL() >>> 16) & 0xFF);
     }
 
     /** Returns the EDNS flags */
     public int getFlags() {
-        return (int) (ttl & 0xFFFF);
+        return (int) (getTTL() & 0xFFFF);
     }
 
+    // So hacky, but rfc 2671 requires the class be reused as payload size..    
+    protected void toWireCanonical(DNSOutput out, boolean noTTL) {
+        toWireCanonical(out, getName(), getType(), payloadSize, noTTL ? 0 : getTTL());
+    }
+    
+    // same as above..
+    public void toWire(DNSOutput out, int section, Compression c) {
+        toWire(out, section, c, getName(), getType(), payloadSize, getTTL());
+    }
+    
     public void rrToWire(DNSOutput out, Compression c, boolean canonical) {
         if (options == null) {
             return;

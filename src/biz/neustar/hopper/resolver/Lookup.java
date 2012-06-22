@@ -57,7 +57,7 @@ public final class Lookup {
     private int credibility;
     private Name name;
     private int type;
-    private int dclass;
+    private DClass dclass;
     private boolean verbose;
     private int iterations;
     private boolean foundAlias;
@@ -141,12 +141,11 @@ public final class Lookup {
      *            The class whose cache is being retrieved.
      * @return The default cache for the specified class.
      */
-    public static synchronized Cache getDefaultCache(int dclass) {
-        DClass.check(dclass);
-        Cache c = defaultCaches.get(Mnemonic.toInteger(dclass));
+    public static synchronized Cache getDefaultCache(DClass dclass) {
+        Cache c = defaultCaches.get(dclass.getNumericValue());
         if (c == null) {
             c = new Cache(dclass);
-            defaultCaches.put(Mnemonic.toInteger(dclass), c);
+            defaultCaches.put(dclass.getNumericValue(), c);
         }
         return c;
     }
@@ -235,7 +234,7 @@ public final class Lookup {
      *            The name of the desired records
      * @param type
      *            The type of the desired records
-     * @param dclass
+     * @param in
      *            The class of the desired records
      * @throws IllegalArgumentException
      *             The type is a meta type other than ANY.
@@ -246,19 +245,20 @@ public final class Lookup {
      * @see Type
      * @see DClass
      */
-    public Lookup(Name name, int type, int dclass) {
+    public Lookup(Name name, int type, DClass in) {
         Type.check(type);
-        DClass.check(dclass);
+
         if (!Type.isRR(type) && type != Type.ANY)
             throw new IllegalArgumentException("Cannot query for "
                     + "meta-types other than ANY");
         this.name = name;
         this.type = type;
-        this.dclass = dclass;
+        this.dclass = in;
+        // TODO.. look at this....
         synchronized (Lookup.class) {
             this.resolver = getDefaultResolver();
             this.searchPath = getDefaultSearchPath();
-            this.cache = getDefaultCache(dclass);
+            this.cache = getDefaultCache(in);
         }
         this.credibility = Credibility.NORMAL;
         this.verbose = Options.check("verbose");
@@ -309,7 +309,7 @@ public final class Lookup {
      *             The type is a meta type other than ANY.
      * @see #Lookup(Name,int,int)
      */
-    public Lookup(String name, int type, int dclass) throws TextParseException {
+    public Lookup(String name, int type, DClass dclass) throws TextParseException {
         this(Name.fromString(name), type, dclass);
     }
 
@@ -633,7 +633,7 @@ public final class Lookup {
         }
         StringBuffer sb = new StringBuffer("Lookup of " + name + " ");
         if (dclass != DClass.IN) {
-            sb.append(DClass.string(dclass) + " ");
+            sb.append(dclass.getName() + " ");
         }
         sb.append(Type.string(type) + " isn't done");
         throw new IllegalStateException(sb.toString());

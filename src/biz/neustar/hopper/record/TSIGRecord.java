@@ -7,6 +7,7 @@ import java.util.Date;
 
 import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -70,10 +71,10 @@ public class TSIGRecord extends Record {
      *            responses.
      * @see TSIG
      */
-    public TSIGRecord(Name name, int dclass, long ttl, Name alg,
+    public TSIGRecord(Name name, DClass any, long ttl, Name alg,
             Date timeSigned, int fudge, byte[] signature, int originalID,
             int error, byte other[]) {
-        super(name, Type.TSIG, dclass, ttl);
+        super(name, Type.TSIG, any, ttl);
         this.alg = checkName("alg", alg);
         this.timeSigned = timeSigned;
         this.fudge = checkU16("fudge", fudge);

@@ -7,6 +7,7 @@ import java.io.IOException;
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.exception.WireParseException;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -53,9 +54,9 @@ public class GPOSRecord extends Record {
      *            The altitude component of the location (in meters above sea
      *            level).
      */
-    public GPOSRecord(Name name, int dclass, long ttl, double longitude,
+    public GPOSRecord(Name name, DClass in, long ttl, double longitude,
             double latitude, double altitude) {
-        super(name, Type.GPOS, dclass, ttl);
+        super(name, Type.GPOS, in, ttl);
         validate(longitude, latitude);
         this.longitude = Double.toString(longitude).getBytes();
         this.latitude = Double.toString(latitude).getBytes();
@@ -73,7 +74,7 @@ public class GPOSRecord extends Record {
      *            The altitude component of the location (in meters above sea
      *            level).
      */
-    public GPOSRecord(Name name, int dclass, long ttl, String longitude,
+    public GPOSRecord(Name name, DClass dclass, long ttl, String longitude,
             String latitude, String altitude) {
         super(name, Type.GPOS, dclass, ttl);
         try {

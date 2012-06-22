@@ -65,8 +65,8 @@ public class RecordTest extends TestCase {
 		public SubRecord() {
 		}
 
-		public SubRecord(Name name, int type, int dclass, long ttl) {
-			super(name, type, dclass, ttl);
+		public SubRecord(Name name, int type, DClass in, long ttl) {
+			super(name, type, in, ttl);
 		}
 
 		public Record getObject() {
@@ -111,13 +111,13 @@ public class RecordTest extends TestCase {
 		assertNull(sr.getName());
 		assertEquals(0, sr.getType());
 		assertEquals(0, sr.getTTL());
-		assertEquals(0, sr.getDClass());
+		assertNull(sr.getDClass());
 	}
 
 	public void test_ctor_4arg() throws TextParseException {
 		Name n = Name.fromString("my.name.");
 		int t = Type.A;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		long ttl = 0xABCDEL;
 
 		SubRecord r = new SubRecord(n, t, d, ttl);
@@ -131,7 +131,7 @@ public class RecordTest extends TestCase {
 		Name n = Name.fromString("my.name.");
 		Name r = Name.fromString("my.relative.name");
 		int t = Type.A;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		long ttl = 0xABCDEL;
 
 		try {
@@ -147,12 +147,6 @@ public class RecordTest extends TestCase {
 		}
 
 		try {
-			new SubRecord(n, t, -1, ttl);
-			fail("InvalidDClassException not thrown");
-		} catch (InvalidDClassException e) {
-		}
-
-		try {
 			new SubRecord(n, t, d, -1);
 			fail("InvalidTTLException not thrown");
 		} catch (InvalidTTLException e) {
@@ -163,7 +157,7 @@ public class RecordTest extends TestCase {
 		Name n = Name.fromString("my.name.");
 		Name r = Name.fromString("my.relative.name");
 		int t = Type.A;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 
 		Record rec = Record.newRecord(n, t, d);
 		assertTrue(rec instanceof EmptyRecord);
@@ -183,7 +177,7 @@ public class RecordTest extends TestCase {
 		Name n = Name.fromString("my.name.");
 		Name r = Name.fromString("my.relative.name");
 		int t = Type.A;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		int ttl = 0xDBE8;
 
 		Record rec = Record.newRecord(n, t, d, ttl);
@@ -203,7 +197,7 @@ public class RecordTest extends TestCase {
 	public void test_newRecord_5arg() throws TextParseException, UnknownHostException {
 		Name n = Name.fromString("my.name.");
 		int t = Type.A;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		int ttl = 0xDBE8;
 		byte[] data = new byte[] { (byte) 123, (byte) 232, (byte) 0, (byte) 255 };
 		InetAddress exp = InetAddress.getByName("123.232.0.255");
@@ -220,7 +214,7 @@ public class RecordTest extends TestCase {
 	public void test_newRecord_6arg() throws TextParseException, UnknownHostException {
 		Name n = Name.fromString("my.name.");
 		int t = Type.A;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		int ttl = 0xDBE8;
 		byte[] data = new byte[] { (byte) 123, (byte) 232, (byte) 0, (byte) 255 };
 		InetAddress exp = InetAddress.getByName("123.232.0.255");
@@ -253,7 +247,7 @@ public class RecordTest extends TestCase {
 		Name n = Name.fromString("my.name.");
 		Name r = Name.fromString("my.relative.name");
 		int t = Type.A;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		int ttl = 0xDBE8;
 		byte[] data = new byte[] { (byte) 123, (byte) 232, (byte) 0, (byte) 255 };
 
@@ -274,7 +268,7 @@ public class RecordTest extends TestCase {
 	{
 		Name n = Name.fromString("my.name.");
 		int t = Type.A;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		int ttl = 0xDBE8;
 		byte[] data = new byte[] { (byte) 123, (byte) 232, (byte) 0, (byte) 255 };
 		InetAddress exp = InetAddress.getByName("123.232.0.255");
@@ -282,7 +276,7 @@ public class RecordTest extends TestCase {
 		DNSOutput out = new DNSOutput();
 		n.toWire(out, null);
 		out.writeU16(t);
-		out.writeU16(d);
+		out.writeU16(d.getNumericValue());
 		out.writeU32(ttl);
 		out.writeU16(data.length);
 		out.writeByteArray(data);
@@ -323,7 +317,7 @@ public class RecordTest extends TestCase {
 		out = new DNSOutput();
 		n.toWire(out, null);
 		out.writeU16(t);
-		out.writeU16(d);
+		out.writeU16(d.getNumericValue());
 		out.writeU32(ttl);
 		out.writeU16(0);
 
@@ -343,7 +337,7 @@ public class RecordTest extends TestCase {
 	{
 		Name n = Name.fromString("my.name.");
 		int t = Type.A;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		int ttl = 0xDBE8;
 		byte[] data = new byte[] { (byte) 123, (byte) 232, (byte) 0, (byte) 255 };
 
@@ -351,7 +345,7 @@ public class RecordTest extends TestCase {
 		DNSOutput out = new DNSOutput();
 		n.toWire(out, null);
 		out.writeU16(t);
-		out.writeU16(d);
+		out.writeU16(d.getNumericValue());
 		out.writeU32(ttl);
 		out.writeU16(data.length);
 		out.writeByteArray(data);
@@ -376,7 +370,7 @@ public class RecordTest extends TestCase {
 		out = new DNSOutput();
 		n.toWire(out, null);
 		out.writeU16(t);
-		out.writeU16(d);
+		out.writeU16(d.getNumericValue());
 
 		exp = out.toByteArray();
 		out = new DNSOutput();
@@ -392,14 +386,14 @@ public class RecordTest extends TestCase {
 	{
 		Name n = Name.fromString("My.Name.");
 		int t = Type.A;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		int ttl = 0xDBE8;
 		byte[] data = new byte[] { (byte) 123, (byte) 232, (byte) 0, (byte) 255 };
 
 		DNSOutput out = new DNSOutput();
 		n.toWireCanonical(out);
 		out.writeU16(t);
-		out.writeU16(d);
+		out.writeU16(d.getNumericValue());
 		out.writeU32(ttl);
 		out.writeU16(data.length);
 		out.writeByteArray(data);
@@ -418,7 +412,7 @@ public class RecordTest extends TestCase {
 		Name n = Name.fromString("My.Name.");
 		Name n2 = Name.fromString("My.Second.Name.");
 		int t = Type.NS;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		int ttl = 0xABE99;
 		DNSOutput out = new DNSOutput();
 		n2.toWire(out, null);
@@ -442,7 +436,7 @@ public class RecordTest extends TestCase {
 		Name n = Name.fromString("My.Name.");
 		Name n2 = Name.fromString("My.Second.Name.");
 		int t = Type.NS;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		int ttl = 0xABE99;
 		DNSOutput out = new DNSOutput();
 		n2.toWire(out, null);
@@ -457,7 +451,7 @@ public class RecordTest extends TestCase {
 		Name n = Name.fromString("My.N.");
 		Name n2 = Name.fromString("My.Second.Name.");
 		int t = Type.NS;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		int ttl = 0xABE99;
 		DNSOutput o = new DNSOutput();
 		n2.toWire(o, null);
@@ -556,7 +550,7 @@ public class RecordTest extends TestCase {
 		Name n = Name.fromString("My.N.");
 		Name n2 = Name.fromString("My.Second.Name.");
 		int t = Type.A;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		int ttl = 0xABE99;
 		String sa = "191.234.43.10";
 		InetAddress addr = InetAddress.getByName(sa);
@@ -587,7 +581,7 @@ public class RecordTest extends TestCase {
 		Name rel = Name.fromString("My.R");
 		Name n2 = Name.fromString("My.Second.Name.");
 		int t = Type.A;
-		int d = DClass.IN;
+		DClass d = DClass.IN;
 		int ttl = 0xABE99;
 		InetAddress.getByName("191.234.43.10");
 
@@ -680,7 +674,7 @@ public class RecordTest extends TestCase {
 		assertFalse(r1.equals(r2));
 		assertFalse(r2.equals(r1));
 
-		r2 = Record.newRecord(n2, Type.A, DClass.CHAOS, 0xABCDE);
+		r2 = Record.newRecord(n2, Type.A, DClass.CH, 0xABCDE);
 		assertFalse(r1.equals(r2));
 		assertFalse(r2.equals(r1));
 
@@ -721,7 +715,7 @@ public class RecordTest extends TestCase {
 		assertFalse(r1.hashCode() == r2.hashCode());
 
 		// different class
-		r2 = Record.newRecord(n, Type.A, DClass.CHAOS, 0xABCDE9, d1);
+		r2 = Record.newRecord(n, Type.A, DClass.CH, 0xABCDE9, d1);
 		assertFalse(r1.hashCode() == r2.hashCode());
 
 		// different TTL does not matter
@@ -779,11 +773,11 @@ public class RecordTest extends TestCase {
 		byte[] d = new byte[] { 23, 12, 9, (byte) 129 };
 		Record r = Record.newRecord(n, Type.A, DClass.IN, 0xABCDE9, d);
 
-		Record r1 = r.withDClass(DClass.HESIOD, 0x9876);
+		Record r1 = r.withDClass(DClass.HS, 0x9876);
 
 		assertEquals(n, r1.getName());
 		assertEquals(Type.A, r1.getType());
-		assertEquals(DClass.HESIOD, r1.getDClass());
+		assertEquals(DClass.HS, r1.getDClass());
 		assertEquals(0x9876, r1.getTTL());
 		assertEquals(((ARecord) r).getAddress(), ((ARecord) r1).getAddress());
 	}
@@ -830,9 +824,9 @@ public class RecordTest extends TestCase {
 		assertEquals(m.compareTo(n), r2.compareTo(r1));
 
 		// different DClass
-		r2 = Record.newRecord(n, Type.A, DClass.CHAOS, 0xABCDE9, d);
-		assertEquals(DClass.IN - DClass.CHAOS, r1.compareTo(r2));
-		assertEquals(DClass.CHAOS - DClass.IN, r2.compareTo(r1));
+		r2 = Record.newRecord(n, Type.A, DClass.CH, 0xABCDE9, d);
+		assertEquals(DClass.IN.getNumericValue() - DClass.CH.getNumericValue(), r1.compareTo(r2));
+		assertEquals(DClass.CH.getNumericValue() - DClass.IN.getNumericValue(), r2.compareTo(r1));
 
 		// different Type
 		r2 = Record.newRecord(n, Type.NS, DClass.IN, 0xABCDE9, m.toWire());

@@ -4,6 +4,7 @@ package biz.neustar.hopper.record;
 
 import java.util.Date;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSSEC;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
@@ -53,10 +54,10 @@ public class RRSIGRecord extends SIGBase {
      * @param signature
      *            Binary data representing the signature
      */
-    public RRSIGRecord(Name name, int dclass, long ttl, int covered, int alg,
+    public RRSIGRecord(Name name, DClass in, long ttl, int covered, int alg,
             long origttl, Date expire, Date timeSigned, int footprint,
             Name signer, byte[] signature) {
-        super(name, Type.RRSIG, dclass, ttl, covered, alg, origttl, expire,
+        super(name, Type.RRSIG, in, ttl, covered, alg, origttl, expire,
                 timeSigned, footprint, signer, signature);
     }
 

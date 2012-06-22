@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.exception.WireParseException;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -72,7 +73,7 @@ public class IPSECKEYRecord extends Record {
      * @param key
      *            The record's public key.
      */
-    public IPSECKEYRecord(Name name, int dclass, long ttl, int precedence,
+    public IPSECKEYRecord(Name name, DClass dclass, long ttl, int precedence,
             int gatewayType, int algorithmType, Object gateway, byte[] key) {
         super(name, Type.IPSECKEY, dclass, ttl);
         this.precedence = checkU8("precedence", precedence);

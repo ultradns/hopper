@@ -2,6 +2,7 @@
 
 package biz.neustar.hopper.record;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.impl.SingleCompressedNameBase;
@@ -30,7 +31,7 @@ public class PTRRecord extends SingleCompressedNameBase {
      * @param target
      *            The name of the machine with this address
      */
-    public PTRRecord(Name name, int dclass, long ttl, Name target) {
+    public PTRRecord(Name name, DClass dclass, long ttl, Name target) {
         super(name, Type.PTR, dclass, ttl, target, "target");
     }
 

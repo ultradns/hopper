@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -55,7 +56,7 @@ public class NAPTRRecord extends Record {
      * @throws IllegalArgumentException
      *             One of the strings has invalid escapes
      */
-    public NAPTRRecord(Name name, int dclass, long ttl, int order,
+    public NAPTRRecord(Name name, DClass dclass, long ttl, int order,
             int preference, String flags, String service, String regexp,
             Name replacement) {
         super(name, Type.NAPTR, dclass, ttl);

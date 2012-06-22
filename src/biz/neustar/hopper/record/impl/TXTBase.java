@@ -10,6 +10,7 @@ import java.util.List;
 
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -32,11 +33,11 @@ public abstract class TXTBase extends Record {
     protected TXTBase() {
     }
 
-    protected TXTBase(Name name, int type, int dclass, long ttl) {
+    protected TXTBase(Name name, int type, DClass dclass, long ttl) {
         super(name, type, dclass, ttl);
     }
 
-    protected TXTBase(Name name, int type, int dclass, long ttl, List<String> strings) {
+    protected TXTBase(Name name, int type, DClass dclass, long ttl, List<String> strings) {
         super(name, type, dclass, ttl);
         if (strings == null) {
             throw new IllegalArgumentException("strings must not be null");
@@ -53,7 +54,7 @@ public abstract class TXTBase extends Record {
         }
     }
 
-    protected TXTBase(Name name, int type, int dclass, long ttl, String string) {
+    protected TXTBase(Name name, int type, DClass dclass, long ttl, String string) {
         this(name, type, dclass, ttl, Collections.singletonList(string));
     }
 

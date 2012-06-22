@@ -2,6 +2,7 @@
 
 package biz.neustar.hopper.record;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.impl.SingleCompressedNameBase;
@@ -29,7 +30,7 @@ public class CNAMERecord extends SingleCompressedNameBase {
      * @param alias
      *            The name to which the CNAME alias points
      */
-    public CNAMERecord(Name name, int dclass, long ttl, Name alias) {
+    public CNAMERecord(Name name, DClass dclass, long ttl, Name alias) {
         super(name, Type.CNAME, dclass, ttl, alias, "alias");
     }
 

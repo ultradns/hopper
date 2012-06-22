@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.BitSet;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -43,7 +44,7 @@ public class NXTRecord extends Record {
      * @param bitmap
      *            The set of type for which records exist at this name
      */
-    public NXTRecord(Name name, int dclass, long ttl, Name next, BitSet bitmap) {
+    public NXTRecord(Name name, DClass dclass, long ttl, Name next, BitSet bitmap) {
         super(name, Type.NXT, dclass, ttl);
         this.next = checkName("next", next);
         this.bitmap = bitmap;

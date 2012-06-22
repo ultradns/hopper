@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -40,9 +41,9 @@ public class A6Record extends Record {
      * @param suffix The address suffix
      * @param prefix The name of the prefix
      */
-    public A6Record(Name name, int dclass, long ttl, int prefixBits,
+    public A6Record(Name name, DClass in, long ttl, int prefixBits,
              InetAddress suffix, Name prefix) {
-        super(name, Type.A6, dclass, ttl);
+        super(name, Type.A6, in, ttl);
         this.prefixBits = checkU8("prefixBits", prefixBits);
         if (suffix != null && Address.familyOf(suffix) != Address.IPv6) {
             throw new IllegalArgumentException("invalid IPv6 address");

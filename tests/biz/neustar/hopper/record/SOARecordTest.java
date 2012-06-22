@@ -84,7 +84,7 @@ public class SOARecordTest {
             SOARecord ar = new SOARecord();
             assertNull(ar.getName());
             assertEquals(0, ar.getType());
-            assertEquals(0, ar.getDClass());
+            assertNull(ar.getDClass());
             assertEquals(0, ar.getTTL());
             assertNull(ar.getHost());
             assertNull(ar.getAdmin());

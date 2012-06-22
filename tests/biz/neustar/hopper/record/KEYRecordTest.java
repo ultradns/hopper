@@ -52,7 +52,7 @@ public class KEYRecordTest extends TestCase {
         KEYRecord ar = new KEYRecord();
         assertNull(ar.getName());
         assertEquals(0, ar.getType());
-        assertEquals(0, ar.getDClass());
+        assertNull(ar.getDClass());
         assertEquals(0, ar.getTTL());
         assertEquals(0, ar.getAlgorithm());
         assertEquals(0, ar.getFlags());

@@ -5,6 +5,7 @@ package biz.neustar.hopper.record;
 import java.io.IOException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -58,7 +59,7 @@ public class SSHFPRecord extends Record {
      * @param fingerprint
      *            The public key's fingerprint.
      */
-    public SSHFPRecord(Name name, int dclass, long ttl, int alg,
+    public SSHFPRecord(Name name, DClass dclass, long ttl, int alg,
             int digestType, byte[] fingerprint) {
         super(name, Type.SSHFP, dclass, ttl);
         this.alg = checkU8("alg", alg);

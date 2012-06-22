@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -610,7 +611,7 @@ public class WKSRecord extends Record {
      * @param services
      *            An array of supported services, represented by port number.
      */
-    public WKSRecord(Name name, int dclass, long ttl, InetAddress address,
+    public WKSRecord(Name name, DClass dclass, long ttl, InetAddress address,
             int protocol, int[] services) {
         super(name, Type.WKS, dclass, ttl);
         if (Address.familyOf(address) != Address.IPv4) {

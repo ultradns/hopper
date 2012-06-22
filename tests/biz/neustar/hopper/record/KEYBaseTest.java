@@ -58,8 +58,8 @@ public class KEYBaseTest extends TestCase {
 		public TestClass() {
 		}
 
-		public TestClass(Name name, int type, int dclass, long ttl, int flags, int proto, int alg, byte[] key) {
-			super(name, type, dclass, ttl, flags, proto, alg, key);
+		public TestClass(Name name, int type, DClass in, long ttl, int flags, int proto, int alg, byte[] key) {
+			super(name, type, in, ttl, flags, proto, alg, key);
 		}
 
 		public Record getObject() {

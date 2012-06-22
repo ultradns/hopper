@@ -2,6 +2,7 @@
 
 package biz.neustar.hopper.record;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.impl.SingleNameBase;
@@ -30,7 +31,7 @@ public class NSAP_PTRRecord extends SingleNameBase {
      * @param target
      *            The name of the host with this address
      */
-    public NSAP_PTRRecord(Name name, int dclass, long ttl, Name target) {
+    public NSAP_PTRRecord(Name name, DClass dclass, long ttl, Name target) {
         super(name, Type.NSAP_PTR, dclass, ttl, target, "target");
     }
 

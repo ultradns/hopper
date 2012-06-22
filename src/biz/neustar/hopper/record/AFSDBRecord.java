@@ -2,6 +2,7 @@
 
 package biz.neustar.hopper.record;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.impl.U16NameBase;
@@ -33,7 +34,7 @@ public class AFSDBRecord extends U16NameBase {
      * @param host
      *            The host providing the service.
      */
-    public AFSDBRecord(Name name, int dclass, long ttl, int subtype, Name host) {
+    public AFSDBRecord(Name name, DClass dclass, long ttl, int subtype, Name host) {
         super(name, Type.AFSDB, dclass, ttl, subtype, "subtype", host, "host");
     }
 

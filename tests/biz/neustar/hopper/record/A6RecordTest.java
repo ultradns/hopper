@@ -73,7 +73,7 @@ public class A6RecordTest extends TestCase {
         A6Record ar = new A6Record();
         assertNull(ar.getName());
         assertEquals(0, ar.getType());
-        assertEquals(0, ar.getDClass());
+        assertNull(ar.getDClass());
         assertEquals(0, ar.getTTL());
     }
 

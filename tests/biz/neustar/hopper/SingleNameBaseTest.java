@@ -59,13 +59,13 @@ public class SingleNameBaseTest extends TestCase {
 		public TestClass() {
         }
 
-        public TestClass(Name name, int type, int dclass, long ttl) {
+        public TestClass(Name name, int type, DClass dclass, long ttl) {
             super(name, type, dclass, ttl);
         }
 
-        public TestClass(Name name, int type, int dclass, long ttl,
+        public TestClass(Name name, int type, DClass in, long ttl,
                 Name singleName, String desc) {
-            super(name, type, dclass, ttl, singleName, desc);
+            super(name, type, in, ttl, singleName, desc);
         }
 
         public Name getSingleName() {

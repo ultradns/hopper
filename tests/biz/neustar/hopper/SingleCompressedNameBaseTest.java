@@ -56,7 +56,7 @@ public class SingleCompressedNameBaseTest extends TestCase {
 		public TestClass() {
         }
 
-        public TestClass(Name name, int type, int dclass, long ttl,
+        public TestClass(Name name, int type, DClass dclass, long ttl,
                 Name singleName, String desc) {
             super(name, type, dclass, ttl, singleName, desc);
         }

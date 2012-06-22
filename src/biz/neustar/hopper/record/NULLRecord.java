@@ -5,6 +5,7 @@ package biz.neustar.hopper.record;
 import java.io.IOException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -37,7 +38,7 @@ public class NULLRecord extends Record {
      * @param data
      *            The contents of the record.
      */
-    public NULLRecord(Name name, int dclass, long ttl, byte[] data) {
+    public NULLRecord(Name name, DClass dclass, long ttl, byte[] data) {
         super(name, Type.NULL, dclass, ttl);
 
         if (data.length > 0xFFFF) {

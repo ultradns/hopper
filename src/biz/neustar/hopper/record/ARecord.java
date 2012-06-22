@@ -7,6 +7,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -53,8 +54,8 @@ public class ARecord extends Record {
      * @param address
      *            The address that the name refers to
      */
-    public ARecord(Name name, int dclass, long ttl, InetAddress address) {
-        super(name, Type.A, dclass, ttl);
+    public ARecord(Name name, DClass in, long ttl, InetAddress address) {
+        super(name, Type.A, in, ttl);
         if (Address.familyOf(address) != Address.IPv4) {
             throw new IllegalArgumentException("invalid IPv4 address");
         }

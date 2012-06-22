@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -41,7 +42,7 @@ public class HINFORecord extends Record {
      * @throws IllegalArgumentException
      *             One of the strings has invalid escapes
      */
-    public HINFORecord(Name name, int dclass, long ttl, String cpu, String os) {
+    public HINFORecord(Name name, DClass dclass, long ttl, String cpu, String os) {
         super(name, Type.HINFO, dclass, ttl);
         try {
             this.cpu = byteArrayFromString(cpu);

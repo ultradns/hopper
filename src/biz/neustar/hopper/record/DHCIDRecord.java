@@ -5,6 +5,7 @@ package biz.neustar.hopper.record;
 import java.io.IOException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -37,7 +38,7 @@ public class DHCIDRecord extends Record {
      * @param data
      *            The binary data, which is opaque to DNS.
      */
-    public DHCIDRecord(Name name, int dclass, long ttl, byte[] data) {
+    public DHCIDRecord(Name name, DClass dclass, long ttl, byte[] data) {
         super(name, Type.DHCID, dclass, ttl);
         this.data = data;
     }

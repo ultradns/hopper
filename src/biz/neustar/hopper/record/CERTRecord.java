@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.DNSSEC;
@@ -141,7 +142,7 @@ public class CERTRecord extends Record {
      * @param cert
      *            Binary data representing the certificate
      */
-    public CERTRecord(Name name, int dclass, long ttl, int certType,
+    public CERTRecord(Name name, DClass dclass, long ttl, int certType,
             int keyTag, int alg, byte[] cert) {
         super(name, Type.CERT, dclass, ttl);
         this.certType = checkU16("certType", certType);

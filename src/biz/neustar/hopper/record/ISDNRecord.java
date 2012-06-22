@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -42,7 +43,7 @@ public class ISDNRecord extends Record {
      * @throws IllegalArgumentException
      *             One of the strings is invalid.
      */
-    public ISDNRecord(Name name, int dclass, long ttl, String address,
+    public ISDNRecord(Name name, DClass dclass, long ttl, String address,
             String subAddress) {
         super(name, Type.ISDN, dclass, ttl);
         try {

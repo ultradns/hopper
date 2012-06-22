@@ -53,7 +53,7 @@ public class GPOSRecordTest extends TestCase {
         GPOSRecord gr = new GPOSRecord();
         assertNull(gr.getName());
         assertEquals(0, gr.getType());
-        assertEquals(0, gr.getDClass());
+        assertNull(gr.getDClass());
         assertEquals(0, gr.getTTL());
     }
 

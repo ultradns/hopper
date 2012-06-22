@@ -7,6 +7,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -97,7 +98,7 @@ public class NSEC3Record extends Record {
      * @param types
      *            The types present at the original ownername.
      */
-    public NSEC3Record(Name name, int dclass, long ttl, int hashAlg, int flags,
+    public NSEC3Record(Name name, DClass dclass, long ttl, int hashAlg, int flags,
             int iterations, byte[] salt, byte[] next, int[] types) {
         super(name, Type.NSEC3, dclass, ttl);
         this.hashAlg = checkU8("hashAlg", hashAlg);

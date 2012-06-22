@@ -36,7 +36,7 @@ public class Master {
     private Master included = null;
     private Tokenizer st;
     private int currentType;
-    private int currentDClass;
+    private DClass currentDClass;
     private long currentTTL;
     private boolean needSOATTL;
 
@@ -157,7 +157,7 @@ public class Master {
         // type
         seen_class = false;
         s = st.getString();
-        if ((currentDClass = DClass.value(s)) >= 0) {
+        if ((currentDClass = DClass.getValue(s)) != null) {
             s = st.getString();
             seen_class = true;
         }
@@ -175,7 +175,7 @@ public class Master {
         }
 
         if (!seen_class) {
-            if ((currentDClass = DClass.value(s)) >= 0) {
+            if ((currentDClass = DClass.getValue(s)) != null) {
                 s = st.getString();
             } else {
                 currentDClass = DClass.IN;

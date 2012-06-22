@@ -7,6 +7,7 @@ import java.util.Date;
 
 import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -79,7 +80,7 @@ public class TKEYRecord extends Record {
      * @param other
      *            The other data field. Currently unused responses.
      */
-    public TKEYRecord(Name name, int dclass, long ttl, Name alg,
+    public TKEYRecord(Name name, DClass dclass, long ttl, Name alg,
             Date timeInception, Date timeExpire, int mode, int error,
             byte[] key, byte other[]) {
         super(name, Type.TKEY, dclass, ttl);

@@ -5,6 +5,7 @@ package biz.neustar.hopper.record;
 import java.io.IOException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -48,7 +49,7 @@ public class SRVRecord extends Record {
      * @param target
      *            The host running the service
      */
-    public SRVRecord(Name name, int dclass, long ttl, int priority, int weight,
+    public SRVRecord(Name name, DClass dclass, long ttl, int priority, int weight,
             int port, Name target) {
         super(name, Type.SRV, dclass, ttl);
         this.priority = checkU16("priority", priority);

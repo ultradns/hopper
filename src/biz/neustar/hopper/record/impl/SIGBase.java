@@ -7,6 +7,7 @@ import java.util.Date;
 
 import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.DNSSEC;
@@ -39,10 +40,10 @@ public abstract class SIGBase extends Record {
     protected SIGBase() {
     }
 
-    public SIGBase(Name name, int type, int dclass, long ttl, int covered,
+    public SIGBase(Name name, int type, DClass any, long ttl, int covered,
             int alg, long origttl, Date expire, Date timeSigned, int footprint,
             Name signer, byte[] signature) {
-        super(name, type, dclass, ttl);
+        super(name, type, any, ttl);
         Type.check(covered);
         TTL.check(origttl);
         this.covered = covered;

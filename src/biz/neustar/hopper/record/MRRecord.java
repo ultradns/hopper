@@ -2,6 +2,7 @@
 
 package biz.neustar.hopper.record;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.impl.SingleNameBase;
@@ -29,8 +30,8 @@ public class MRRecord extends SingleNameBase {
      * @param newName
      *            The new name of the mailbox specified by the domain. domain.
      */
-    public MRRecord(Name name, int dclass, long ttl, Name newName) {
-        super(name, Type.MR, dclass, ttl, newName, "new name");
+    public MRRecord(Name name, DClass in, long ttl, Name newName) {
+        super(name, Type.MR, in, ttl, newName, "new name");
     }
 
     /** Gets the new name of the mailbox specified by the domain */

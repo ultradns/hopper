@@ -2,6 +2,7 @@
 
 package biz.neustar.hopper.record;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.impl.U16NameBase;
@@ -32,7 +33,7 @@ public class KXRecord extends U16NameBase {
      * @param target
      *            The host that authority is delegated to
      */
-    public KXRecord(Name name, int dclass, long ttl, int preference, Name target) {
+    public KXRecord(Name name, DClass dclass, long ttl, int preference, Name target) {
         super(name, Type.KX, dclass, ttl, preference, "preference", target,
                 "target");
     }

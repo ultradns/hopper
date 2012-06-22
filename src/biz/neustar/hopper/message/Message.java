@@ -577,7 +577,7 @@ public class Message implements Cloneable {
             if (i == Section.QUESTION) {
                 sb.append(";;\t" + rec.getName());
                 sb.append(", type = " + Type.string(rec.getType()));
-                sb.append(", class = " + DClass.string(rec.getDClass()));
+                sb.append(", class = " + rec.getDClass().getName());
             } else {
                 sb.append(rec);
             }

@@ -22,7 +22,8 @@ import biz.neustar.hopper.util.ReverseMap;
 public class Dig {
 
 	static Name name = null;
-	static int type = Type.A, dclass = DClass.IN;
+	static int type = Type.A;
+	static DClass dclass = DClass.IN;
 
 	static void usage() {
 		System.out.println("Usage: dig [@server] name [<type>] [<class>] " + "[options]");
@@ -97,11 +98,11 @@ public class Dig {
 				else
 					arg++;
 
-				dclass = DClass.value(argv[arg]);
-				if (dclass < 0)
-					dclass = DClass.IN;
-				else
+				DClass possibleClass = DClass.getValue(argv[arg]);
+				if (possibleClass != null) {
+				    dclass = possibleClass;
 					arg++;
+				}
 			}
 
 			while (argv[arg].startsWith("-") && argv[arg].length() > 1) {

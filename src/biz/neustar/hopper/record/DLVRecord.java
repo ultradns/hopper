@@ -5,6 +5,7 @@ package biz.neustar.hopper.record;
 import java.io.IOException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.DNSSEC;
@@ -55,7 +56,7 @@ public class DLVRecord extends Record {
      * @param digest
      *            A hash of the original key.
      */
-    public DLVRecord(Name name, int dclass, long ttl, int footprint, int alg,
+    public DLVRecord(Name name, DClass dclass, long ttl, int footprint, int alg,
             int digestid, byte[] digest) {
         super(name, Type.DLV, dclass, ttl);
         this.footprint = checkU16("footprint", footprint);

@@ -134,7 +134,7 @@ public class APLRecordTest {
 			APLRecord ar = new APLRecord();
 			assertNull(ar.getName());
 			assertEquals(0, ar.getType());
-			assertEquals(0, ar.getDClass());
+			assertNull(ar.getDClass());
 			assertEquals(0, ar.getTTL());
 			assertNull(ar.getElements());
 		}

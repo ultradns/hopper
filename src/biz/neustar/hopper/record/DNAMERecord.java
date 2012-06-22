@@ -2,6 +2,7 @@
 
 package biz.neustar.hopper.record;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.impl.SingleNameBase;
@@ -29,8 +30,8 @@ public class DNAMERecord extends SingleNameBase {
      * @param alias
      *            The name to which the DNAME alias points
      */
-    public DNAMERecord(Name name, int dclass, long ttl, Name alias) {
-        super(name, Type.DNAME, dclass, ttl, alias, "alias");
+    public DNAMERecord(Name name, DClass in, long ttl, Name alias) {
+        super(name, Type.DNAME, in, ttl, alias, "alias");
     }
 
     /**

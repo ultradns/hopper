@@ -5,6 +5,7 @@ package biz.neustar.hopper.record;
 import java.io.IOException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -41,7 +42,7 @@ public class RPRecord extends Record {
      * @param textDomain
      *            The address where TXT records can be found
      */
-    public RPRecord(Name name, int dclass, long ttl, Name mailbox,
+    public RPRecord(Name name, DClass dclass, long ttl, Name mailbox,
             Name textDomain) {
         super(name, Type.RP, dclass, ttl);
 

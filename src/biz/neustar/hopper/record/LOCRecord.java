@@ -8,6 +8,7 @@ import java.text.NumberFormat;
 
 import biz.neustar.hopper.exception.WireParseException;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -60,7 +61,7 @@ public class LOCRecord extends Record {
      * @param vPrecision
      *            The vertical precision of the data, in m.
      */
-    public LOCRecord(Name name, int dclass, long ttl, double latitude,
+    public LOCRecord(Name name, DClass dclass, long ttl, double latitude,
             double longitude, double altitude, double size, double hPrecision,
             double vPrecision) {
         super(name, Type.LOC, dclass, ttl);

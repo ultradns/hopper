@@ -2,6 +2,7 @@
 
 package biz.neustar.hopper.record;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.impl.SingleNameBase;
@@ -30,7 +31,7 @@ public class MDRecord extends SingleNameBase {
      * @param mailAgent
      *            The mail agent that delivers mail for the domain.
      */
-    public MDRecord(Name name, int dclass, long ttl, Name mailAgent) {
+    public MDRecord(Name name, DClass dclass, long ttl, Name mailAgent) {
         super(name, Type.MD, dclass, ttl, mailAgent, "mail agent");
     }
 

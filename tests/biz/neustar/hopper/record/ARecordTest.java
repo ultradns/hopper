@@ -69,7 +69,7 @@ public class ARecordTest extends TestCase {
         ARecord ar = new ARecord();
         assertNull(ar.getName());
         assertEquals(0, ar.getType());
-        assertEquals(0, ar.getDClass());
+        assertNull(ar.getDClass());
         assertEquals(0, ar.getTTL());
         assertEquals(InetAddress.getByName("0.0.0.0"), ar.getAddress());
     }

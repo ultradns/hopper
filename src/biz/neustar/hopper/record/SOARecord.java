@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -52,7 +53,7 @@ public class SOARecord extends Record {
      * @param minimum
      *            The minimum TTL for records in the zone
      */
-    public SOARecord(Name name, int dclass, long ttl, Name host, Name admin,
+    public SOARecord(Name name, DClass dclass, long ttl, Name host, Name admin,
             long serial, long refresh, long retry, long expire, long minimum) {
         super(name, Type.SOA, dclass, ttl);
         this.host = checkName("host", host);

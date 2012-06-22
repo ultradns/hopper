@@ -179,7 +179,7 @@ public class DNSSEC {
             name.toWireCanonical(header);
         }
         header.writeU16(rrset.getType());
-        header.writeU16(rrset.getDClass());
+        header.writeU16(rrset.getDClass().getNumericValue());
         header.writeU32(rrsig.getOrigTTL());
         for (int i = 0; i < records.length; i++) {
             out.writeByteArray(header.toByteArray());

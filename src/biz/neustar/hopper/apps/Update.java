@@ -38,13 +38,13 @@ import biz.neustar.hopper.util.Tokenizer;
 
 public class Update {
 
-	Message query, response;
-	Resolver res;
-	String server = null;
-	Name zone = Name.root;
-	long defaultTTL;
-	int defaultClass = DClass.IN;
-	PrintStream log = null;
+    private Message query, response;
+	private Resolver res;
+	private String server = null;
+	private Name zone = Name.root;
+	private long defaultTTL;
+	private DClass defaultClass = DClass.IN;
+	private PrintStream log = null;
 
 	void print(Object o) {
 		System.out.println(o);
@@ -146,11 +146,12 @@ public class Update {
 
 				else if (operation.equals("class")) {
 					String classStr = st.getString();
-					int newClass = DClass.value(classStr);
-					if (newClass > 0)
-						defaultClass = newClass;
-					else
-						print("Invalid class " + classStr);
+					try {
+					    defaultClass = DClass.getValue(classStr);
+					} catch (RuntimeException ex) {
+					    print("Error converting class: " + classStr);
+					    throw ex; // rethrow
+					}
 				}
 
 				else if (operation.equals("ttl"))
@@ -263,7 +264,7 @@ public class Update {
 		if (query.getHeader().getCount(Section.ZONE) == 0) {
 			Name updzone;
 			updzone = zone;
-			int dclass = defaultClass;
+			DClass dclass = defaultClass;
 			if (updzone == null) {
 				Record[] recs = query.getSectionArray(Section.UPDATE);
 				for (int i = 0; i < recs.length; i++) {
@@ -288,7 +289,7 @@ public class Update {
 	/*
 	 * <name> [ttl] [class] <type> <data> Ignore the class, if present.
 	 */
-	Record parseRR(Tokenizer st, int classValue, long TTLValue) throws IOException {
+	Record parseRR(Tokenizer st, DClass classValue, long TTLValue) throws IOException {
 		Name name = st.getName(zone);
 		long ttl;
 		int type;
@@ -303,15 +304,17 @@ public class Update {
 			ttl = TTLValue;
 		}
 
-		if (DClass.value(s) >= 0) {
-			classValue = DClass.value(s);
+		DClass classToUse = classValue;
+		// so apparently we use the classValue rather than in the text..hmm
+		if (DClass.getNumericValue(s) >= 0) {
+		    classToUse = DClass.getValue(s);
 			s = st.getString();
 		}
 
 		if ((type = Type.value(s)) < 0)
 			throw new IOException("Invalid type: " + s);
 
-		record = Record.fromString(name, type, classValue, ttl, st, zone);
+		record = Record.fromString(name, type, classToUse, ttl, st, zone);
 		if (record != null)
 			return (record);
 		else
@@ -334,10 +337,12 @@ public class Update {
 			st.unget();
 			if (!iseol) {
 				record = Record.fromString(name, type, defaultClass, 0, st, zone);
-			} else
+			} else {
 				record = Record.newRecord(name, type, DClass.ANY, 0);
-		} else
+			}
+		} else {
 			record = Record.newRecord(name, Type.ANY, DClass.ANY, 0);
+		}
 
 		query.addRecord(record, Section.PREREQ);
 		print(record);
@@ -378,7 +383,7 @@ public class Update {
 		token = st.get();
 		if (token.isString()) {
 			s = token.value;
-			if (DClass.value(s) >= 0) {
+			if (DClass.getValue(s) != null) {
 				s = st.getString();
 			}
 			if ((type = Type.value(s)) < 0)
@@ -409,26 +414,29 @@ public class Update {
 
 		Name name = null;
 		int type = Type.A;
-		int dclass = defaultClass;
+		DClass dclass = defaultClass;
 
 		name = st.getName(zone);
 		token = st.get();
 		if (token.isString()) {
 			type = Type.value(token.value);
-			if (type < 0)
+			if (type < 0) {
 				throw new IOException("Invalid type");
+			}
 			token = st.get();
 			if (token.isString()) {
-				dclass = DClass.value(token.value);
-				if (dclass < 0)
+				dclass = DClass.getValue(token.value);
+				if (dclass != null) {
 					throw new IOException("Invalid class");
+				}
 			}
 		}
 
 		rec = Record.newRecord(name, type, dclass);
 		Message newQuery = Message.newQuery(rec);
-		if (res == null)
+		if (res == null) {
 			res = new SimpleResolver(server);
+		}
 		response = res.send(newQuery);
 		print(response);
 	}
@@ -437,10 +445,11 @@ public class Update {
 		String s = st.getString();
 		InputStream is;
 		try {
-			if (s.equals("-"))
+			if (s.equals("-")) {
 				is = System.in;
-			else
+			} else {
 				is = new FileInputStream(s);
+			}
 			istreams.add(0, is);
 			inputs.add(0, new BufferedReader(new InputStreamReader(is)));
 		} catch (FileNotFoundException e) {
@@ -489,10 +498,11 @@ public class Update {
 			}
 		} else if (field.equalsIgnoreCase("tsig")) {
 			if (response.isSigned()) {
-				if (response.isVerified())
+				if (response.isVerified()) {
 					value = "ok";
-				else
+				} else {
 					value = "failed";
+				}
 			} else
 				value = "unsigned";
 			if (!value.equalsIgnoreCase(expected))

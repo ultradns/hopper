@@ -73,7 +73,7 @@ public class AAAARecordTest extends TestCase {
         AAAARecord ar = new AAAARecord();
         assertNull(ar.getName());
         assertEquals(0, ar.getType());
-        assertEquals(0, ar.getDClass());
+        assertNull(ar.getDClass());
         assertEquals(0, ar.getTTL());
         assertNull(ar.getAddress());
     }

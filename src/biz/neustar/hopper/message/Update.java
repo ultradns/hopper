@@ -19,27 +19,27 @@ import biz.neustar.hopper.util.Tokenizer;
 public class Update extends Message {
 
     private Name origin;
-    private int dclass;
+    private DClass dclass;
 
     /**
      * Creates an update message.
      * 
      * @param zone
      *            The name of the zone being updated.
-     * @param dclass
+     * @param in
      *            The class of the zone being updated.
      */
-    public Update(Name zone, int dclass) {
+    public Update(Name zone, DClass in) {
         super();
         if (!zone.isAbsolute()) {
             throw new RelativeNameException(zone);
         }
-        DClass.check(dclass);
+
         getHeader().setOpcode(Opcode.UPDATE);
         Record soa = Record.newRecord(zone, Type.SOA, DClass.IN);
         addRecord(soa, Section.QUESTION);
         this.origin = zone;
-        this.dclass = dclass;
+        this.dclass = in;
     }
 
     /**

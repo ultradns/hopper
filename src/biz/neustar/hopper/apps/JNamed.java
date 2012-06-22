@@ -100,7 +100,7 @@ public class JNamed {
 					addSecondaryZone(st.nextToken(), st.nextToken());
 				else if (keyword.equals("cache")) {
 					Cache cache = new Cache(st.nextToken());
-					caches.put(new Integer(DClass.IN), cache);
+					caches.put(DClass.IN.getNumericValue(), cache);
 				} else if (keyword.equals("key")) {
 					String s1 = st.nextToken();
 					String s2 = st.nextToken();
@@ -161,11 +161,11 @@ public class JNamed {
 		TSIGs.put(name, new TSIG(algstr, namestr, key));
 	}
 
-	public Cache getCache(int dclass) {
-		Cache c = caches.get(new Integer(dclass));
+	public Cache getCache(DClass in) {
+		Cache c = caches.get(in.getNumericValue());
 		if (c == null) {
-			c = new Cache(dclass);
-			caches.put(new Integer(dclass), c);
+			c = new Cache(in);
+			caches.put(in.getNumericValue(), c);
 		}
 		return c;
 	}
@@ -185,13 +185,13 @@ public class JNamed {
 		return null;
 	}
 
-	public RRset findExactMatch(Name name, int type, int dclass, boolean glue) {
+	public RRset findExactMatch(Name name, int type, DClass in, boolean glue) {
 		Zone zone = findBestZone(name);
 		if (zone != null)
 			return zone.findExactMatch(name, type);
 		else {
 			RRset[] rrsets;
-			Cache cache = getCache(dclass);
+			Cache cache = getCache(in);
 			if (glue)
 				rrsets = cache.findAnyRecords(name, type);
 			else
@@ -270,7 +270,7 @@ public class JNamed {
 		addAdditional2(response, Section.AUTHORITY, flags);
 	}
 
-	byte addAnswer(Message response, Name name, int type, int dclass, int iterations, int flags) {
+	byte addAnswer(Message response, Name name, int type, DClass dclass, int iterations, int flags) {
 		SetResponse sr;
 		byte rcode = Rcode.NOERROR;
 
@@ -412,14 +412,16 @@ public class JNamed {
 
 		OPTRecord queryOPT = query.getOPT();
 		if (queryOPT != null && queryOPT.getVersion() > 0) {
+		    // bridge to nowhere? TODO: why is this here?
 		}
 
-		if (s != null)
+		if (s != null) {
 			maxLength = 65535;
-		else if (queryOPT != null)
+		} else if (queryOPT != null) {
 			maxLength = Math.max(queryOPT.getPayloadSize(), 512);
-		else
+		} else {
 			maxLength = 512;
+		}
 
 		if (queryOPT != null && (queryOPT.getFlags() & ExtendedFlags.DO) != 0)
 			flags = FLAG_DNSSECOK;
@@ -432,7 +434,7 @@ public class JNamed {
 
 		Name name = queryRecord.getName();
 		int type = queryRecord.getType();
-		int dclass = queryRecord.getDClass();
+		DClass dclass = queryRecord.getDClass();
 		if (type == Type.AXFR && s != null)
 			return doAXFR(name, query, tsig, queryTSIG, s);
 		if (!Type.isRR(type) && type != Type.ANY)

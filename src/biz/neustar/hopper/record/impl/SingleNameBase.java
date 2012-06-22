@@ -5,6 +5,7 @@ package biz.neustar.hopper.record.impl;
 import java.io.IOException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -27,11 +28,11 @@ public abstract class SingleNameBase extends Record {
     protected SingleNameBase() {
     }
 
-    protected SingleNameBase(Name name, int type, int dclass, long ttl) {
+    protected SingleNameBase(Name name, int type, DClass dclass, long ttl) {
         super(name, type, dclass, ttl);
     }
 
-    protected SingleNameBase(Name name, int type, int dclass, long ttl,
+    protected SingleNameBase(Name name, int type, DClass dclass, long ttl,
             Name singleName, String description) {
         super(name, type, dclass, ttl);
         this.singleName = checkName(description, singleName);

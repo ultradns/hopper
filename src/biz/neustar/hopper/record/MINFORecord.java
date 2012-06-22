@@ -5,6 +5,7 @@ package biz.neustar.hopper.record;
 import java.io.IOException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -42,7 +43,7 @@ public class MINFORecord extends Record {
      *            The address to receive error messages relating to the mailing
      *            list/mailbox.
      */
-    public MINFORecord(Name name, int dclass, long ttl,
+    public MINFORecord(Name name, DClass dclass, long ttl,
             Name responsibleAddress, Name errorAddress) {
         super(name, Type.MINFO, dclass, ttl);
 

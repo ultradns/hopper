@@ -37,51 +37,47 @@ package biz.neustar.hopper;
 import junit.framework.TestCase;
 import biz.neustar.hopper.message.DClass;
 
-public class DClassTest extends TestCase
-{
-    public void test_string()
-    {
-	// a regular one
-	assertEquals("IN", DClass.string(DClass.IN));
+public class DClassTest extends TestCase {
+    public void test_string() {
+        // a regular one
+        assertEquals("IN", DClass.getString(DClass.IN));
 
-	// one with an alias
-	assertEquals("CH", DClass.string(DClass.CH));
+        // one with an alias
+        assertEquals("CH", DClass.getString(DClass.CH));
 
-	// one that doesn't exist
-	assertTrue(DClass.string(20).startsWith("CLASS"));
+        // one that doesn't exist
+        assertTrue(DClass.getString(20).startsWith("CLASS"));
 
-	try {
-	    DClass.string(-1);
-	    fail("IllegalArgumentException not thrown");
-	}
-	catch( IllegalArgumentException e ){
-	}
-	
-	//  (max is 0xFFFF)
-	try {
-	    DClass.string(0x10000);
-	    fail("IllegalArgumentException not thrown");
-	}
-	catch( IllegalArgumentException e ){
-	}
+        try {
+            DClass.getString(-1);
+            fail("IllegalArgumentException not thrown");
+        } catch (IllegalArgumentException e) {
+        }
+
+        // (max is 0xFFFF)
+        try {
+            DClass.getString(0x10000);
+            fail("IllegalArgumentException not thrown");
+        } catch (IllegalArgumentException e) {
+        }
     }
 
-    public void test_value()
-    {
-	// regular one
-	assertEquals(DClass.NONE, DClass.value("NONE"));
+    public void test_value() {
+        // regular one
+        assertEquals(DClass.NONE, DClass.getValue("NONE"));
 
-	// one with alias
-	assertEquals(DClass.HS, DClass.value("HS"));
-	assertEquals(DClass.HS, DClass.value("HESIOD"));
+        // one with alias
+        assertEquals(DClass.HS, DClass.getValue("HS"));
+        assertEquals(DClass.HS, DClass.getValue("HESIOD"));
+        
 
-	// one thats undefined but within range
-	assertEquals(21, DClass.value("CLASS21"));
+        // one thats undefined but within range
+        assertEquals(21, DClass.getNumericValue("CLASS21"));
 
-	// something that unknown
-	assertEquals(-1, DClass.value("THIS IS DEFINITELY UNKNOWN"));
+        // something that unknown
+        assertEquals(-1, DClass.getNumericValue("THIS IS DEFINITELY UNKNOWN"));
 
-	// empty string
-	assertEquals(-1, DClass.value(""));
+        // empty string
+        assertEquals(-1, DClass.getNumericValue(""));
     }
 }

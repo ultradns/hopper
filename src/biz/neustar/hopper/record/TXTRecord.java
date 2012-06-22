@@ -4,6 +4,7 @@ package biz.neustar.hopper.record;
 
 import java.util.List;
 
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.impl.TXTBase;
@@ -33,7 +34,7 @@ public class TXTRecord extends TXTBase {
      * @throws IllegalArgumentException
      *             One of the strings has invalid escapes
      */
-    public TXTRecord(Name name, int dclass, long ttl, List<String> strings) {
+    public TXTRecord(Name name, DClass dclass, long ttl, List<String> strings) {
         super(name, Type.TXT, dclass, ttl, strings);
     }
 
@@ -45,7 +46,7 @@ public class TXTRecord extends TXTBase {
      * @throws IllegalArgumentException
      *             The string has invalid escapes
      */
-    public TXTRecord(Name name, int dclass, long ttl, String string) {
+    public TXTRecord(Name name, DClass dclass, long ttl, String string) {
         super(name, Type.TXT, dclass, ttl, string);
     }
 

@@ -38,8 +38,8 @@ public class Zone implements Serializable {
 
     private Map<Name, Object> data;
     private Name origin;
-    private Object originNode;
-    private int dclass = DClass.IN;
+    private Object originNode; // TODO: hmm.. what's in this mystical "Object" 
+    private DClass dclass = DClass.IN;
     private RRset NS;
     private SOARecord SOA;
     private boolean hasWild;
@@ -216,10 +216,10 @@ public class Zone implements Serializable {
      * 
      * @see ZoneTransferIn
      */
-    public Zone(Name zone, int dclass, String remote) throws IOException,
+    public Zone(Name zone, DClass in, String remote) throws IOException,
             ZoneTransferException {
         ZoneTransferIn xfrin = ZoneTransferIn.newAXFR(zone, remote, null);
-        xfrin.setDClass(dclass);
+        xfrin.setDClass(in);
         fromXFR(xfrin);
     }
 
@@ -239,7 +239,7 @@ public class Zone implements Serializable {
     }
 
     /** Returns the Zone's class */
-    public int getDClass() {
+    public DClass getDClass() {
         return dclass;
     }
 

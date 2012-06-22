@@ -6,6 +6,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
@@ -72,7 +73,7 @@ public class NSAPRecord extends Record {
      * @throws IllegalArgumentException
      *             The address is not a valid NSAP address.
      */
-    public NSAPRecord(Name name, int dclass, long ttl, String address) {
+    public NSAPRecord(Name name, DClass dclass, long ttl, String address) {
         super(name, Type.NSAP, dclass, ttl);
         this.address = checkAndConvertAddress(address);
         if (this.address == null) {
