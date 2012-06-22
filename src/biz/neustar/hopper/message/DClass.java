@@ -2,11 +2,10 @@
 
 package biz.neustar.hopper.message;
 
-import java.util.List;
 import java.util.Arrays;
+import java.util.List;
 
 import biz.neustar.hopper.exception.InvalidDClassException;
-import biz.neustar.hopper.util.Mnemonic;
 
 /**
  * Constants and functions relating to DNS classes. This is called DClass to

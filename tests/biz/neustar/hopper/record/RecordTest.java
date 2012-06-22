@@ -42,7 +42,6 @@ import java.util.Date;
 
 import junit.framework.TestCase;
 import biz.neustar.hopper.config.Options;
-import biz.neustar.hopper.exception.InvalidDClassException;
 import biz.neustar.hopper.exception.InvalidTTLException;
 import biz.neustar.hopper.exception.InvalidTypeException;
 import biz.neustar.hopper.exception.RelativeNameException;

@@ -189,14 +189,15 @@ public class Zone implements Serializable {
         data = new TreeMap<Name, Object>();
 
         origin = xfrin.getName();
-        List<Record> records = xfrin.run();
-        for (Iterator<Record> it = records.iterator(); it.hasNext();) {
+        ZoneTransferResult run = xfrin.run();
+        if (run.getType() != ZoneTransferType.AXFR) {
+            throw new IllegalArgumentException("zones can only be "
+                    + "created from AXFRs");
+        }
+        for (Iterator<Record> it = run.getAxfr().iterator(); it.hasNext();) {
             Record record = it.next();
             maybeAddRecord(record);
         }
-        if (!xfrin.isAXFR())
-            throw new IllegalArgumentException("zones can only be "
-                    + "created from AXFRs");
         validate();
     }
 

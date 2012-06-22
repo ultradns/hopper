@@ -21,6 +21,7 @@ import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.exception.ZoneTransferException;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.ZoneTransferIn;
+import biz.neustar.hopper.message.ZoneTransferResult;
 import biz.neustar.hopper.resolver.TCPClient;
 
 /**
@@ -107,8 +108,8 @@ public class ZoneTransferInTest extends TestCase {
         newIXFR = ZoneTransferIn.newIXFR(new Name("example.biz."), 2008021850l,
                 false, "localhost", null);
         newIXFR.setClient(new StringTCPClient(ixfrResponseExtraDataHex));
-        assertNull(newIXFR.run());
-        assertTrue(newIXFR.isCurrent());
+        ZoneTransferResult run = newIXFR.run();
+        assertTrue(run.isUpToDate());
     }
 
     /**
@@ -148,8 +149,8 @@ public class ZoneTransferInTest extends TestCase {
         newIXFR = ZoneTransferIn.newIXFR(new Name("example.biz."), 2011071501l,
                 false, "localhost", null);
         newIXFR.setClient(new StringTCPClient(ixfrResponseWrongQuestionHex));
-        assertNull(newIXFR.run());
-        assertTrue(newIXFR.isCurrent());
+        ZoneTransferResult run = newIXFR.run();
+        assertTrue(run.isUpToDate());
     }
 
     /**

@@ -81,9 +81,9 @@ public class ZoneTransferIn {
 
     private int rtype;
 
-    private List<Record> axfr;
+    List<Record> axfr;
     private List<Delta> ixfr;
-
+    
     private ZoneTransferIn() {
     }
 
@@ -548,27 +548,35 @@ public class ZoneTransferIn {
     /**
      * Does the zone transfer.
      * 
-     * @return A list, which is either an AXFR-style response (List of Records),
-     *         and IXFR-style response (List of Deltas), or null, which
-     *         indicates that an IXFR was performed and the zone is up to date.
+     * @return A transfer result object
      * @throws IOException
      *             The zone transfer failed to due an IO problem.
      * @throws ZoneTransferException
      *             The zone transfer failed to due a problem with the zone
      *             transfer itself.
      */
-    public List run() throws IOException, ZoneTransferException {
-        try {
-            openConnection();
-            doxfr();
-        } finally {
-            closeConnection();
-        }
-        if (axfr != null) {
-            return axfr;
-        }
-        return ixfr;
-    }
+	public ZoneTransferResult run() throws IOException, ZoneTransferException {
+		try {
+			openConnection();
+			doxfr();
+		} finally {
+			closeConnection();
+		}
+		ZoneTransferResult zoneTransferResult = new ZoneTransferResult();
+		if (axfr != null) {
+			zoneTransferResult.setType(ZoneTransferType.AXFR);
+			zoneTransferResult.setAxfr(axfr);
+			axfr = null;
+		} else {
+			zoneTransferResult.setType(ZoneTransferType.IXFR);
+			zoneTransferResult.setUpToDate(ixfr == null);
+			if (ixfr != null) {
+				zoneTransferResult.setIxfr(ixfr);
+				ixfr = null;
+			}
+		}
+		return zoneTransferResult;
+	}
 
     /**
      * Returns true if the response is an AXFR-style response (List of Records).
