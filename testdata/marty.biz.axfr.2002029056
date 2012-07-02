@@ -1,0 +1,35 @@
+
+; <<>> DiG 9.7.3 <<>> @localhost marty.biz axfr
+; (1 server found)
+;; global options: +cmd
+marty.biz.		10800	IN	SOA	ns1.marty.biz. hostmaster.marty.biz. 2002029056 120 15 604800 10800
+marty.biz.		86400	IN	NS	ns1.marty.biz.
+marty.biz.		86400	IN	NS	ns2.smokeyjoe.com.
+marty.biz.		86400	IN	MX	10 mail.marty.biz.
+bill.marty.biz.		86400	IN	A	192.168.0.3
+fred.marty.biz.		86400	IN	A	192.168.0.4
+ftp.marty.biz.		86400	IN	CNAME	www.marty.biz.
+mail.marty.biz.		86400	IN	A	192.168.0.3
+ns1.marty.biz.		86400	IN	A	192.168.0.1
+1.rrset.marty.biz.	86400	IN	A	192.168.0.1
+1.rrset.marty.biz.	86400	IN	A	192.168.0.2
+1.rrset.marty.biz.	86400	IN	A	192.168.0.3
+1.rrset.marty.biz.	86400	IN	A	192.168.0.4
+1.rrset.marty.biz.	86400	IN	A	192.168.0.5
+1.rrset.marty.biz.	86400	IN	A	192.168.22.22
+2.rrset.marty.biz.	86400	IN	A	127.0.0.1
+2.rrset.marty.biz.	86400	IN	A	127.0.0.2
+2.rrset.marty.biz.	86400	IN	A	127.0.0.10
+2.rrset.marty.biz.	86400	IN	A	127.0.0.88
+3.rrset.marty.biz.	86400	IN	TXT	"hi"
+3.rrset.marty.biz.	86400	IN	TXT	"you"
+3.rrset.marty.biz.	86400	IN	TXT	"gnarly"
+44.rrset.marty.biz.	86400	IN	A	192.168.22.22
+www.marty.biz.		86400	IN	A	192.168.0.2
+www6.marty.biz.		86400	IN	A	10.31.145.237
+marty.biz.		10800	IN	SOA	ns1.marty.biz. hostmaster.marty.biz. 2002029056 120 15 604800 10800
+;; Query time: 0 msec
+;; SERVER: 127.0.0.1#53(127.0.0.1)
+;; WHEN: Thu Jun 28 14:49:28 2012
+;; XFR size: 26 records (messages 1, bytes 554)
+
