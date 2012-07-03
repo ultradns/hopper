@@ -4,6 +4,7 @@
       <conf name="default" visibility="public" extends="runtime" />
       <conf name="compile" transitive="true" visibility="private" />
       <conf name="runtime" extends="compile" description="everything needed to run this module" />
+      <conf name="nio" extends="runtime" description="nio dependencies" />
       <conf name="test" extends="runtime" transitive="true" visibility="public" />
     </configurations>
     
@@ -15,5 +16,9 @@
         <dependency org="emma" force="true" name="emma_ant" rev="2.0.5312" conf="test->default"/>
         <dependency org="pmd" name="pmd" rev="4.2.5" conf="test->default"/>
         <dependency org="commons-codec" name="commons-codec" rev="1.4" conf="test->default"/>
+        <dependency org="io.netty" name="netty" rev="3.5.1.Final" conf="nio->default"/>
+        <dependency org="org.slf4j" name="slf4j-api" rev="1.6.6" conf="nio->default"/>
+        <dependency org="ch.qos.logback" name="logback-core" rev="0.9.28" conf="nio->default"/>
+        <dependency org="ch.qos.logback" name="logback-classic" rev="0.9.28" conf="nio->default"/>
     </dependencies>
 </ivy-module>
