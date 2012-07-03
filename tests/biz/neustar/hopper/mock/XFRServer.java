@@ -41,49 +41,77 @@ import biz.neustar.hopper.util.Master;
  */
 public class XFRServer {
 
-	/** Mapping from question to response */
+	/** Mapping from client query to response */
 	final Map<QueryQuestion, File> responseMap = new HashMap<QueryQuestion, File>();
-
 	private final int port;
 	private final int backlog;
 	private final InetAddress bindAddr;
+	private ServerSocket serverSocket;
 
+	/**
+	 * Start a server on a specified port and interface
+	 * 
+	 * @param port
+	 *            To listen on
+	 * @param backlog
+	 *            The client request backlog size
+	 * @param bindAddr
+	 *            The interface to bind to
+	 */
 	public XFRServer(int port, int backlog, InetAddress bindAddr) {
 		this.port = port;
 		this.backlog = backlog;
 		this.bindAddr = bindAddr;
 	}
 
+	/**
+	 * Start a local server the default port
+	 * 
+	 * @throws UnknownHostException
+	 */
 	public XFRServer() throws UnknownHostException {
 		this(53, 128, InetAddress.getByName("localhost"));
 	}
 
 	/**
-	 * Commence responding to request
+	 * Commence responding to request. Starts a ServerSocket if needed,
+	 * otherwise does nothing.
+	 * 
+	 * @throws IOException
 	 */
-	public void serve() {
+	protected synchronized void serve() throws IOException {
 
-		try {
-			ServerSocket sock;
-			sock = new ServerSocket(port, backlog, bindAddr);
-			while (true) {
-				final Socket s = sock.accept();
-				Thread t;
-				t = new Thread(new Runnable() {
-					public void run() {
+		if (serverSocket == null) {
+			serverSocket = new ServerSocket(port, backlog, bindAddr);
+			// Start a single accept thread
+			new Thread(new Runnable() {
+				@Override
+				public void run() {
+					while (!serverSocket.isClosed()) {
 						try {
-							respondToRequest(s);
-						} catch (IOException e) {
-							e.printStackTrace();
+							Socket accepted = serverSocket.accept();
+							handleClientRequest(accepted);
+						} catch (IOException e1) {
+							e1.printStackTrace();
 						}
 					}
-				});
-				t.start();
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+				}
+			}).start();
 		}
+	}
 
+	/** fork a thread to handle a each client request */
+	protected void handleClientRequest(final Socket s) {
+
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					respondToRequest(s);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}).start();
 	}
 
 	/**
@@ -191,7 +219,7 @@ public class XFRServer {
 	 * @throws RuntimeException
 	 *             If things go poorly
 	 */
-	public List<Record> readRecords(Message query) throws IOException {
+	protected List<Record> readRecords(Message query) throws IOException {
 
 		Record question = query.getQuestion();
 		long serial = 0;
@@ -211,25 +239,7 @@ public class XFRServer {
 		return records;
 	}
 
-	public static void main(String[] args) throws UnknownHostException, TextParseException {
-
-		XFRServer xfrServer = new XFRServer(1053, 128, InetAddress.getByName("localhost"));
-
-		// stage an AXFR response
-		QueryQuestion qq = new QueryQuestion(Record.newRecord(new Name("marty.biz."), Type.AXFR, DClass.IN), 0l);
-		File response = getFileFromClasspath("marty.biz.axfr.2002029056");
-		xfrServer.getResponseMap().put(qq, response);
-
-		// stage an IXFR response
-		qq = new QueryQuestion(Record.newRecord(new Name("marty.biz."), Type.IXFR, DClass.IN), 2002022423l);
-		response = getFileFromClasspath("marty.biz.ixfr.2002022423.2002022424");
-		xfrServer.getResponseMap().put(qq, response);
-
-		xfrServer.serve();
-
-	}
-
-	public static File getFileFromClasspath(String filename) {
+	protected File getFileFromClasspath(String filename) {
 
 		URL resource = XFRServer.class.getResource("/" + filename);
 		File file = new File(resource.getFile());
@@ -253,6 +263,89 @@ public class XFRServer {
 
 	public InetAddress getBindAddr() {
 		return bindAddr;
+	}
+
+	/**
+	 * Add an AXFR response
+	 * 
+	 * @param name
+	 *            The query name
+	 * @param classpathFilename
+	 *            Name of the repsonse file relative to the classpath
+	 */
+	public void addAxfrResponse(String name, String classpathFilename) {
+
+		QueryQuestion qq;
+		try {
+			qq = new QueryQuestion(Record.newRecord(new Name(name), Type.AXFR, DClass.IN), 0l);
+		} catch (TextParseException e) {
+			throw new RuntimeException(e);
+		}
+		File response = getFileFromClasspath(classpathFilename);
+		getResponseMap().put(qq, response);
+	}
+
+	/**
+	 * Add an AXFR response
+	 * 
+	 * @param name
+	 *            The query name
+	 * @param classpathFilename
+	 *            Name of the repsonse file relative to the classpath
+	 * @param serial
+	 *            The SOA serial number in the IXFR query
+	 */
+	public void addIxfrResponse(String name, long serial, String classpathFilename) {
+
+		QueryQuestion qq;
+		try {
+			qq = new QueryQuestion(Record.newRecord(new Name(name), Type.IXFR, DClass.IN), serial);
+		} catch (TextParseException e) {
+			throw new RuntimeException(e);
+		}
+		File response = getFileFromClasspath(classpathFilename);
+		getResponseMap().put(qq, response);
+	}
+
+	/**
+	 * Start accepting client request.
+	 * 
+	 * Starts a server socket on another thread and return immediately. The
+	 * server socket starts is one has not already been started, otherwise
+	 * nothing is accomplished.
+	 * 
+	 * @throws RuntimeException
+	 */
+	public void start() {
+		try {
+			serve();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	/**
+	 * Stop accepting client request.
+	 * 
+	 * @throws RuntimeException
+	 */
+	public void stop() {
+		try {
+			serverSocket.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static void main(String[] args) throws UnknownHostException, TextParseException {
+
+		XFRServer xfrServer = new XFRServer(1053, 128, InetAddress.getByName("localhost"));
+
+		// stage some responses
+		xfrServer.addAxfrResponse("marty.biz.", "marty.biz.axfr.2002029056");
+		xfrServer.addIxfrResponse("marty.biz.", 2002022423L, "marty.biz.ixfr.2002022423.2002022424.txt");
+
+		xfrServer.start();
 	}
 
 }
