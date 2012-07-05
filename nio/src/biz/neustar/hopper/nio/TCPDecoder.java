@@ -34,9 +34,10 @@ public class TCPDecoder extends FrameDecoder {
 			buffer.resetReaderIndex();
 			return null;
 		}
-		//read the message
+		// read the message
 		log.debug("Reading entire message");
-		return buffer.readBytes(length);
+		ChannelBuffer toReturn = buffer.readBytes(length);
+		return toReturn;
 	}
 
 }
