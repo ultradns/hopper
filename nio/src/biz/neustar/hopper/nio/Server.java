@@ -60,7 +60,7 @@ public class Server {
 						new TCPEncoder(), 
 						new MessageDecoder(),
 						new MessageEncoder(),
-						new EchoWireHandler());
+						new EchoMessageHandler());
 			}
 		});
 		log.info("Binding to {}", port);
@@ -78,6 +78,6 @@ public class Server {
 
 	public static void main(String[] args) {
 		
-		new Server().start();
+		new Server(1053).start();
 	}
 }
