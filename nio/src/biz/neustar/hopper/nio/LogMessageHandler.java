@@ -10,21 +10,21 @@ import org.slf4j.LoggerFactory;
 import biz.neustar.hopper.message.Message;
 
 /**
- * A server handler which echos a DNS Message.
+ * A handler which logs a DNS Message
  * 
  * @author Marty Kube marty@beavercreekconsulting.com
  * 
  */
-public class EchoMessageHandler extends SimpleChannelHandler {
+public class LogMessageHandler extends SimpleChannelHandler {
 
-	private static Logger log = LoggerFactory.getLogger(EchoMessageHandler.class);
+	private static Logger log = LoggerFactory.getLogger(LogMessageHandler.class);
 
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
 		Message message = (Message) e.getMessage();
 		log.debug("messageReceived:\n{}", message);
-		e.getChannel().write(message);
+		e.getChannel().close();
 	}
 
 	@Override
