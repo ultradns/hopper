@@ -23,12 +23,11 @@ public class MessageDecoder extends OneToOneDecoder {
 	protected Object decode(ChannelHandlerContext context, Channel channel, Object message) throws Exception {
 		
 		if(log.isDebugEnabled()) {
-			log.debug("decode {}", message);
+			log.debug("decode {}", channel.getId());
 		}
 		ChannelBuffer buffer = (ChannelBuffer) message;
 		byte[] messageBytes = buffer.array();
-		Message dnsMessage = new Message(messageBytes);
-		return dnsMessage;
+		return new Message(messageBytes);
 	}
 
 }

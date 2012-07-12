@@ -11,7 +11,6 @@ import org.jboss.netty.handler.codec.frame.LengthFieldBasedFrameDecoder;
 public class TCPDecoder extends LengthFieldBasedFrameDecoder {
 
 	public TCPDecoder() {
-		// max frame size is 2^16 - 1
 		super(65535, 0, 2, 0, 2);
 	}
 
