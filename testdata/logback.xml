@@ -5,6 +5,7 @@
     </encoder>
   </appender>
   <logger name="biz.neustar.hopper" level="DEBUG"/>
+  <logger name="org.jboss.netty" level="DEBUG"/>
   <root level="WARN">
     <appender-ref ref="STDOUT" />
   </root>

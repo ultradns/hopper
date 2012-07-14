@@ -9,16 +9,22 @@
     </configurations>
     
     <dependencies defaultconf="default">
-        <!-- testing, you need these, really -->
+
+        <!-- default -->
+        
+        <!-- testing -->
         <dependency org="junit" force="true" name="junit" rev="4.3" conf="test->default"/>
         <dependency org="org.mockito" name="mockito-all" rev="1.8.5" conf="test->default"/>
         <dependency org="emma" force="true" name="emma" rev="2.0.5312" conf="test->default"/>
         <dependency org="emma" force="true" name="emma_ant" rev="2.0.5312" conf="test->default"/>
         <dependency org="pmd" name="pmd" rev="4.2.5" conf="test->default"/>
         <dependency org="commons-codec" name="commons-codec" rev="1.4" conf="test->default"/>
+        
+        <!-- nio -->
         <dependency org="io.netty" name="netty" rev="3.5.1.Final" conf="nio->default"/>
         <dependency org="org.slf4j" name="slf4j-api" rev="1.6.6" conf="nio->default"/>
         <dependency org="ch.qos.logback" name="logback-core" rev="0.9.28" conf="nio->default"/>
         <dependency org="ch.qos.logback" name="logback-classic" rev="0.9.28" conf="nio->default"/>
+        
     </dependencies>
 </ivy-module>

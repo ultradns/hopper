@@ -61,13 +61,13 @@ public class Client {
 		});
 
 	}
-	
-	/** 
-	 * Shutdown the client.  Close open connections and release resources.
+
+	/**
+	 * Shutdown the client. Close open connections and release resources.
 	 */
 	public void stop() {
-		
-		for(Channel channel: openChannels.values()) {
+
+		for (Channel channel : openChannels.values()) {
 			Channels.close(channel).awaitUninterruptibly();
 		}
 		bootstrap.releaseExternalResources();
@@ -82,18 +82,23 @@ public class Client {
 	 */
 	protected ChannelFuture connectTCP(final InetSocketAddress server) {
 
-		ChannelFuture toReturn;
+		ChannelFuture toReturn = null;
 		Channel channel = openChannels.get(server);
 		if (channel == null) {
 			try {
 				toReturn = bootstrap.connect(server);
 			} catch (IllegalStateException ise) {
-				// could not open, something is wrong.. could be an open in-progress
+				// could not open, something is wrong... could be an open
+				// in-progress that got done since we checked....
+				log.error("Could not connect", ise);
+
 				toReturn = Channels.future(null);
 				toReturn.setFailure(ise);
 				return toReturn;
 			}
-			// record this as the open channel, since we must no block other openers in case we do connect		
+
+			// When we know the outcome, record this as the open connection if
+			// we were successful
 			toReturn.addListener(new ChannelFutureListener() {
 
 				@Override
@@ -102,7 +107,7 @@ public class Client {
 						// possibly record this connection as open
 						Channel existingChannel = openChannels.putIfAbsent(server, future.getChannel());
 						if (existingChannel != null) {
-							// don't use this one, another different one has
+							// don't use this one, a different one has
 							// been opened
 							Channels.close(future.getChannel());
 						}
@@ -142,12 +147,12 @@ public class Client {
 	 *            The DNS message
 	 */
 	public void sendTCP(final String host, final int port, final Message message) {
-		
+
 		connectTCP(new InetSocketAddress(host, port)).addListener(new ChannelFutureListener() {
-			
+
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
-				if(future.isSuccess()) {
+				if (future.isSuccess()) {
 					future.getChannel().write(message);
 				} else {
 					log.error("Could not open connection {} {}", host, port);
