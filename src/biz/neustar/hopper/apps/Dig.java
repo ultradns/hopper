@@ -98,7 +98,7 @@ public class Dig {
 				else
 					arg++;
 
-				DClass possibleClass = DClass.getValue(argv[arg]);
+				DClass possibleClass = DClass.getType(argv[arg]);
 				if (possibleClass != null) {
 				    dclass = possibleClass;
 					arg++;

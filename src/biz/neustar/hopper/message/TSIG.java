@@ -280,7 +280,7 @@ public class TSIG {
 
         DNSOutput out = new DNSOutput();
         name.toWireCanonical(out);
-        out.writeU16(DClass.ANY.getNumericValue()); /* class */
+        out.writeU16(DClass.ANY.getValue()); /* class */
         out.writeU32(0); /* ttl */
         alg.toWireCanonical(out);
         long time = timeSigned.getTime() / 1000;
@@ -458,7 +458,7 @@ public class TSIG {
 
         DNSOutput out = new DNSOutput();
         tsig.getName().toWireCanonical(out);
-        out.writeU16(tsig.getDClass().getNumericValue());
+        out.writeU16(tsig.getDClass().getValue());
         out.writeU32(tsig.getTTL());
         tsig.getAlgorithm().toWireCanonical(out);
         long time = tsig.getTimeSigned().getTime() / 1000;

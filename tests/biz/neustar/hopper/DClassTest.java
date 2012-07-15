@@ -40,23 +40,23 @@ import biz.neustar.hopper.message.DClass;
 public class DClassTest extends TestCase {
     public void test_string() {
         // a regular one
-        assertEquals("IN", DClass.getString(DClass.IN));
+        assertEquals("IN", DClass.IN.getName());
 
         // one with an alias
-        assertEquals("CH", DClass.getString(DClass.CH));
+        assertEquals("CH", DClass.CH.getName());
 
         // one that doesn't exist
-        assertTrue(DClass.getString(20).startsWith("CLASS"));
+        assertTrue(DClass.getName(20).startsWith("CLASS"));
 
         try {
-            DClass.getString(-1);
+            DClass.getName(-1);
             fail("IllegalArgumentException not thrown");
         } catch (IllegalArgumentException e) {
         }
 
         // (max is 0xFFFF)
         try {
-            DClass.getString(0x10000);
+            DClass.getName(0x10000);
             fail("IllegalArgumentException not thrown");
         } catch (IllegalArgumentException e) {
         }
@@ -64,20 +64,20 @@ public class DClassTest extends TestCase {
 
     public void test_value() {
         // regular one
-        assertEquals(DClass.NONE, DClass.getValue("NONE"));
+        assertEquals(DClass.NONE, DClass.getType("NONE"));
 
         // one with alias
-        assertEquals(DClass.HS, DClass.getValue("HS"));
-        assertEquals(DClass.HS, DClass.getValue("HESIOD"));
+        assertEquals(DClass.HS, DClass.getType("HS"));
+        assertEquals(DClass.HS, DClass.getType("HESIOD"));
         
 
         // one thats undefined but within range
-        assertEquals(21, DClass.getNumericValue("CLASS21"));
+        assertEquals(21, DClass.getValue("CLASS21"));
 
         // something that unknown
-        assertEquals(-1, DClass.getNumericValue("THIS IS DEFINITELY UNKNOWN"));
+        assertEquals(-1, DClass.getValue("THIS IS DEFINITELY UNKNOWN"));
 
         // empty string
-        assertEquals(-1, DClass.getNumericValue(""));
+        assertEquals(-1, DClass.getValue(""));
     }
 }

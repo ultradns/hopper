@@ -142,10 +142,10 @@ public final class Lookup {
      * @return The default cache for the specified class.
      */
     public static synchronized Cache getDefaultCache(DClass dclass) {
-        Cache c = defaultCaches.get(dclass.getNumericValue());
+        Cache c = defaultCaches.get(dclass.getValue());
         if (c == null) {
             c = new Cache(dclass);
-            defaultCaches.put(dclass.getNumericValue(), c);
+            defaultCaches.put(dclass.getValue(), c);
         }
         return c;
     }

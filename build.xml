@@ -1,4 +1,4 @@
-<project name="dnsjava" default="all"  xmlns:ivy="antlib:org.apache.ivy.ant">
+<project name="hopper" default="all"  xmlns:ivy="antlib:org.apache.ivy.ant">
     <property name="build.dir" value="${basedir}/build/classes"/>
     <property name="src.dir" value="${basedir}/src"/>
     <property name="dist.dir" value="${basedir}/dist"/>
@@ -8,9 +8,9 @@
     
     <property name="doc.dir" value="${basedir}/doc"/>
     
-    <property name="version" value="3.0.0"/>
-    <property name="zipname" value="dnsjava-${version}.zip"/>
-    <property name="targzname" value="dnsjava-${version}.tar.gz"/>
+    <property name="version" value="0.1.0"/>
+    <property name="zipname" value="hopper-${version}.zip"/>
+    <property name="targzname" value="hopper-${version}.tar.gz"/>
 
     <!-- import ivy -->
     <property name="lib.dir" value="${basedir}/lib"/>
@@ -51,7 +51,7 @@
 	</javac>
     </target>
 
-    <target name="jar" description="Makes dnsjava.jar" depends="git-version,compile">
+    <target name="jar" description="Makes ${ant.project.name}" depends="git-version,compile">
         <echo message="full.version=${full.version}" file="${dist.dir}/${ant.project.name}.properties" append="false" />
 	<jar jarfile="${dist.dir}/${ant.project.name}.jar"
 		basedir="${build.dir}" includes="**/*.class **/*.properties">
@@ -63,6 +63,7 @@
 	    </manifest>
 	</jar>
     </target>
+
 <!-- todo, update this 	
 	<target name="bundle" description="Creates an OSGi bundle" depends="jar">
 		<get src="http://www.aqute.biz/repo/biz/aQute/bnd/0.0.384/bnd-0.0.384.jar"

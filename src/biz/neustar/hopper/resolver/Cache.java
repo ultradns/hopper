@@ -657,7 +657,7 @@ public class Cache {
 
         qname = question.getName();
         qtype = question.getType();
-        qclass = question.getDClass().getNumericValue();
+        qclass = question.getDClass().getValue();
 
         curname = qname;
 
@@ -665,7 +665,7 @@ public class Cache {
 
         answers = in.getSectionRRsets(Section.ANSWER);
         for (int i = 0; i < answers.length; i++) {
-            if (answers[i].getDClass().getNumericValue() != qclass) {
+            if (answers[i].getDClass().getValue() != qclass) {
                 continue;
             }
             int type = answers[i].getType();

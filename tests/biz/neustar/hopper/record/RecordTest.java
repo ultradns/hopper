@@ -275,7 +275,7 @@ public class RecordTest extends TestCase {
 		DNSOutput out = new DNSOutput();
 		n.toWire(out, null);
 		out.writeU16(t);
-		out.writeU16(d.getNumericValue());
+		out.writeU16(d.getValue());
 		out.writeU32(ttl);
 		out.writeU16(data.length);
 		out.writeByteArray(data);
@@ -316,7 +316,7 @@ public class RecordTest extends TestCase {
 		out = new DNSOutput();
 		n.toWire(out, null);
 		out.writeU16(t);
-		out.writeU16(d.getNumericValue());
+		out.writeU16(d.getValue());
 		out.writeU32(ttl);
 		out.writeU16(0);
 
@@ -344,7 +344,7 @@ public class RecordTest extends TestCase {
 		DNSOutput out = new DNSOutput();
 		n.toWire(out, null);
 		out.writeU16(t);
-		out.writeU16(d.getNumericValue());
+		out.writeU16(d.getValue());
 		out.writeU32(ttl);
 		out.writeU16(data.length);
 		out.writeByteArray(data);
@@ -369,7 +369,7 @@ public class RecordTest extends TestCase {
 		out = new DNSOutput();
 		n.toWire(out, null);
 		out.writeU16(t);
-		out.writeU16(d.getNumericValue());
+		out.writeU16(d.getValue());
 
 		exp = out.toByteArray();
 		out = new DNSOutput();
@@ -392,7 +392,7 @@ public class RecordTest extends TestCase {
 		DNSOutput out = new DNSOutput();
 		n.toWireCanonical(out);
 		out.writeU16(t);
-		out.writeU16(d.getNumericValue());
+		out.writeU16(d.getValue());
 		out.writeU32(ttl);
 		out.writeU16(data.length);
 		out.writeByteArray(data);
@@ -824,8 +824,8 @@ public class RecordTest extends TestCase {
 
 		// different DClass
 		r2 = Record.newRecord(n, Type.A, DClass.CH, 0xABCDE9, d);
-		assertEquals(DClass.IN.getNumericValue() - DClass.CH.getNumericValue(), r1.compareTo(r2));
-		assertEquals(DClass.CH.getNumericValue() - DClass.IN.getNumericValue(), r2.compareTo(r1));
+		assertEquals(DClass.IN.getValue() - DClass.CH.getValue(), r1.compareTo(r2));
+		assertEquals(DClass.CH.getValue() - DClass.IN.getValue(), r2.compareTo(r1));
 
 		// different Type
 		r2 = Record.newRecord(n, Type.NS, DClass.IN, 0xABCDE9, m.toWire());

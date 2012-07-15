@@ -100,7 +100,7 @@ public class JNamed {
 					addSecondaryZone(st.nextToken(), st.nextToken());
 				else if (keyword.equals("cache")) {
 					Cache cache = new Cache(st.nextToken());
-					caches.put(DClass.IN.getNumericValue(), cache);
+					caches.put(DClass.IN.getValue(), cache);
 				} else if (keyword.equals("key")) {
 					String s1 = st.nextToken();
 					String s2 = st.nextToken();
@@ -162,10 +162,10 @@ public class JNamed {
 	}
 
 	public Cache getCache(DClass in) {
-		Cache c = caches.get(in.getNumericValue());
+		Cache c = caches.get(in.getValue());
 		if (c == null) {
 			c = new Cache(in);
-			caches.put(in.getNumericValue(), c);
+			caches.put(in.getValue(), c);
 		}
 		return c;
 	}

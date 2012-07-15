@@ -222,7 +222,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
 
         name = new Name(in);
         type = in.readU16();
-        dclass = DClass.getValue(in.readU16());
+        dclass = DClass.getType(in.readU16());
 
         if (section == Section.QUESTION) {
             return newRecord(name, type, dclass);
@@ -249,7 +249,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
     }
 
     public void toWire(DNSOutput out, int section, Compression c) {
-        toWire(out, section, c, name, type, dclass.getNumericValue(), ttl);
+        toWire(out, section, c, name, type, dclass.getValue(), ttl);
     }
     
     protected void toWire(DNSOutput out, int section, Compression c, 
@@ -279,7 +279,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
     }
 
     protected void toWireCanonical(DNSOutput out, boolean noTTL) {
-        toWireCanonical(out, name, type, dclass.getNumericValue(), noTTL ? 0 : ttl);
+        toWireCanonical(out, name, type, dclass.getValue(), noTTL ? 0 : ttl);
     }
     
     // this is needed for overriding in the OPTRecord, which needs to reuse the CLASS as payload.
@@ -359,7 +359,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
         }
         sb.append("\t");
         if (dclass != DClass.IN || !Options.check("noPrintIN")) {
-            sb.append(DClass.getString(dclass));
+            sb.append(dclass.getName());
             sb.append("\t");
         }
         sb.append(Type.string(type));
@@ -717,7 +717,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
             return (n);
         }
         // TODO: just compare the enum value... 
-        n = dclass.getNumericValue() - arg.dclass.getNumericValue();
+        n = dclass.getValue() - arg.dclass.getValue();
         if (n != 0) {
             return (n);
         }

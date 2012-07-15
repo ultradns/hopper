@@ -147,7 +147,7 @@ public class Update {
 				else if (operation.equals("class")) {
 					String classStr = st.getString();
 					try {
-					    defaultClass = DClass.getValue(classStr);
+					    defaultClass = DClass.getType(classStr);
 					} catch (RuntimeException ex) {
 					    print("Error converting class: " + classStr);
 					    throw ex; // rethrow
@@ -306,8 +306,8 @@ public class Update {
 
 		DClass classToUse = classValue;
 		// so apparently we use the classValue rather than in the text..hmm
-		if (DClass.getNumericValue(s) >= 0) {
-		    classToUse = DClass.getValue(s);
+		if (DClass.getValue(s) >= 0) {
+		    classToUse = DClass.getType(s);
 			s = st.getString();
 		}
 
@@ -383,7 +383,7 @@ public class Update {
 		token = st.get();
 		if (token.isString()) {
 			s = token.value;
-			if (DClass.getValue(s) != null) {
+			if (DClass.getType(s) != null) {
 				s = st.getString();
 			}
 			if ((type = Type.value(s)) < 0)
@@ -425,7 +425,7 @@ public class Update {
 			}
 			token = st.get();
 			if (token.isString()) {
-				dclass = DClass.getValue(token.value);
+				dclass = DClass.getType(token.value);
 				if (dclass != null) {
 					throw new IOException("Invalid class");
 				}
