@@ -26,15 +26,15 @@ import org.slf4j.LoggerFactory;
 public class Server {
 
 	private final static Logger log = LoggerFactory.getLogger(Server.class);
-	
+
 	/** Keep track of open connections */
-	final private ChannelGroup channelGroup = new DefaultChannelGroup();	
+	final private ChannelGroup channelGroup = new DefaultChannelGroup();
 
 	/**
 	 * The port to which the server will bind to
 	 */
 	final private AtomicInteger port = new AtomicInteger();
-	
+
 	/** the channel factory for this server */
 	final private AtomicReference<ChannelFactory> channelFactory = new AtomicReference<ChannelFactory>();
 
@@ -61,17 +61,13 @@ public class Server {
 	 */
 	public void start() {
 
-		channelFactory.set(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(),
-				Executors.newCachedThreadPool()));
+		channelFactory.set(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors
+				.newCachedThreadPool()));
 		ServerBootstrap bootstrap = new ServerBootstrap(channelFactory.get());
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() {
-				return Channels.pipeline( 
-						new TCPDecoder(), 
-						new TCPEncoder(), 
-						new MessageDecoder(),
-						new MessageEncoder(),
-						new EchoMessageHandler());
+				return Channels.pipeline(new TCPDecoder(), new TCPEncoder(), new MessageDecoder(),
+						new MessageEncoder(), new EchoMessageHandler());
 			}
 		});
 		log.info("Binding to {}", port);
@@ -80,7 +76,7 @@ public class Server {
 		log.info("Bound to {}", channel.getLocalAddress());
 		port.set(((InetSocketAddress) channel.getLocalAddress()).getPort());
 	}
-	
+
 	/**
 	 * Shutdown the server
 	 */
@@ -102,7 +98,7 @@ public class Server {
 	}
 
 	public static void main(String[] args) {
-		
-		new Server(1053).start();
+
+		new Server(1052).start();
 	}
 }

@@ -1,34 +1,21 @@
 package biz.neustar.hopper.nio;
 
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import junit.framework.Assert;
 
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelEvent;
 import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.handler.logging.LoggingHandler;
 import org.jboss.netty.logging.InternalLoggerFactory;
 import org.jboss.netty.logging.Slf4JLoggerFactory;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.message.DClass;
@@ -44,88 +31,48 @@ import biz.neustar.hopper.record.ARecord;
  */
 public class ClientTest {
 
-	Server server;
-	int port;
-	Client client;
-
 	@BeforeClass
 	public static void setLogging() {
 		InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
-	}
-
-	@Before
-	public void before() {
-		server = new Server(0);
-		server.start();
-		port = server.getPort();
-		client = new Client();
-
-	}
-
-	@After
-	public void after() {
-		client.stop();
-		server.stop();
 	}
 
 	@Test
 	public void defaultPipeline() {
 
 		// check the names of the default pipeline
-		Assert.assertEquals("[TCPDecoder, TCPEncoder, MessageDecoder, MessageEncoder]", new Client().getPipeline()
+		Assert.assertEquals("[TCPDecoder, TCPEncoder, MessageDecoder, MessageEncoder]", new Client("").getPipeline()
 				.getNames().toString());
 	}
 
 	@Test
 	public void connectTCP() throws InterruptedException {
 
+		// start server
+		Server server = new Server(0);
+		server.start();
+		Client client = new Client("localhost", server.getPort());
+
 		// get a new connection
-		ChannelFuture connectTCP = client.connectTCP(new InetSocketAddress("localhost", port));
+		ChannelFuture connectTCP = client.connectTCP();
 		Assert.assertTrue(connectTCP.await(500));
 		Assert.assertTrue(connectTCP.isDone());
 		Assert.assertTrue(connectTCP.isSuccess());
 
 		// try to connect again, should be the same channel
-		Channel channel = connectTCP.getChannel();
-		connectTCP = client.connectTCP(new InetSocketAddress("localhost", port));
-		connectTCP.await(500);
-		Assert.assertTrue(connectTCP.isDone());
-		Assert.assertTrue(connectTCP.isSuccess());
-		Assert.assertEquals(channel, connectTCP.getChannel());
-		Assert.assertTrue(channel.isOpen());
+		int count = 0;
+		do {
+			Channel channel = connectTCP.getChannel();
+			connectTCP = client.connectTCP();
+			connectTCP.await(500);
+			Assert.assertTrue(connectTCP.isDone());
+			Assert.assertTrue(connectTCP.isSuccess());
+			Assert.assertEquals(channel, connectTCP.getChannel());
+			channel = connectTCP.getChannel();
+		} while (count++ < 100);
 
-	}
-
-	public static class MessageReceivedTrap extends SimpleChannelUpstreamHandler {
-
-		private final static Logger log = LoggerFactory.getLogger(MessageReceivedTrap.class);
-		final public CountDownLatch latch;
-		final private AtomicInteger counter = new AtomicInteger();
-
-		public MessageReceivedTrap(int count) {
-
-			latch = new CountDownLatch(count);
-		}
-
-		@Override
-		public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
-
-			log.debug("handleUpstream {}", e);
-			if (e instanceof MessageEvent) {
-				// message recieved
-				log.debug("Received message {}", counter.getAndIncrement());
-				latch.countDown();
-			}
-			super.handleUpstream(ctx, e);
-		}
-		
-		
-		@Override
-		public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
-
-			log.debug("exceptionCaught {}", e);
-			super.exceptionCaught(ctx, e);
-		}
+		// shutdown
+		client.stop();
+		server.stop();
 	}
 
 	@Test
@@ -134,7 +81,12 @@ public class ClientTest {
 
 		// one client thread sending many message to a single server destination
 
-		int messageCount = 1;
+		// start server
+		Server server = new Server(0);
+		server.start();
+		Client client = new Client("localhost", server.getPort());
+
+		int messageCount = 100;
 
 		MessageReceivedTrap responseReceivedTrap = new MessageReceivedTrap(messageCount);
 		client.getPipeline().addLast("log", new LoggingHandler());
@@ -143,25 +95,34 @@ public class ClientTest {
 		// send messages
 		for (int i = 0; i < messageCount; i++) {
 			Message query = getQuery(i);
-			client.sendTCP("localhost", port, query);
+			client.sendTCP(query);
 		}
 
 		// wait to receive them prior to time out
-		Assert.assertTrue(responseReceivedTrap.latch.await(2, TimeUnit.SECONDS));
+		try {
+			Assert.assertTrue(responseReceivedTrap.latch.await(2, TimeUnit.SECONDS));
+		} finally {
+			// shutdown
+			client.stop();
+			server.stop();
+		}
 	}
 
 	@Test
-	@Ignore("This fails due connection open failures...  Something is wrong in the connection tracking")
 	public void manyClientsOneServerTCP() throws TextParseException, UnknownHostException, InterruptedException {
 
 		// set up a bunch of client and server and have them chat for a while
+		// start server
+		Server server = new Server(0);
+		server.start();
 
-		int messageCount = 100;
-		int clientCount = 4;
+		int messageCount = 900;
+		int clientCount = 3;
+		int port = server.getPort();
 		MessageReceivedTrap responseReceivedTrap = new MessageReceivedTrap(messageCount);
 		List<Client> clients = new ArrayList<Client>(clientCount);
 		for (int i = 0; i < clientCount; i++) {
-			clients.add(new Client());
+			clients.add(new Client("localhost", port));
 			clients.get(i).getPipeline().addLast("log", new LoggingHandler());
 			clients.get(i).getPipeline().addLast("trap", responseReceivedTrap);
 		}
@@ -169,7 +130,7 @@ public class ClientTest {
 		Random random = new Random();
 		for (int i = 0; i < messageCount; i++) {
 			Client client = clients.get(random.nextInt(clients.size()));
-			client.sendTCP("localhost", server.getPort(), getQuery(i));
+			client.sendTCP(getQuery(i));
 		}
 
 		try {
@@ -180,6 +141,56 @@ public class ClientTest {
 			for (Client client : clients) {
 				client.stop();
 			}
+			server.stop();
+		}
+	}
+
+	@Test
+	public void manyClientsManyServerTCP() throws TextParseException, UnknownHostException, InterruptedException {
+
+		runClientsAndServers(10000, 1, 1);
+		runClientsAndServers(10000, 25, 2);
+		runClientsAndServers(10000, 2, 25);
+		runClientsAndServers(10000, 200, 200);
+		
+		// give out of memory error not work , see NETTY-424
+		// runClientsAndServers(10000, 2, 2000);
+	}
+
+	private void runClientsAndServers(int messageCount, int serverCount, int clientCount) throws TextParseException,
+			UnknownHostException, InterruptedException {
+		// set up a bunch of client and server and have them chat for a while
+		// start server
+		Server server = new Server(0);
+		server.start();
+
+		List<Server> servers = new ArrayList<Server>(serverCount);
+		for (int i = 0; i < serverCount; i++) {
+			servers.add(new Server(0));
+			servers.get(i).start();
+		}
+		MessageReceivedTrap responseReceivedTrap = new MessageReceivedTrap(messageCount);
+		List<Client> clients = new ArrayList<Client>(clientCount);
+		for (int i = 0; i < clientCount; i++) {
+			clients.add(new Client("localhost", servers.get(i % serverCount).getPort()));
+			clients.get(i).getPipeline().addLast("trap", responseReceivedTrap);
+		}
+		// start the conversation
+		Random random = new Random();
+		for (int i = 0; i < messageCount; i++) {
+			Client client = clients.get(random.nextInt(clients.size()));
+			client.sendTCP(getQuery(i));
+		}
+
+		try {
+			// wait for all of the responses to come back
+			Assert.assertTrue(responseReceivedTrap.latch.await(3, TimeUnit.SECONDS));
+		} finally {
+			// shut down
+			for (Client client : clients) {
+				client.stop();
+			}
+			server.stop();
 		}
 	}
 

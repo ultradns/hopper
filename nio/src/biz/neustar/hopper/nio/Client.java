@@ -1,12 +1,10 @@
 package biz.neustar.hopper.nio;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
-import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -33,16 +31,33 @@ public class Client {
 	/** The channel pipeline for this client */
 	final private ChannelPipeline pipeline = Channels.pipeline();
 
-	/** The Netty client helper */
+	/** The client helper */
 	final private ClientBootstrap bootstrap;
 
-	/** Open TCP connections */
-	final private ConcurrentMap<InetSocketAddress, Channel> openChannels = new ConcurrentHashMap<InetSocketAddress, Channel>();
+	/** The host name or IP address to connect to */
+	final String host;
+
+	/** The port to connect to */
+	final int port;
+
+	/** The single channel open request associated with this client */
+	final private AtomicReference<ChannelFuture> channelFurure = new AtomicReference<ChannelFuture>();
+	
+	/**
+	 * Constructs a new client with end-point port of 53
+	 */
+	public Client(String host) {
+
+		this(host, 53);
+	}
 
 	/**
 	 * Constructs a new client
 	 */
-	public Client() {
+	public Client(String host, int port) {
+
+		this.host = host;
+		this.port = port;
 
 		pipeline.addLast("TCPDecoder", new TCPDecoder());
 		pipeline.addLast("TCPEncoder", new TCPEncoder());
@@ -59,16 +74,16 @@ public class Client {
 				return pipeline;
 			}
 		});
-
 	}
-
+	
 	/**
-	 * Shutdown the client. Close open connections and release resources.
+	 * Shutdown the client. Close open channel and release resources.
 	 */
 	public void stop() {
 
-		for (Channel channel : openChannels.values()) {
-			Channels.close(channel).awaitUninterruptibly();
+		ChannelFuture channelFuture = channelFurure.get();
+		if (channelFuture != null) {
+			channelFuture.getChannel().close().awaitUninterruptibly();
 		}
 		bootstrap.releaseExternalResources();
 	}
@@ -80,48 +95,22 @@ public class Client {
 	 *            To which the connection should be opened
 	 * @return A ChannelFuture for the connection operation
 	 */
-	protected ChannelFuture connectTCP(final InetSocketAddress server) {
+	protected ChannelFuture connectTCP() {
 
-		ChannelFuture toReturn = null;
-		Channel channel = openChannels.get(server);
-		if (channel == null) {
-			try {
-				toReturn = bootstrap.connect(server);
-			} catch (IllegalStateException ise) {
-				// could not open, something is wrong... could be an open
-				// in-progress that got done since we checked....
-				log.error("Could not connect", ise);
-
-				toReturn = Channels.future(null);
-				toReturn.setFailure(ise);
-				return toReturn;
+		ChannelFuture toReturn = channelFurure.get();
+		if (toReturn == null) {
+			// open a connection
+			toReturn = bootstrap.connect(new InetSocketAddress(host, port));
+			log.debug("Opened {}", toReturn);
+			if (!channelFurure.compareAndSet(null, toReturn)) {
+				// another thread has request a connect. Discard this one and
+				// use the other one.
+				log.info("Failed to set as pending connection, discarding {}", toReturn);
+				toReturn.getChannel().close().awaitUninterruptibly();
+				toReturn = channelFurure.get();
 			}
-
-			// When we know the outcome, record this as the open connection if
-			// we were successful
-			toReturn.addListener(new ChannelFutureListener() {
-
-				@Override
-				public void operationComplete(ChannelFuture future) throws Exception {
-					if (future.isSuccess()) {
-						// possibly record this connection as open
-						Channel existingChannel = openChannels.putIfAbsent(server, future.getChannel());
-						if (existingChannel != null) {
-							// don't use this one, a different one has
-							// been opened
-							Channels.close(future.getChannel());
-						}
-					} else {
-						// open failed, remove this one
-						openChannels.remove(future.getChannel());
-					}
-				}
-			});
-		} else {
-			toReturn = Channels.future(channel);
-			toReturn.setSuccess();
 		}
-
+		log.info("Returning channelFuture {}", toReturn);
 		return toReturn;
 	}
 
@@ -136,22 +125,20 @@ public class Client {
 
 	/**
 	 * Send a message via TCP asynchronously. This method returns prior to
-	 * completion of the request. It may block a little while opening a
-	 * connection. Add a handler to process the returned message.
+	 * completion of the request. Add a handler in the pipeline to process the
+	 * returned message.
 	 * 
-	 * @param host
-	 *            The server hostname or IP address
-	 * @param port
-	 *            The server port
-	 * @param query
+	 * @param message
 	 *            The DNS message
 	 */
-	public void sendTCP(final String host, final int port, final Message message) {
+	public void sendTCP(final Message message) {
 
-		connectTCP(new InetSocketAddress(host, port)).addListener(new ChannelFutureListener() {
+		connectTCP().addListener(new ChannelFutureListener() {
 
 			@Override
 			public void operationComplete(ChannelFuture future) throws Exception {
+
+				log.info("operationComplete for channel {}", future.getChannel());
 				if (future.isSuccess()) {
 					future.getChannel().write(message);
 				} else {
