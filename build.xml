@@ -1,70 +1,68 @@
-<project name="hopper" default="all"  xmlns:ivy="antlib:org.apache.ivy.ant">
-    <property name="build.dir" value="${basedir}/build/classes"/>
-    <property name="src.dir" value="${basedir}/src"/>
-    <property name="dist.dir" value="${basedir}/dist"/>
-    <property name="tests.build.dir" location="${basedir}/build/test" />  
-    <property name="tests.dir" value="${basedir}/tests"/>
-    <property name="reports.dir" value="${basedir}/reports"/>
-    
-    <property name="doc.dir" value="${basedir}/doc"/>
-    
-    <property name="version" value="0.1.0"/>
-    <property name="zipname" value="hopper-${version}.zip"/>
-    <property name="targzname" value="hopper-${version}.tar.gz"/>
+<project name="hopper" default="all" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<property name="build.dir" value="${basedir}/build/classes" />
+	<property name="src.dir" value="${basedir}/src" />
+	<property name="dist.dir" value="${basedir}/dist" />
+	<property name="tests.build.dir" location="${basedir}/build/test" />
+	<property name="tests.dir" value="${basedir}/tests" />
+	<property name="reports.dir" value="${basedir}/reports" />
 
-    <!-- import ivy -->
-    <property name="lib.dir" value="${basedir}/lib"/>
-    <import file="${basedir}/lib/ivy/common.xml" />    
+	<property name="doc.dir" value="${basedir}/doc" />
+
+	<property name="version" value="0.1.0" />
+	<property name="zipname" value="hopper-${version}.zip" />
+	<property name="targzname" value="hopper-${version}.tar.gz" />
+
+	<!-- import ivy -->
+	<property name="lib.dir" value="${basedir}/lib" />
+	<import file="${basedir}/lib/ivy/common.xml" />
 
 
-    <property name="j2se.javadoc"
-      value="http://java.sun.com/j2se/1.4/docs/api/"/>
+	<property name="j2se.javadoc" value="http://java.sun.com/j2se/1.4/docs/api/" />
 
-    <target name="all" description="Compile and Jar" depends="jar">
-    </target>
-    
-    <target name="-prep">
-      <delete dir="${reports.dir}"/>
-      <delete dir="${dist.dir}"/>
-      <delete dir="${build.dir}"/>
-      <delete dir="${tests.build.dir}"/>
-      <mkdir dir="${tests.build.dir}"/>
-      <mkdir dir="${build.dir}"/>
-      <mkdir dir="${dist.dir}"/>
-      <mkdir dir="${reports.dir}"/>
-    </target>
-    
+	<target name="all" description="Compile and Jar" depends="jar">
+	</target>
 
-    <target name="compile" depends="-prep" description="Compile Project">
-      <javac destdir="${build.dir}" debug="true" includeantruntime="false">
-	      <src path="${src.dir}"/>
-	      <!-- todo
+	<target name="-prep">
+		<delete dir="${reports.dir}" />
+		<delete dir="${dist.dir}" />
+		<delete dir="${build.dir}" />
+		<delete dir="${tests.build.dir}" />
+		<mkdir dir="${tests.build.dir}" />
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${dist.dir}" />
+		<mkdir dir="${reports.dir}" />
+	</target>
+
+
+	<target name="compile" depends="-prep" description="Compile Project">
+		<javac destdir="${build.dir}" debug="true" includeantruntime="false">
+			<src path="${src.dir}" />
+			<!-- todo
 	      <compilerarg value="-Xlint" />
 	      -->
-      </javac>
-    </target>
+		</javac>
+	</target>
 
-    <target name="spi" description="Compile the Name Service Provider code">
-	<javac destdir="${build_dir}" debug="true" includeantruntime="false">
-	    <src path="${src_dir}"/>
-	    <include name="com/ultradns/dnsjava/dns/spi/*.java"/>
-	</javac>
-    </target>
+	<target name="spi" description="Compile the Name Service Provider code">
+		<javac destdir="${build_dir}" debug="true" includeantruntime="false">
+			<src path="${src_dir}" />
+			<include name="com/ultradns/dnsjava/dns/spi/*.java" />
+		</javac>
+	</target>
 
-    <target name="jar" description="Makes ${ant.project.name}" depends="git-version,compile">
-        <echo message="full.version=${full.version}" file="${dist.dir}/${ant.project.name}.properties" append="false" />
-	<jar jarfile="${dist.dir}/${ant.project.name}.jar"
-		basedir="${build.dir}" includes="**/*.class **/*.properties">
-	    <exclude name="com/ultradns/dnsjava/dns/tests/*.class"/>
-	    <exclude name="tests/**"/>
-	    <manifest>
-		<attribute name="Implementation-Title" value="dnsjava"/>
-		<attribute name="Implementation-Version" value="${full.version}"/>
-	    </manifest>
-	</jar>
-    </target>
+	<target name="jar" description="Makes ${ant.project.name}" depends="git-version,compile">
+		<echo message="full.version=${full.version}" file="${dist.dir}/${ant.project.name}.properties" append="false" />
+		<jar jarfile="${dist.dir}/${ant.project.name}.jar" basedir="${build.dir}" includes="**/*.class **/*.properties">
+			<exclude name="com/ultradns/dnsjava/dns/tests/*.class" />
+			<exclude name="tests/**" />
+			<manifest>
+				<attribute name="Implementation-Title" value="dnsjava" />
+				<attribute name="Implementation-Version" value="${full.version}" />
+			</manifest>
+		</jar>
+	</target>
 
-<!-- todo, update this 	
+	<!-- todo, update this 	
 	<target name="bundle" description="Creates an OSGi bundle" depends="jar">
 		<get src="http://www.aqute.biz/repo/biz/aQute/bnd/0.0.384/bnd-0.0.384.jar"
 			dest="${build_dir}/bnd.jar"/>
@@ -87,137 +85,125 @@
 	</target>
 -->
 
-    <target name="clean" depends="-prep" description="Remove old class files">
-    </target>
+	<target name="clean" depends="-prep" description="Remove old class files">
+	</target>
 
-    <target name="docs" description="Makes Javadoc documentation">
-	<javadoc destdir="${doc.dir}"
-		 sourcepath="${src_dir}"
-		 packagenames="com.ultradns.dnsjava.dns,com.ultradns.dnsjava.dns.utils,com.ultradns.dnsjava.dns.spi"
-		 windowtitle="dnsjava documentation">
+	<target name="docs" description="Makes Javadoc documentation">
+		<javadoc destdir="${doc.dir}" sourcepath="${src_dir}" packagenames="com.ultradns.dnsjava.dns,com.ultradns.dnsjava.dns.utils,com.ultradns.dnsjava.dns.spi" windowtitle="dnsjava documentation">
 
-	    <link href="${j2se.javadoc}"/>
-	</javadoc>
-    </target>
+			<link href="${j2se.javadoc}" />
+		</javadoc>
+	</target>
 
-    <target name="docsclean" description="Remove old documentation">
-	<delete dir="${doc.dir}"/>
-    </target>
+	<target name="docsclean" description="Remove old documentation">
+		<delete dir="${doc.dir}" />
+	</target>
 
-    <target name="reportsclean" description="Remove old reports">
-	<delete dir="${reports.dir}"/>
-    </target>
+	<target name="reportsclean" description="Remove old reports">
+		<delete dir="${reports.dir}" />
+	</target>
 
-    <property name="source_excludes"
-	      value="**/*.class,${jarname},${zipname},${targzname}" />
+	<property name="source_excludes" value="**/*.class,${jarname},${zipname},${targzname}" />
 
-    <target name="sourcedist" description="Builds source distributions"
-	    depends="compile,docs">
-	<zip destfile="${dist_dir}/${zipname}">
-	    <zipfileset dir="${src_dir}" prefix="dnsjava-${version}"
-			excludes="${source_excludes}" />
-	</zip>
-	<tar destfile="${dist_dir}/${targzname}" compression="gzip">
-	    <tarfileset dir="${src_dir}" prefix="dnsjava-${version}"
-			excludes="${source_excludes}" />
-	</tar>
-    </target>
+	<target name="sourcedist" description="Builds source distributions" depends="compile,docs">
+		<zip destfile="${dist_dir}/${zipname}">
+			<zipfileset dir="${src_dir}" prefix="dnsjava-${version}" excludes="${source_excludes}" />
+		</zip>
+		<tar destfile="${dist_dir}/${targzname}" compression="gzip">
+			<tarfileset dir="${src_dir}" prefix="dnsjava-${version}" excludes="${source_excludes}" />
+		</tar>
+	</target>
 
-    <target name="compile-tests" depends="compile" description="Compiles Unit Tests">
-      <javac destdir="${tests.build.dir}" debug="true" includeantruntime="false">
-	      <src path="${tests.dir}"/>
-	      <exclude name="**/*Luna*.java"/>
-        <classpath>
-          <fileset dir="${lib.dir}/test" includes="*.jar" excludes="ant.jar"/>
-          <pathelement location="${build.dir}" />
-        </classpath>
-      </javac>
-    </target>
+	<target name="compile-tests" depends="compile" description="Compiles Unit Tests">
+		<javac destdir="${tests.build.dir}" debug="true" includeantruntime="false">
+			<src path="${tests.dir}" />
+			<exclude name="**/*Luna*.java" />
+			<classpath>
+				<fileset dir="${lib.dir}/test" includes="*.jar" excludes="ant.jar" />
+				<pathelement location="${build.dir}" />
+			</classpath>
+		</javac>
+	</target>
 
-    <target name="test" depends="clean-resolve">
-      <path id="tests_classpath">
-        <path location="${build.dir}"/>
-        <path location="${basedir}"/>
-        <path location="${tests.build.dir}"/>
-      </path>
-      <antcall target="-run-tests">
-        <reference torefid="classpath_name" refid="tests_classpath"/>
-      </antcall>
-    </target>
+	<target name="test" depends="clean-resolve">
+		<path id="tests_classpath">
+			<path location="${build.dir}" />
+			<path location="${basedir}" />
+			<path location="${tests.build.dir}" />
+		</path>
+		<antcall target="-run-tests">
+			<reference torefid="classpath_name" refid="tests_classpath" />
+		</antcall>
+	</target>
 
-    <target name="-run-tests" depends="compile-tests">
-      <mkdir dir="${reports.dir}/units"/>
-      <junit fork="yes" forkmode="perTest" 
-             dir="${basedir}" printsummary="yes"
-             haltonerror="on" haltonfailure="on">
+	<target name="-run-tests" depends="compile-tests">
+		<mkdir dir="${reports.dir}/units" />
+		<junit fork="yes" forkmode="perTest" dir="${basedir}" printsummary="yes" haltonerror="on" haltonfailure="on">
 
-          <classpath>
-	      <path refid="classpath_name"/>
-              <fileset dir="${lib.dir}/test" includes="*.jar" excludes="ant.jar"/> 
-          </classpath>
-          <formatter type="xml"/>
-          <test name="${testcase}" if="testcase"/>
-	  <batchtest unless="testcase" todir="${reports.dir}/units">
-              <fileset dir="${tests.build.dir}">
-	          <include name="**/*Test.class"/>
-	      </fileset>
-          </batchtest>
-      </junit>
-    </target>
-    
-    <target name="restyle">
-      <exec executable="astyle">
-        <arg line=" -A2 -s --mode=java -H -c -j --recursive ${src.dir}/*.java"/>
-      </exec>
-    </target>
+			<classpath>
+				<path refid="classpath_name" />
+				<fileset dir="${lib.dir}/test" includes="*.jar" excludes="ant.jar" />
+			</classpath>
+			<formatter type="xml" />
+			<test name="${testcase}" if="testcase" />
+			<batchtest unless="testcase" todir="${reports.dir}/units">
+				<fileset dir="${tests.build.dir}">
+					<include name="**/*Test.class" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>
 
-    <target name="installjar" depends="" description="--> install 3rd party jar to repo">
-        <property file="${dist.dir}/${ant.project.name}.properties" />
-        <echo message="Publishing version: ${full.version}"/>
-        <ivy:info/>
-        <ivy:configure settingsId="releases.settings" realm="Sonatype Nexus Repository Manager" override="true"
-         host="${nexus.host}" username="${nexus.user}" passwd="${nexus.passwd}" />
+	<target name="restyle">
+		<exec executable="astyle">
+			<arg line=" -A2 -s --mode=java -H -c -j --recursive ${src.dir}/*.java" />
+		</exec>
+	</target>
 
-        <ivy:install organisation="${ivy.organisation}"
-                 module="${ivy.module}" revision="${full.version}"
-                 from="localjars" to="releases" />
-    </target>
+	<target name="installjar" depends="" description="--> install 3rd party jar to repo">
+		<property file="${dist.dir}/${ant.project.name}.properties" />
+		<echo message="Publishing version: ${full.version}" />
+		<ivy:info />
+		<ivy:configure settingsId="releases.settings" realm="Sonatype Nexus Repository Manager" override="true" host="${nexus.host}" username="${nexus.user}" passwd="${nexus.passwd}" />
 
-    
-    <target name="coverage_report" depends="clean,compile-tests" if="jcoverage_dir">
-      <taskdef resource="tasks.properties">
-	<classpath>
-		<path location="${jcoverage_dir}/jcoverage.jar"/>
-		<path location="${jcoverage_dir}/lib/log4j/1.2.8/*.jar"/>
-		<path location="${jcoverage_dir}/log4j.jar"/>
-		<path location="${jcoverage_dir}/bcel.jar"/>
-		<path location="${jcoverage_dir}/oro.jar"/>
-		<path location="${jcoverage_dir}/gnu.getopt.jar"/>
-	</classpath>
-      </taskdef>
-      <instrument todir="${basedir}/iclasses">
-	<fileset dir="${basedir}">
-	  <include name="**/*.class"/>
-	  <exclude name="iclasses/**"/>
-	  <exclude name="tests/**"/>
-	</fileset>
-	<ignore regex="com.ultradns.dnsjava.dns.Tokenizer$*"/>
-      </instrument>
-      <path id="itests_classpath">
-	<path location="${basedir}/iclasses"/>
-	<path location="${tests_dir}"/>
-	<path location="${jcoverage_dir}/jcoverage.jar"/>
-	<path location="${jcoverage_dir}/lib/log4j/1.2.8/*.jar"/>
-	<path location="${jcoverage_dir}/log4j.jar"/>
-	<path location="${jcoverage_dir}/bcel.jar"/>
-	<path location="${jcoverage_dir}/oro.jar"/>
-	<path location="${jcoverage_dir}/gnu.getopt.jar"/>
-      </path>
-      <antcall target="-run-tests">
-	<param name="classpath_name" value="itests_classpath"/>
-      </antcall>
-      <report srcdir="${basedir}" destdir="${reports.dir}/coverage"/>
-      <delete dir="${basedir}/iclasses"/>
-    </target>
+		<ivy:install organisation="${ivy.organisation}" module="${ivy.module}" revision="${full.version}" from="localjars" to="releases" />
+	</target>
+
+
+	<target name="coverage_report" depends="clean,compile-tests" if="jcoverage_dir">
+		<taskdef resource="tasks.properties">
+			<classpath>
+				<path location="${jcoverage_dir}/jcoverage.jar" />
+				<path location="${jcoverage_dir}/lib/log4j/1.2.8/*.jar" />
+				<path location="${jcoverage_dir}/log4j.jar" />
+				<path location="${jcoverage_dir}/bcel.jar" />
+				<path location="${jcoverage_dir}/oro.jar" />
+				<path location="${jcoverage_dir}/gnu.getopt.jar" />
+			</classpath>
+		</taskdef>
+		<instrument todir="${basedir}/iclasses">
+			<fileset dir="${basedir}">
+				<include name="**/*.class" />
+				<exclude name="iclasses/**" />
+				<exclude name="tests/**" />
+			</fileset>
+			<ignore regex="com.ultradns.dnsjava.dns.Tokenizer$*" />
+		</instrument>
+		<path id="itests_classpath">
+			<path location="${basedir}/iclasses" />
+			<path location="${tests_dir}" />
+			<path location="${jcoverage_dir}/jcoverage.jar" />
+			<path location="${jcoverage_dir}/lib/log4j/1.2.8/*.jar" />
+			<path location="${jcoverage_dir}/log4j.jar" />
+			<path location="${jcoverage_dir}/bcel.jar" />
+			<path location="${jcoverage_dir}/oro.jar" />
+			<path location="${jcoverage_dir}/gnu.getopt.jar" />
+		</path>
+		<antcall target="-run-tests">
+			<param name="classpath_name" value="itests_classpath" />
+		</antcall>
+		<report srcdir="${basedir}" destdir="${reports.dir}/coverage" />
+		<delete dir="${basedir}/iclasses" />
+	</target>
 
 </project>
