@@ -58,7 +58,7 @@ public class HeaderTest extends TestCase {
             assertFalse(flags[i]);
         }
         assertEquals(0, m_h.getRcode());
-        assertEquals(0, m_h.getOpcode());
+        assertEquals(0, m_h.getOpcode().getValue());
         assertEquals(0, m_h.getCount(0));
         assertEquals(0, m_h.getCount(1));
         assertEquals(0, m_h.getCount(2));
@@ -74,7 +74,7 @@ public class HeaderTest extends TestCase {
             assertFalse(flags[i]);
         }
         assertEquals(0, m_h.getRcode());
-        assertEquals(0, m_h.getOpcode());
+        assertEquals(0, m_h.getOpcode().getValue());
         assertEquals(0, m_h.getCount(0));
         assertEquals(0, m_h.getCount(1));
         assertEquals(0, m_h.getCount(2));
@@ -97,7 +97,7 @@ public class HeaderTest extends TestCase {
 
         assertTrue(flags[0]);
 
-        assertEquals(1, m_h.getOpcode());
+        assertEquals(1, m_h.getOpcode().getValue());
 
         assertTrue(flags[5]);
 
@@ -139,8 +139,8 @@ public class HeaderTest extends TestCase {
             assertEquals(raw[i], out[i]);
         }
 
-        m_h.setOpcode(0xA); // 1010
-        assertEquals(0xA, m_h.getOpcode());
+        m_h.setOpcode(Opcode.getType(0xA)); // 1010
+        assertEquals(0xA, m_h.getOpcode().getValue());
         m_h.setRcode(0x7); // 0111
 
         // flags is now: 1101 0111 1011 0111
@@ -286,10 +286,10 @@ public class HeaderTest extends TestCase {
     }
 
     public void test_Opcode() {
-        assertEquals(0, m_h.getOpcode());
+        assertEquals(0, m_h.getOpcode().getValue());
 
-        m_h.setOpcode(0xE); // 1110
-        assertEquals(0xE, m_h.getOpcode());
+        m_h.setOpcode(Opcode.getType(0xE)); // 1110
+        assertEquals(0xE, m_h.getOpcode().getValue());
 
         assertFalse(m_h.getFlag(0));
         for (int i = 5; i < 12; ++i) {
@@ -300,12 +300,12 @@ public class HeaderTest extends TestCase {
 
     public void test_setOpcode_invalid() {
         try {
-            m_h.setOpcode(-1);
+            m_h.setOpcode(Opcode.getType(-1));
             fail("IllegalArgumentException not thrown");
         } catch (IllegalArgumentException e) {
         }
         try {
-            m_h.setOpcode(0x100);
+            m_h.setOpcode(Opcode.getType(0x100));
             fail("IllegalArgumentException not thrown");
         } catch (IllegalArgumentException e) {
         }
@@ -381,7 +381,7 @@ public class HeaderTest extends TestCase {
     }
 
     public void test_toString() {
-        m_h.setOpcode(Opcode.value("STATUS"));
+        m_h.setOpcode(Opcode.getType("STATUS"));
         m_h.setRcode(Rcode.value("NXDOMAIN"));
         m_h.setFlag(0); // qr
         m_h.setFlag(7); // rd
@@ -406,7 +406,7 @@ public class HeaderTest extends TestCase {
     }
 
     public void test_clone() {
-        m_h.setOpcode(Opcode.value("IQUERY"));
+        m_h.setOpcode(Opcode.getType("IQUERY"));
         m_h.setRcode(Rcode.value("SERVFAIL"));
         m_h.setFlag(0); // qr
         m_h.setFlag(7); // rd

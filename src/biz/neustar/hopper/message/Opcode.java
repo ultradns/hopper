@@ -1,38 +1,35 @@
-// Copyright (c) 1999-2004 Brian Wellington (bwelling@xbill.org)
 
 package biz.neustar.hopper.message;
 
-import biz.neustar.hopper.util.Mnemonic;
+import biz.neustar.hopper.message.impl.TrackedType;
 
 /**
  * Constants and functions relating to DNS opcodes
  * 
- * @author Brian Wellington
  */
 
-public final class Opcode {
+public final class Opcode extends TrackedType {
+    private static final Tracker TRACKER = getTracker(Opcode.class, "RESERVED");
 
     /** A standard query */
-    public static final int QUERY = 0;
+    public static final Opcode QUERY = TRACKER.register(0, "QUERY");
 
     /** An inverse query (deprecated) */
-    public static final int IQUERY = 1;
+    public static final Opcode IQUERY = TRACKER.register(1, "IQUERY");
 
     /** A server status request (not used) */
-    public static final int STATUS = 2;
+    public static final Opcode STATUS = TRACKER.register(2, "STATUS");
 
     /**
      * A message from a primary to a secondary server to initiate a zone
      * transfer
      */
-    public static final int NOTIFY = 4;
+    public static final Opcode NOTIFY = TRACKER.register(4, "NOTIFY");
 
     /** A dynamic update message */
-    public static final int UPDATE = 5;
+    public static final Opcode UPDATE = TRACKER.register(5, "UPDATE");
 
-    private static Mnemonic opcodes = new Mnemonic("DNS Opcode",
-            Mnemonic.CASE_UPPER);
-
+/*
     static {
         opcodes.setMaximum(0xF);
         opcodes.setPrefix("RESERVED");
@@ -44,18 +41,45 @@ public final class Opcode {
         opcodes.add(NOTIFY, "NOTIFY");
         opcodes.add(UPDATE, "UPDATE");
     }
-
-    private Opcode() {
+*/
+    
+    public Opcode(int value, String name, String[] altNames) {
+        super(value, name, altNames);
     }
 
+    @Override
+    public boolean validate() {
+        int value = getValue();
+        if (value < 0 || value > 0xF) {
+            throw new IllegalArgumentException(
+                    getClass().getSimpleName() + " " + value
+                    + " is out of range");
+        }
+        return true;
+    }
+    
     /** Converts a numeric Opcode into a String */
-    public static String string(int i) {
-        return opcodes.getText(i);
+    public static String getName(int value) {
+        return TRACKER.getName(value);
     }
 
     /** Converts a String representation of an Opcode into its numeric value */
-    public static int value(String s) {
-        return opcodes.getValue(s);
+    public static int getValue(String name) {
+        return TRACKER.getValue(name);
+    }
+
+    public static Opcode getType(String name) {
+        return TRACKER.getType(name);
+    }
+    
+    
+    public static Opcode getType(int value) {
+        return TRACKER.getType(value);
+    }
+
+    @Override
+    public boolean isKnownType() {
+        return TRACKER.isKnownType(this);
     }
 
 }

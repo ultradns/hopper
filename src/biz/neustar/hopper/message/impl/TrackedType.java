@@ -40,6 +40,19 @@ public abstract class TrackedType {
     
     public abstract boolean isKnownType();
     
+    /**
+     * 
+     * @param value
+     * @return return true if the value is valid, this class always returns true
+     */
+    public boolean validate() {
+        return true;
+    }
+    
+    protected static <T extends TrackedType> Tracker getTracker(Class<T> trackedClass, String prefix) {
+        return new Tracker(trackedClass, prefix);
+    }
+    
     public boolean equals(Object obj) {
         if (obj != null && obj instanceof TrackedType) {
             TrackedType other = (TrackedType) obj;
@@ -90,7 +103,13 @@ public abstract class TrackedType {
             }
         }
 
-
+        /**
+         * Register a predefined (known) type containing a name/value mapping and potentially alternate names
+         * @param value the value of the type
+         * @param name the name of the type
+         * @param altNames any alternate names to use
+         * @return the instance of the TrackedType
+         */
         public <T extends TrackedType> T register(int value, String name,
                 String... altNames) {
             T typedObj = createInstance(value, name, altNames);
@@ -102,21 +121,16 @@ public abstract class TrackedType {
             return typedObj;
         }
         
+        // Methods to use in extending classes
+        
+        
         public <T extends TrackedType> boolean isKnownType(T type) {
             return valueToObj.containsKey(type.getValue()); 
         }
         
+        
         public <T extends TrackedType> T getType(int value) {
-            return (T) valueToObj.get(value);
-        }
-        
-        public <T extends TrackedType> T getType(String nameOrAltName) {
-            return (T) nameToObj.get(nameOrAltName);
-        }
-        
-        
-        public <T extends TrackedType> T getOrCreateType(int value) {
-            T typedObj = getType(value);
+            T typedObj = getKnownType(value);
             if (typedObj == null) {
                 typedObj = createInstance(value, prefix + value);
             }
@@ -124,8 +138,8 @@ public abstract class TrackedType {
         }
         
         
-        public <T extends TrackedType> T getOrCreateType(String name) {
-            T typedObj = getType(name);
+        public <T extends TrackedType> T getType(String name) {
+            T typedObj = getKnownType(name);
             if (typedObj == null) {
                 String nonPrefixedName = name.replace(prefix, "");
                 int value = Integer.valueOf(nonPrefixedName);
@@ -136,14 +150,59 @@ public abstract class TrackedType {
             }
             return typedObj;
         }
+        
+        public int getValue(String name) {
+            try {
+                TrackedType type = getType(name);
+                if (type != null) {
+                    return type.getValue();
+                }
+            } catch (Exception ex) {
+                // swallow and return -1
+            }
+            return -1;
+        }
+        
+        public String getName(int value) {
+            TrackedType type = getType(value);
+            if (type != null) {
+                return type.getName();
+            }
+            return null;
+        }
+        
+        
+        
+        /**
+         * Tries to find a matching predefined (known) type by the given value
+         * @param value the value of the type to find
+         * @return the matching TrackedType or null if not found
+         */
+        protected <T extends TrackedType> T getKnownType(int value) {
+            return (T) valueToObj.get(value);
+        }
+        
+        /**
+         * Tries to find a matching predefined (known) type by the given name
+         * @param nameOrAltName
+         * @return the matching TrackedType or null if not found
+         */
+        protected <T extends TrackedType> T getKnownType(String nameOrAltName) {
+            return (T) nameToObj.get(nameOrAltName);
+        }
+        
+        
 
         protected <T extends TrackedType> T createInstance(int value, String name,
                 String... altNames) {
+            T typedObj = null;
             try {
-                return (T) ctor.newInstance(value, name, altNames);
+                typedObj = (T) ctor.newInstance(value, name, altNames);
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
+            typedObj.validate();
+            return typedObj;
         }
     }
 }

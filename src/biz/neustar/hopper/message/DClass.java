@@ -12,7 +12,7 @@ import biz.neustar.hopper.message.impl.TrackedType;
  */
 
 public final class DClass extends TrackedType {
-    private static Tracker TRACKER = new Tracker(DClass.class, "CLASS"); 
+    private static Tracker TRACKER = getTracker(DClass.class, "CLASS"); 
     
     /** Internet */
     public static final DClass IN = TRACKER.register(1, "IN");
@@ -33,7 +33,6 @@ public final class DClass extends TrackedType {
     
     public DClass(int value, String name, String ...altNames) {
         super(value, name, altNames);
-        check(value);
     }
 
     @Override
@@ -47,15 +46,15 @@ public final class DClass extends TrackedType {
      * 
      * @throws InvalidDClassException
      *             The class is out of range.
-     */
-    public static void check(int i) {
-        if (!isValid(i)) {
-            throw new InvalidDClassException(i);
+     *
+    */
+    public boolean validate() {
+        if (getValue() < 0 || getValue() > 0xFFFF) {
+            // NOTE: i dont really like this, however the rest of the code needs it at this point..
+            // TODO: remove this
+            throw new InvalidDClassException(getValue());
         }
-    }
-    
-    public static boolean isValid(int i) {
-        return !(i < 0 || i > 0xFFFF);
+        return true;
     }
 
     /**
@@ -65,30 +64,24 @@ public final class DClass extends TrackedType {
      * @throws InvalidDClassException
      *             The class is out of range.
      */
-    public static String getName(int i) {
-        return getType(i).getName();
+    public static String getName(int value) {
+        return TRACKER.getName(value);
     }
-    
 
     /**
      * Converts a String representation of a DClass into its numeric value
      * 
      * @return The class code, or -1 on error.
      */
-    public static int getValue(String s) {
-        try {
-            return TRACKER.getOrCreateType(s).getValue();
-        } catch (Exception ex) {
-            return -1;
-        }
+    public static int getValue(String name) {
+        return TRACKER.getValue(name);
     }
     
     public static DClass getType(int value) {
-        check(value);
-        return TRACKER.getOrCreateType(value);
+        return TRACKER.getType(value);
     }
     
     public static DClass getType(String name) {
-        return TRACKER.getOrCreateType(name);
+        return TRACKER.getType(name);
     }
 }

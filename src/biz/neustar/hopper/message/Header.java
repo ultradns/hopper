@@ -187,7 +187,8 @@ public class Header implements Cloneable {
      * 
      * @see Opcode
      */
-    public void setOpcode(int value) {
+    public void setOpcode(Opcode opcode) {
+        int value = opcode.getValue();
         if (value < 0 || value > 0xF)
             throw new IllegalArgumentException("DNS Opcode " + value
                     + "is out of range");
@@ -200,8 +201,8 @@ public class Header implements Cloneable {
      * 
      * @see Opcode
      */
-    public int getOpcode() {
-        return (flags >> 11) & 0xF;
+    public Opcode getOpcode() {
+        return Opcode.getType((flags >> 11) & 0xF);
     }
 
     void setCount(int field, int value) {
@@ -250,7 +251,7 @@ public class Header implements Cloneable {
         StringBuffer sb = new StringBuffer();
 
         sb.append(";; ->>HEADER<<- ");
-        sb.append("opcode: " + Opcode.string(getOpcode()));
+        sb.append("opcode: " + getOpcode().getName());
         sb.append(", status: " + Rcode.string(newrcode));
         sb.append(", id: " + getID());
         sb.append("\n");

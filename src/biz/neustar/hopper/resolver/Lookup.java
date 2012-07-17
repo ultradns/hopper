@@ -160,7 +160,7 @@ public final class Lookup {
      *            The class whose cache is being set.
      */
     public static synchronized void setDefaultCache(Cache cache, int dclass) {
-        DClass.check(dclass);
+        DClass.getType(dclass); // may throw... TODO: check it and store the DClass not int
         defaultCaches.put(Mnemonic.toInteger(dclass), cache);
     }
 
