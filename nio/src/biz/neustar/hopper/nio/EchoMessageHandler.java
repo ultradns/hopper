@@ -7,21 +7,24 @@ import org.jboss.netty.channel.SimpleChannelHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import biz.neustar.hopper.message.Message;
+
 /**
- * A server handler which echos a wire format message.
+ * A server handler which echos a DNS Message.
  * 
  * @author Marty Kube marty@beavercreekconsulting.com
  * 
  */
-public class EchoWireHandler extends SimpleChannelHandler {
+public class EchoMessageHandler extends SimpleChannelHandler {
 
-	private static Logger log = LoggerFactory.getLogger(EchoWireHandler.class);
+	private static Logger log = LoggerFactory.getLogger(EchoMessageHandler.class);
 
 	@Override
 	public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
 
-		log.debug("messageReceived");
-		e.getChannel().write(e.getMessage());
+		Message message = (Message) e.getMessage();
+		log.debug("messageReceived:\n{}", message);
+		e.getChannel().write(message);
 	}
 
 	@Override

@@ -22,12 +22,11 @@ public class MessageEncoder extends OneToOneEncoder {
 	@Override
 	protected Object encode(ChannelHandlerContext context, Channel channel, Object message) throws Exception {
 
-		
 		if (!(message instanceof Message)) {
-			log.debug("Not Encoding");
+			log.debug("Not Encoding {}", channel.getId());
 			return message;
 		}
-		log.debug("Encoding");
+		log.debug("Encoding {}", channel.getId());
 		byte[] wireMessage = ((Message) message).toWire();
 		return ChannelBuffers.copiedBuffer(wireMessage);
 	}
