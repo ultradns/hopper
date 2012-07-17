@@ -42,6 +42,19 @@
 	      -->
 		</javac>
 	</target>
+	
+	
+	<target name="compile-tests" depends="compile" description="Compiles Unit Tests">
+		<javac destdir="${tests.build.dir}" debug="true" includeantruntime="false">
+			<src path="${tests.dir}" />
+			<exclude name="**/*Luna*.java" />
+			<classpath>
+				<fileset dir="${lib.dir}/test" includes="*.jar" excludes="ant.jar" />
+				<pathelement location="${build.dir}" />
+			</classpath>
+		</javac>
+	</target>
+	
 
 	<target name="spi" description="Compile the Name Service Provider code">
 		<javac destdir="${build_dir}" debug="true" includeantruntime="false">
@@ -53,14 +66,16 @@
 	<target name="jar" description="Makes ${ant.project.name}" depends="git-version,compile">
 		<echo message="full.version=${full.version}" file="${dist.dir}/${ant.project.name}.properties" append="false" />
 		<jar jarfile="${dist.dir}/${ant.project.name}.jar" basedir="${build.dir}" includes="**/*.class **/*.properties">
-			<exclude name="com/ultradns/dnsjava/dns/tests/*.class" />
 			<exclude name="tests/**" />
 			<manifest>
-				<attribute name="Implementation-Title" value="dnsjava" />
+				<attribute name="Implementation-Title" value="hopper" />
 				<attribute name="Implementation-Version" value="${full.version}" />
 			</manifest>
 		</jar>
 	</target>
+	
+	
+	<target name="dist" description="Build,Test,Package ${ant.project.name}" depends="test, jar"/>
 
 	<!-- todo, update this 	
 	<target name="bundle" description="Creates an OSGi bundle" depends="jar">
@@ -89,7 +104,9 @@
 	</target>
 
 	<target name="docs" description="Makes Javadoc documentation">
-		<javadoc destdir="${doc.dir}" sourcepath="${src_dir}" packagenames="com.ultradns.dnsjava.dns,com.ultradns.dnsjava.dns.utils,com.ultradns.dnsjava.dns.spi" windowtitle="dnsjava documentation">
+		<javadoc destdir="${doc.dir}" sourcepath="${src_dir}" 
+		  packagenames="com.ultradns.dnsjava.dns,com.ultradns.dnsjava.dns.utils,com.ultradns.dnsjava.dns.spi" 
+		  windowtitle="dnsjava documentation">
 
 			<link href="${j2se.javadoc}" />
 		</javadoc>
@@ -114,16 +131,7 @@
 		</tar>
 	</target>
 
-	<target name="compile-tests" depends="compile" description="Compiles Unit Tests">
-		<javac destdir="${tests.build.dir}" debug="true" includeantruntime="false">
-			<src path="${tests.dir}" />
-			<exclude name="**/*Luna*.java" />
-			<classpath>
-				<fileset dir="${lib.dir}/test" includes="*.jar" excludes="ant.jar" />
-				<pathelement location="${build.dir}" />
-			</classpath>
-		</javac>
-	</target>
+	
 
 	<target name="test" depends="clean-resolve">
 		<path id="tests_classpath">
@@ -135,6 +143,7 @@
 			<reference torefid="classpath_name" refid="tests_classpath" />
 		</antcall>
 	</target>
+
 
 	<target name="-run-tests" depends="compile-tests">
 		<mkdir dir="${reports.dir}/units" />
