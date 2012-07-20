@@ -14,6 +14,11 @@ import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
+import org.jboss.netty.handler.execution.ExecutionHandler;
+import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
+import org.jboss.netty.handler.logging.LoggingHandler;
+import org.jboss.netty.logging.InternalLoggerFactory;
+import org.jboss.netty.logging.Slf4JLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,9 +28,9 @@ import org.slf4j.LoggerFactory;
  * @author Marty Kube <marty@beavercreekconsulting.com>
  * 
  */
-public class Server {
+public class TCPServer {
 
-	private final static Logger log = LoggerFactory.getLogger(Server.class);
+	private final static Logger log = LoggerFactory.getLogger(TCPServer.class);
 
 	/** Keep track of open connections */
 	final private ChannelGroup channelGroup = new DefaultChannelGroup();
@@ -43,8 +48,10 @@ public class Server {
 	 * 
 	 * @param port
 	 */
-	public Server(int port) {
+	public TCPServer(int port) {
+		
 		this.port.set(port);
+		InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
 	}
 
 	/**
@@ -52,7 +59,8 @@ public class Server {
 	 * 
 	 * @param port
 	 */
-	public Server() {
+	public TCPServer() {
+		
 		this(53);
 	}
 
@@ -66,8 +74,9 @@ public class Server {
 		ServerBootstrap bootstrap = new ServerBootstrap(channelFactory.get());
 		bootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 			public ChannelPipeline getPipeline() {
-				return Channels.pipeline(new TCPDecoder(), new TCPEncoder(), new MessageDecoder(),
-						new MessageEncoder(), new EchoMessageHandler());
+				return Channels.pipeline(new TCPDecoder(), new TCPEncoder(), new LoggingHandler(),
+						new MessageDecoder(), new MessageEncoder(), new ExecutionHandler(
+								new OrderedMemoryAwareThreadPoolExecutor(10, 0, 0)), new EchoMessageHandler());
 			}
 		});
 		log.info("Binding to {}", port);
@@ -89,16 +98,18 @@ public class Server {
 	}
 
 	public int getPort() {
+		
 		return port.get();
 	}
 
 	@Override
 	public String toString() {
+		
 		return "DNSServer [port=" + port.get() + "]";
 	}
 
 	public static void main(String[] args) {
 
-		new Server(1052).start();
+		new TCPServer(1052).start();
 	}
 }

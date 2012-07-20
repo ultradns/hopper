@@ -11,7 +11,6 @@ import junit.framework.Assert;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.handler.logging.LoggingHandler;
 import org.jboss.netty.logging.InternalLoggerFactory;
 import org.jboss.netty.logging.Slf4JLoggerFactory;
 import org.junit.BeforeClass;
@@ -40,15 +39,15 @@ public class ClientTest {
 	public void defaultPipeline() {
 
 		// check the names of the default pipeline
-		Assert.assertEquals("[TCPDecoder, TCPEncoder, MessageDecoder, MessageEncoder]", new Client("").getPipeline()
-				.getNames().toString());
+		Assert.assertEquals("[TCPDecoder, TCPEncoder, MessageDecoder, MessageEncoder, Logger, ApplicationThreadPool]",
+				new Client("").getPipeline().getNames().toString());
 	}
 
 	@Test
 	public void connectTCP() throws InterruptedException {
 
 		// start server
-		Server server = new Server(0);
+		TCPServer server = new TCPServer(0);
 		server.start();
 		Client client = new Client("localhost", server.getPort());
 
@@ -82,18 +81,18 @@ public class ClientTest {
 		// one client thread sending many message to a single server destination
 
 		// start server
-		Server server = new Server(0);
-		server.start();
-		Client client = new Client("localhost", server.getPort());
+		TCPServer server = new TCPServer(0);
+//		server.start();
+//		Client client = new Client("localhost", server.getPort());
+		Client client = new Client("localhost", 1052);
 
 		int messageCount = 100;
 
 		MessageReceivedTrap responseReceivedTrap = new MessageReceivedTrap(messageCount);
-		client.getPipeline().addLast("log", new LoggingHandler());
 		client.getPipeline().addLast("trap", responseReceivedTrap);
 
 		// send messages
-		for (int i = 0; i < messageCount; i++) {
+		for (int i = 0; i < 1; i++) {
 			Message query = getQuery(i);
 			client.sendTCP(query);
 		}
@@ -113,7 +112,7 @@ public class ClientTest {
 
 		// set up a bunch of client and server and have them chat for a while
 		// start server
-		Server server = new Server(0);
+		TCPServer server = new TCPServer(0);
 		server.start();
 
 		int messageCount = 900;
@@ -123,7 +122,6 @@ public class ClientTest {
 		List<Client> clients = new ArrayList<Client>(clientCount);
 		for (int i = 0; i < clientCount; i++) {
 			clients.add(new Client("localhost", port));
-			clients.get(i).getPipeline().addLast("log", new LoggingHandler());
 			clients.get(i).getPipeline().addLast("trap", responseReceivedTrap);
 		}
 		// start the conversation
@@ -152,7 +150,7 @@ public class ClientTest {
 		runClientsAndServers(10000, 25, 2);
 		runClientsAndServers(10000, 2, 25);
 		runClientsAndServers(10000, 200, 200);
-		
+
 		// give out of memory error not work , see NETTY-424
 		// runClientsAndServers(10000, 2, 2000);
 	}
@@ -161,12 +159,12 @@ public class ClientTest {
 			UnknownHostException, InterruptedException {
 		// set up a bunch of client and server and have them chat for a while
 		// start server
-		Server server = new Server(0);
+		TCPServer server = new TCPServer(0);
 		server.start();
 
-		List<Server> servers = new ArrayList<Server>(serverCount);
+		List<TCPServer> servers = new ArrayList<TCPServer>(serverCount);
 		for (int i = 0; i < serverCount; i++) {
-			servers.add(new Server(0));
+			servers.add(new TCPServer(0));
 			servers.get(i).start();
 		}
 		MessageReceivedTrap responseReceivedTrap = new MessageReceivedTrap(messageCount);

@@ -11,6 +11,9 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
+import org.jboss.netty.handler.execution.ExecutionHandler;
+import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
+import org.jboss.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,7 +45,7 @@ public class Client {
 
 	/** The single channel open request associated with this client */
 	final private AtomicReference<ChannelFuture> channelFurure = new AtomicReference<ChannelFuture>();
-	
+
 	/**
 	 * Constructs a new client with end-point port of 53
 	 */
@@ -61,8 +64,11 @@ public class Client {
 
 		pipeline.addLast("TCPDecoder", new TCPDecoder());
 		pipeline.addLast("TCPEncoder", new TCPEncoder());
+		pipeline.addLast("Logger", new LoggingHandler());
 		pipeline.addLast("MessageDecoder", new MessageDecoder());
 		pipeline.addLast("MessageEncoder", new MessageEncoder());
+		// a 10 thread pool for execution of 
+		pipeline.addLast("ApplicationThreadPool", new ExecutionHandler(new OrderedMemoryAwareThreadPoolExecutor(10, 0, 0)));
 
 		// Configure the client.
 		bootstrap = new ClientBootstrap(new NioClientSocketChannelFactory(Executors.newCachedThreadPool(),
@@ -75,7 +81,7 @@ public class Client {
 			}
 		});
 	}
-	
+
 	/**
 	 * Shutdown the client. Close open channel and release resources.
 	 */
