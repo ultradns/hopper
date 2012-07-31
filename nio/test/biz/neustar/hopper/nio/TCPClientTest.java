@@ -28,7 +28,7 @@ import biz.neustar.hopper.record.ARecord;
  * @author Marty Kube <marty@beavercreekconsulting.com>
  * 
  */
-public class ClientTest {
+public class TCPClientTest {
 
 	@BeforeClass
 	public static void setLogging() {
@@ -40,7 +40,7 @@ public class ClientTest {
 
 		// check the names of the default pipeline
 		Assert.assertEquals("[TCPDecoder, TCPEncoder, MessageDecoder, MessageEncoder, Logger, ApplicationThreadPool]",
-				new Client("").getPipeline().getNames().toString());
+				new TCPClient("").getPipeline().getNames().toString());
 	}
 
 	@Test
@@ -49,7 +49,7 @@ public class ClientTest {
 		// start server
 		TCPServer server = new TCPServer(0);
 		server.start();
-		Client client = new Client("localhost", server.getPort());
+		TCPClient client = new TCPClient("localhost", server.getPort());
 
 		// get a new connection
 		ChannelFuture connectTCP = client.connectTCP();
@@ -84,7 +84,7 @@ public class ClientTest {
 		TCPServer server = new TCPServer(0);
 //		server.start();
 //		Client client = new Client("localhost", server.getPort());
-		Client client = new Client("localhost", 1052);
+		TCPClient client = new TCPClient("localhost", 1052);
 
 		int messageCount = 100;
 
@@ -119,15 +119,15 @@ public class ClientTest {
 		int clientCount = 3;
 		int port = server.getPort();
 		MessageReceivedTrap responseReceivedTrap = new MessageReceivedTrap(messageCount);
-		List<Client> clients = new ArrayList<Client>(clientCount);
+		List<TCPClient> clients = new ArrayList<TCPClient>(clientCount);
 		for (int i = 0; i < clientCount; i++) {
-			clients.add(new Client("localhost", port));
+			clients.add(new TCPClient("localhost", port));
 			clients.get(i).getPipeline().addLast("trap", responseReceivedTrap);
 		}
 		// start the conversation
 		Random random = new Random();
 		for (int i = 0; i < messageCount; i++) {
-			Client client = clients.get(random.nextInt(clients.size()));
+			TCPClient client = clients.get(random.nextInt(clients.size()));
 			client.sendTCP(getQuery(i));
 		}
 
@@ -136,7 +136,7 @@ public class ClientTest {
 			Assert.assertTrue(responseReceivedTrap.latch.await(3, TimeUnit.SECONDS));
 		} finally {
 			// shut down
-			for (Client client : clients) {
+			for (TCPClient client : clients) {
 				client.stop();
 			}
 			server.stop();
@@ -168,15 +168,15 @@ public class ClientTest {
 			servers.get(i).start();
 		}
 		MessageReceivedTrap responseReceivedTrap = new MessageReceivedTrap(messageCount);
-		List<Client> clients = new ArrayList<Client>(clientCount);
+		List<TCPClient> clients = new ArrayList<TCPClient>(clientCount);
 		for (int i = 0; i < clientCount; i++) {
-			clients.add(new Client("localhost", servers.get(i % serverCount).getPort()));
+			clients.add(new TCPClient("localhost", servers.get(i % serverCount).getPort()));
 			clients.get(i).getPipeline().addLast("trap", responseReceivedTrap);
 		}
 		// start the conversation
 		Random random = new Random();
 		for (int i = 0; i < messageCount; i++) {
-			Client client = clients.get(random.nextInt(clients.size()));
+			TCPClient client = clients.get(random.nextInt(clients.size()));
 			client.sendTCP(getQuery(i));
 		}
 
@@ -185,14 +185,14 @@ public class ClientTest {
 			Assert.assertTrue(responseReceivedTrap.latch.await(3, TimeUnit.SECONDS));
 		} finally {
 			// shut down
-			for (Client client : clients) {
+			for (TCPClient client : clients) {
 				client.stop();
 			}
 			server.stop();
 		}
 	}
 
-	private Message getQuery(int i) throws TextParseException, UnknownHostException {
+	public static Message getQuery(int i) throws TextParseException, UnknownHostException {
 
 		return Message.newQuery(new ARecord(new Name(i + ".example.biz."), DClass.IN, 0l, InetAddress
 				.getByName("127.0.0.1")));

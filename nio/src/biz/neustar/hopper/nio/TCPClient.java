@@ -27,9 +27,9 @@ import biz.neustar.hopper.message.Message;
  * @author mkube
  * 
  */
-public class Client {
+public class TCPClient {
 
-	private final static Logger log = LoggerFactory.getLogger(Client.class);
+	private final static Logger log = LoggerFactory.getLogger(TCPClient.class);
 
 	/** The channel pipeline for this client */
 	final private ChannelPipeline pipeline = Channels.pipeline();
@@ -49,7 +49,7 @@ public class Client {
 	/**
 	 * Constructs a new client with end-point port of 53
 	 */
-	public Client(String host) {
+	public TCPClient(String host) {
 
 		this(host, 53);
 	}
@@ -57,7 +57,7 @@ public class Client {
 	/**
 	 * Constructs a new client
 	 */
-	public Client(String host, int port) {
+	public TCPClient(String host, int port) {
 
 		this.host = host;
 		this.port = port;
