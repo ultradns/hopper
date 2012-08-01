@@ -18,7 +18,7 @@ public class UDPClientTest {
 	@Test
 	public void test() throws TextParseException, UnknownHostException {
 		
-		new UDPClient().sendUDP(TCPClientTest.getQuery(0), new InetSocketAddress("localhost", 53));
+		new UDPClient().sendUDP(TCPClientTest.getQuery(0), new InetSocketAddress("localhost", 1053));
 	}
 
 }
