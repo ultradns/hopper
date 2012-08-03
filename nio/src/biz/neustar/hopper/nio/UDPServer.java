@@ -51,9 +51,12 @@ public class UDPServer {
 	public UDPServer(int port) {
 
 		this.port.set(port);
-		InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
 	}
 
+	static {
+		InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
+	}
+	
 	/**
 	 * Construct a new server instance on the default port
 	 * 
@@ -104,5 +107,9 @@ public class UDPServer {
 	public static void main(String[] args) {
 		UDPServer udpServer = new UDPServer(1053);
 		udpServer.start();
+	}
+
+	protected int getPort() {
+		return port.get();
 	}
 }

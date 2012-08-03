@@ -7,13 +7,15 @@ import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
-import org.jboss.netty.handler.execution.ExecutionHandler;
-import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import org.jboss.netty.handler.logging.LoggingHandler;
+import org.jboss.netty.logging.InternalLoggerFactory;
+import org.jboss.netty.logging.Slf4JLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +29,12 @@ import biz.neustar.hopper.message.Message;
  */
 public class UDPClient {
 
+	private static final int TIMEOUT_MILLIS = 5000;
+
 	private final static Logger log = LoggerFactory.getLogger(UDPClient.class);
+	static {
+		InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
+	}
 
 	/** The channel pipeline for this client */
 	final private ChannelPipeline pipeline = Channels.pipeline();
@@ -82,10 +89,23 @@ public class UDPClient {
 	public void sendUDP(Message message, SocketAddress destination) {
 
 		Channel channel = bootstrap.bind(new InetSocketAddress(0));
-		channel.write(message, destination);
-		if (!channel.getCloseFuture().awaitUninterruptibly(5000)) {
+		ChannelFuture write = channel.write(message, destination);
+		write.addListener(new ChannelFutureListener() {
+			
+			@Override
+			public void operationComplete(ChannelFuture future) throws Exception {
+				
+				log.info("Message sent");
+			}
+		});
+		if (!channel.getCloseFuture().awaitUninterruptibly(TIMEOUT_MILLIS)) {
 			log.error("Request timed out.");
 			channel.close().awaitUninterruptibly();
 		}
 	}
+
+	protected ChannelPipeline getPipeline() {
+		return pipeline;
+	}
+
 }
