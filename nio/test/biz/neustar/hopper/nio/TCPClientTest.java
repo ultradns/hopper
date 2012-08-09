@@ -49,9 +49,8 @@ public class TCPClientTest {
 	public void connectTCP() throws InterruptedException {
 
 		// start server
-		TCPServer server = new TCPServer(0);
-		server.start();
-		TCPClient client = new TCPClient("localhost", server.getPort());
+		Server server = new Server(0);
+		TCPClient client = new TCPClient("localhost", server.getLocalAddress().getPort());
 
 		// get a new connection
 		ChannelFuture connectTCP = client.connectTCP();
@@ -83,9 +82,8 @@ public class TCPClientTest {
 		// one client thread sending many message to a single server destination
 
 		// start server
-		TCPServer server = new TCPServer(0);
-		server.start();
-		TCPClient client = new TCPClient("localhost", server.getPort());
+		Server server = new Server(0);
+		TCPClient client = new TCPClient("localhost", server.getLocalAddress().getPort());
 		// TCPClient client = new TCPClient("localhost", 1052);
 
 		int messageCount = 25;
@@ -117,12 +115,11 @@ public class TCPClientTest {
 
 		// set up a bunch of client and server and have them chat for a while
 		// start server
-		TCPServer server = new TCPServer(0);
-		server.start();
+		Server server = new Server(0);
 
 		int messageCount = 900;
 		int clientCount = 3;
-		int port = server.getPort();
+		int port = server.getLocalAddress().getPort();
 		MessageReceivedTrap responseReceivedTrap = new MessageReceivedTrap(
 				messageCount);
 		List<TCPClient> clients = new ArrayList<TCPClient>(clientCount);
@@ -172,17 +169,15 @@ public class TCPClientTest {
 
 		// set up a bunch of client and server and have them chat for a while
 
-		List<TCPServer> servers = new ArrayList<TCPServer>(serverCount);
+		List<Server> servers = new ArrayList<Server>(serverCount);
 		for (int i = 0; i < serverCount; i++) {
-			servers.add(new TCPServer(0));
-			servers.get(i).start();
+			servers.add(new Server(0));
 		}
 		MessageReceivedTrap responseReceivedTrap = new MessageReceivedTrap(
 				messageCount);
 		List<TCPClient> clients = new ArrayList<TCPClient>(clientCount);
 		for (int i = 0; i < clientCount; i++) {
-			clients.add(new TCPClient("localhost", servers.get(i % serverCount)
-					.getPort()));
+			clients.add(new TCPClient("localhost", servers.get(i % serverCount).getLocalAddress().getPort()));
 			clients.get(i).getPipeline().addLast("trap", responseReceivedTrap);
 		}
 		// start the conversation
@@ -201,7 +196,7 @@ public class TCPClientTest {
 			for (TCPClient client : clients) {
 				client.stop();
 			}
-			for (TCPServer server : servers) {
+			for (Server server : servers) {
 				server.stop();
 			}
 		}
