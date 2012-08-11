@@ -24,6 +24,7 @@ import org.jboss.netty.logging.Slf4JLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import biz.neustar.hopper.nio.example.EchoServerHandler;
 import biz.neustar.hopper.nio.handler.DNSMessageDecoder;
 import biz.neustar.hopper.nio.handler.DNSMessageEncoder;
 import biz.neustar.hopper.nio.handler.ServerMessageHandlerTCPInvoker;
@@ -149,6 +150,10 @@ public class Server {
 		 * @return A Server
 		 */
 		public Server build() {
+			
+			if(serverMessageHandler == null) {
+				throw new IllegalStateException("serverMessageHandler must be set");
+			}
 			return new Server(this);
 		}
 	}
@@ -266,6 +271,15 @@ public class Server {
 	public String toString() {
 
 		return "DNSServer [" + boundTo.get() + "]";
+	}
+	
+	public static void main(String[] args) throws InterruptedException {
+		
+		Server server = Server.builder().port(1053).serverMessageHandler(new EchoServerHandler()).build();
+		synchronized (server) {
+			server.wait();
+		}
+		
 	}
 
 }

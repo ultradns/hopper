@@ -3,15 +3,12 @@ package biz.neustar.hopper.nio;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.jboss.netty.channel.ChannelEvent;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ExceptionEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MessageReceivedTrap extends SimpleChannelUpstreamHandler {
+import biz.neustar.hopper.message.Message;
+
+public class MessageReceivedTrap implements ClientMessageHandler {
 
 	private final static Logger log = LoggerFactory.getLogger(MessageReceivedTrap.class);
 	final public CountDownLatch latch;
@@ -23,22 +20,16 @@ public class MessageReceivedTrap extends SimpleChannelUpstreamHandler {
 	}
 
 	@Override
-	public void handleUpstream(ChannelHandlerContext ctx, ChannelEvent e) throws Exception {
+	public void handleResponse(Message response) {
 
-		log.debug("handleUpstream {}", e);
-		if (e instanceof MessageEvent) {
-			// message recieved
-			log.debug("Received message {}", counter.getAndIncrement());
-			latch.countDown();
-		}
-		super.handleUpstream(ctx, e);
+		log.debug("Received message {}", counter.getAndIncrement());
+		latch.countDown();
 	}
 
 	@Override
-	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+	public void handleException(Throwable throwable) {
 
-		log.debug("exceptionCaught {}", e);
-		super.exceptionCaught(ctx, e);
+		log.debug("exceptionCaught {}", throwable);
 	}
 
 }

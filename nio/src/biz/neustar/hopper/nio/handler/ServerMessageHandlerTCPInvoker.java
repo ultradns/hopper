@@ -1,6 +1,7 @@
 package biz.neustar.hopper.nio.handler;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
@@ -30,6 +31,12 @@ public class ServerMessageHandlerTCPInvoker extends SimpleChannelUpstreamHandler
 			ctx.getChannel().write(response);
 		}
 		super.messageReceived(ctx, e);
+	}
+
+	@Override
+	public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+		handler.handleException(e.getCause());
+		super.exceptionCaught(ctx, e);
 	}
 
 }

@@ -1,6 +1,8 @@
 package biz.neustar.hopper.nio;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Message;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.nio.example.EchoServerHandler;
+import biz.neustar.hopper.nio.example.LoggingClientHandler;
 import biz.neustar.hopper.record.ARecord;
 
 /**
@@ -38,22 +41,15 @@ public class TCPClientTest {
 	}
 
 	@Test
-	public void defaultPipeline() {
-
-		// check the names of the default pipeline
-		Assert.assertEquals("[TCPDecoder, TCPEncoder, Logger, MessageDecoder, MessageEncoder, ApplicationThreadPool]",
-				new TCPClient("").getPipeline().getNames().toString());
-	}
-
-	@Test
 	public void connectTCP() throws InterruptedException {
 
 		// start server
-		Server server = Server.builder().port(0).build();
-		TCPClient client = new TCPClient("localhost", server.getLocalAddress().getPort());
+		Server server = Server.builder().port(0).serverMessageHandler(new EchoServerHandler()).build();
+		SocketAddress serverAddress = new InetSocketAddress("localhost", server.getLocalAddress().getPort());
+		Client client = Client.builder().clientMessageHandler(new LoggingClientHandler()).build();
 
 		// get a new connection
-		ChannelFuture connectTCP = client.connectTCP();
+		ChannelFuture connectTCP = client.connectTCP(serverAddress);
 		Assert.assertTrue(connectTCP.await(500));
 		Assert.assertTrue(connectTCP.isDone());
 		Assert.assertTrue(connectTCP.isSuccess());
@@ -62,7 +58,7 @@ public class TCPClientTest {
 		int count = 0;
 		do {
 			Channel channel = connectTCP.getChannel();
-			connectTCP = client.connectTCP();
+			connectTCP = client.connectTCP(serverAddress);
 			connectTCP.await(500);
 			Assert.assertTrue(connectTCP.isDone());
 			Assert.assertTrue(connectTCP.isSuccess());
@@ -83,25 +79,23 @@ public class TCPClientTest {
 
 		// start server
 		Server server = Server.builder().port(0).serverMessageHandler(new EchoServerHandler()).build();
-		TCPClient client = new TCPClient("localhost", server.getLocalAddress().getPort());
-		// TCPClient client = new TCPClient("localhost", 1052);
+		SocketAddress serverAddress = new InetSocketAddress("localhost", server.getLocalAddress().getPort());
 
-		int messageCount = 25;
+		int messageCount = 20;
 
 		MessageReceivedTrap responseReceivedTrap = new MessageReceivedTrap(messageCount);
-		client.getPipeline().addLast("trap", responseReceivedTrap);
+		Client client = Client.builder().clientMessageHandler(responseReceivedTrap).build();
 
 		// send messages
 		for (int i = 0; i < messageCount; i++) {
 			Message query = getQuery(i);
-			client.sendTCP(query);
+			client.sendTCP(query, serverAddress);
 		}
 
 		// wait to receive them prior to time out
 		try {
 			Assert.assertTrue(responseReceivedTrap.latch.await(2, TimeUnit.SECONDS));
 		} finally {
-			// shutdown
 			client.stop();
 			server.stop();
 		}
@@ -113,21 +107,20 @@ public class TCPClientTest {
 		// set up a bunch of client and server and have them chat for a while
 		// start server
 		Server server = Server.builder().serverMessageHandler(new EchoServerHandler()).port(0).build();
+		SocketAddress serverAddress = new InetSocketAddress("localhost", server.getLocalAddress().getPort());
 
 		int messageCount = 900;
 		int clientCount = 3;
-		int port = server.getLocalAddress().getPort();
 		MessageReceivedTrap responseReceivedTrap = new MessageReceivedTrap(messageCount);
-		List<TCPClient> clients = new ArrayList<TCPClient>(clientCount);
+		List<Client> clients = new ArrayList<Client>(clientCount);
 		for (int i = 0; i < clientCount; i++) {
-			clients.add(new TCPClient("localhost", port));
-			clients.get(i).getPipeline().addLast("trap", responseReceivedTrap);
+			clients.add(Client.builder().clientMessageHandler(responseReceivedTrap).build());
 		}
 		// start the conversation
 		Random random = new Random();
 		for (int i = 0; i < messageCount; i++) {
-			TCPClient client = clients.get(random.nextInt(clients.size()));
-			client.sendTCP(getQuery(i));
+			Client client = clients.get(random.nextInt(clients.size()));
+			client.sendTCP(getQuery(i), serverAddress);
 		}
 
 		try {
@@ -135,7 +128,7 @@ public class TCPClientTest {
 			Assert.assertTrue(responseReceivedTrap.latch.await(3, TimeUnit.SECONDS));
 		} finally {
 			// shut down
-			for (TCPClient client : clients) {
+			for (Client client : clients) {
 				client.stop();
 			}
 			server.stop();
@@ -167,16 +160,15 @@ public class TCPClientTest {
 			servers.add(Server.builder().port(0).serverMessageHandler(new EchoServerHandler()).build());
 		}
 		MessageReceivedTrap responseReceivedTrap = new MessageReceivedTrap(messageCount);
-		List<TCPClient> clients = new ArrayList<TCPClient>(clientCount);
+		List<Client> clients = new ArrayList<Client>(clientCount);
 		for (int i = 0; i < clientCount; i++) {
-			clients.add(new TCPClient("localhost", servers.get(i % serverCount).getLocalAddress().getPort()));
-			clients.get(i).getPipeline().addLast("trap", responseReceivedTrap);
+			clients.add(Client.builder().clientMessageHandler(responseReceivedTrap).build());
 		}
 		// start the conversation
 		Random random = new Random();
 		for (int i = 0; i < messageCount; i++) {
-			TCPClient client = clients.get(random.nextInt(clients.size()));
-			client.sendTCP(getQuery(i));
+			Client client = clients.get(random.nextInt(clients.size()));
+			client.sendTCP(getQuery(i), new InetSocketAddress("localhost", servers.get(i % serverCount).getLocalAddress().getPort()));
 		}
 
 		try {
@@ -184,7 +176,7 @@ public class TCPClientTest {
 			Assert.assertTrue(responseReceivedTrap.latch.await(3, TimeUnit.SECONDS));
 		} finally {
 			// shut down
-			for (TCPClient client : clients) {
+			for (Client client : clients) {
 				client.stop();
 			}
 			for (Server server : servers) {

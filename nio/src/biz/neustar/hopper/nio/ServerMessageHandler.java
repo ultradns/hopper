@@ -15,4 +15,13 @@ public interface ServerMessageHandler {
 	 * @return The response to the client
 	 */
 	Message handleRequest(Message request);
+	
+	/**
+	 * Handle exceptions raised while processing a client request
+	 * 
+	 * @param throwable
+	 *            The exception
+	 */
+	void handleException(Throwable throwable);
+
 }

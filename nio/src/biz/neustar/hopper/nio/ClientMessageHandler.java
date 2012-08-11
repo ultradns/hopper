@@ -20,4 +20,12 @@ public interface ClientMessageHandler {
 	 *            The request from the server
 	 */
 	void handleResponse(Message response);
+
+	/**
+	 * Handle exceptions raised during the request
+	 * 
+	 * @param throwable
+	 *            The exception
+	 */
+	void handleException(Throwable throwable);
 }

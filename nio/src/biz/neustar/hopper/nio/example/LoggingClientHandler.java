@@ -22,4 +22,10 @@ public class LoggingClientHandler implements ClientMessageHandler {
 		log.info(response.toString());
 	}
 
+	@Override
+	public void handleException(Throwable throwable) {
+
+		log.error("Exception {}", throwable);
+	}
+
 }

@@ -23,16 +23,12 @@ public class UDPClientTest {
 	public void test() throws TextParseException, UnknownHostException, InterruptedException {
 
 		Server server = Server.builder().port(0).serverMessageHandler(new EchoServerHandler()).build();
-		UDPClient client = new UDPClient();
 		MessageReceivedTrap messageReceivedTrap = new MessageReceivedTrap(1);
-		client.getPipeline().addLast("trap", messageReceivedTrap);
-		client.getPipeline().addLast("closer", new CloseOnMessageRecipt());
+		Client client = Client.builder().clientMessageHandler(messageReceivedTrap).build();
 		client.sendUDP(TCPClientTest.getQuery(0), new InetSocketAddress("localhost", server.getLocalAddress().getPort()));
-
 		try {
 			Assert.assertTrue(messageReceivedTrap.latch.await(2, TimeUnit.SECONDS));
 		} finally {
-			client.stop();
 			server.stop();
 		}
 	}
