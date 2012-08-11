@@ -1,7 +1,8 @@
 package biz.neustar.hopper.nio;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.Executors;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
@@ -23,14 +24,36 @@ import org.jboss.netty.logging.Slf4JLoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import biz.neustar.hopper.nio.handler.DNSMessageDecoder;
+import biz.neustar.hopper.nio.handler.DNSMessageEncoder;
+import biz.neustar.hopper.nio.handler.ServerMessageHandlerTCPInvoker;
+import biz.neustar.hopper.nio.handler.ServerMessageHandlerUDPInvoker;
+import biz.neustar.hopper.nio.handler.TCPDecoder;
+import biz.neustar.hopper.nio.handler.TCPEncoder;
+
 /**
- * A Server skeleton for the DNS protocol that handles TCP and UPD request.
+ * A Server for the DNS protocol that handles TCP and UPD request. Register a
+ * ServerMessageHandler to process client request.<br/>
  * 
- * <p>
+ * Create a message Handler:
+ * 
+ * <pre>
+ * public class EchoHandler implements ServerMessageHandler {
+ * 	public Message handleRequest(Message request) {
+ * 		return request;
+ * 	}
+ * }
+ * </pre>
+ * 
+ * And start the server:
+ * 
+ * <pre>
+ * Server.builder().port(1053).serverMessageHandler(new EchoHandler()).build();
+ * </pre>
+ * 
  * The server will have a instance of
  * org.jboss.netty.handler.logging.LoggingHandler as the first handler bound to
- * SLF4j as the implementation.
- * </p>
+ * SLF4j as the implementation. </p>
  * 
  * @author Marty Kube <marty@beavercreekconsulting.com>
  * 
@@ -41,34 +64,108 @@ public class Server {
 	private final static Logger log = LoggerFactory.getLogger(Server.class);
 
 	/**
-	 * The default TCP pipeline
+	 * Server builder
 	 */
-	final private ChannelPipelineFactory tcpChannelPipelineFactory = new ChannelPipelineFactory() {
+	public static class Builder {
 
-		@Override
-		public ChannelPipeline getPipeline() {
-			return Channels.pipeline(new LoggingHandler(), new TCPDecoder(), new TCPEncoder(), new MessageDecoder(),
-					new MessageEncoder(), new ExecutionHandler(new OrderedMemoryAwareThreadPoolExecutor(10, 0, 0)),
-					new EchoMessageHandler());
+		protected int port = 53;
+		protected ServerMessageHandler serverMessageHandler;
+		protected int threadPoolSize = 10;
+		protected NioDatagramChannelFactory nioDatagramChannelFactory = new NioDatagramChannelFactory();
+		protected Map<String, Object> udpOptions = new HashMap<String, Object>();
+		protected NioServerSocketChannelFactory nioServerSocketChannelFactory = new NioServerSocketChannelFactory();
+		protected Map<String, Object> tcpOptions = new HashMap<String, Object>();
+		protected OrderedMemoryAwareThreadPoolExecutor orderedMemoryAwareThreadPoolExecutor;
+
+		public Builder() {
+
+			udpOptions.put("receiveBufferSize", 512);
+			udpOptions.put("sendBufferSize", 512);
 		}
-	};
+
+		/** The port the server will listen on. Default is port 53 */
+		public Builder port(int port) {
+			this.port = port;
+			return this;
+		}
+
+		/** The message handler to be invoked when a request is received */
+		public Builder serverMessageHandler(ServerMessageHandler serverMessageHandler) {
+			this.serverMessageHandler = serverMessageHandler;
+			return this;
+		}
+
+		/** The application thread pool size. Default is 10. */
+		public Builder threadPoolSize(int threadPoolSize) {
+
+			this.threadPoolSize = threadPoolSize;
+			return this;
+		}
+
+		/**
+		 * The UDP channel factory. Default is a channel factory that uses a
+		 * Cache Thread pool for the worker thread pool
+		 */
+		public Builder nioDatagramChannelFactory(NioDatagramChannelFactory nioDatagramChannelFactory) {
+			this.nioDatagramChannelFactory = nioDatagramChannelFactory;
+			return this;
+		}
+
+		/**
+		 * The UDP channel factory. Default is a channel factory that uses a
+		 * Cache Thread pool for the boss and worker thread pool
+		 */
+		public Builder nioServerSocketChannelFactory(NioServerSocketChannelFactory nioServerSocketChannelFactory) {
+			this.nioServerSocketChannelFactory = nioServerSocketChannelFactory;
+			return this;
+		}
+
+		/**
+		 * The UPD connection options. Default is send and receive buffer size
+		 * of 512
+		 */
+		public Builder tcpOptions(Map<String, Object> tcpOptions) {
+
+			this.tcpOptions = tcpOptions;
+			return this;
+		}
+
+		/**
+		 * The orderedMemoryAwareThreadPoolExecutor use to call application
+		 * hooks. If this is set, threadPoolSize is ignored.
+		 * 
+		 * @param orderedMemoryAwareThreadPoolExecutor
+		 * @return
+		 */
+		public Builder orderedMemoryAwareThreadPoolExecutor(
+				OrderedMemoryAwareThreadPoolExecutor orderedMemoryAwareThreadPoolExecutor) {
+			this.orderedMemoryAwareThreadPoolExecutor = orderedMemoryAwareThreadPoolExecutor;
+			return this;
+		}
+
+		/**
+		 * Create and start a new Server instance
+		 * 
+		 * @return A Server
+		 */
+		public Server build() {
+			return new Server(this);
+		}
+	}
+
+	/**
+	 * Obtain a new builder instance
+	 * 
+	 * @return A Builder
+	 */
+	public static Builder builder() {
+		return new Builder();
+	}
 
 	/** The TCP Channel factory */
 	final private AtomicReference<ChannelFactory> tcpChannelFactory = new AtomicReference<ChannelFactory>();
 
-	/**
-	 * The default UDP pipeline
-	 */
-	final private ChannelPipelineFactory udpChannelPipelineFactory = new ChannelPipelineFactory() {
-
-		@Override
-		public ChannelPipeline getPipeline() {
-			return Channels.pipeline(new LoggingHandler(), new MessageDecoder(), new MessageEncoder(),
-					new ExecutionHandler(new OrderedMemoryAwareThreadPoolExecutor(10, 0, 0)), new EchoMessageHandler());
-		}
-	};
-
-	/** The TCP Channel factory */
+	/** The UDP Channel factory */
 	final private AtomicReference<ChannelFactory> udpChannelFactory = new AtomicReference<ChannelFactory>();
 
 	/**
@@ -83,8 +180,7 @@ public class Server {
 	final private ChannelGroup channelGroup = new DefaultChannelGroup();
 
 	/**
-	 * Load the SLF4J logging binding for
-	 * org.jboss.netty.handler.logging.LoggingHandler
+	 * Load the SLF4J binding for org.jboss.netty.handler.logging.LoggingHandler
 	 */
 	static {
 		InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
@@ -96,26 +192,45 @@ public class Server {
 	 * @param port
 	 *            The port to listen on, if 0 then a random port is chosen.
 	 */
-	public Server(int port) {
+	public Server(final Builder builder) {
 
-		log.debug("Binding to {}", port);
+		log.debug("Binding to {}", builder.port);
+
+		final OrderedMemoryAwareThreadPoolExecutor orderedMemoryAwareThreadPoolExecutor = builder.orderedMemoryAwareThreadPoolExecutor == null ? new OrderedMemoryAwareThreadPoolExecutor(
+				builder.threadPoolSize, 0, 0) : builder.orderedMemoryAwareThreadPoolExecutor;
 
 		// Start listening for UDP request
-		udpChannelFactory.set(new NioDatagramChannelFactory(Executors.newCachedThreadPool()));
+		udpChannelFactory.set(builder.nioDatagramChannelFactory);
 		ConnectionlessBootstrap udpBootstrap = new ConnectionlessBootstrap(udpChannelFactory.get());
-		udpBootstrap.setOption("receiveBufferSize", 512);
-		udpBootstrap.setOption("sendBufferSize", 512);
-		udpBootstrap.setPipelineFactory(udpChannelPipelineFactory);
-		Channel udpChannel = udpBootstrap.bind(new InetSocketAddress(port));
+		udpBootstrap.setOptions(builder.udpOptions);
+		udpBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+
+			@Override
+			public ChannelPipeline getPipeline() {
+				return Channels.pipeline(new LoggingHandler(), new DNSMessageDecoder(), new DNSMessageEncoder(),
+						new ExecutionHandler(orderedMemoryAwareThreadPoolExecutor), new ServerMessageHandlerUDPInvoker(
+								builder.serverMessageHandler));
+			}
+		});
+		Channel udpChannel = udpBootstrap.bind(new InetSocketAddress(builder.port));
 		channelGroup.add(udpChannel);
 		this.boundTo.set(((InetSocketAddress) udpChannel.getLocalAddress()));
 
 		// Start listening for TCP request on the same port
-		tcpChannelFactory.set(new NioServerSocketChannelFactory(Executors.newCachedThreadPool(), Executors
-				.newCachedThreadPool()));
+		tcpChannelFactory.set(builder.nioServerSocketChannelFactory);
 		ServerBootstrap tcpBootstrap = new ServerBootstrap(tcpChannelFactory.get());
-		tcpBootstrap.setPipelineFactory(tcpChannelPipelineFactory);
-		log.info("Binding to {}", port);
+		tcpBootstrap.setOptions(builder.tcpOptions);
+		tcpBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+
+			@Override
+			public ChannelPipeline getPipeline() {
+				return Channels.pipeline(new LoggingHandler(), new TCPDecoder(), new TCPEncoder(),
+						new DNSMessageDecoder(), new DNSMessageEncoder(), new ExecutionHandler(
+								orderedMemoryAwareThreadPoolExecutor), new ServerMessageHandlerTCPInvoker(
+								builder.serverMessageHandler));
+			}
+		});
+		log.info("Binding to {}", builder.port);
 		Channel tcpChannel = tcpBootstrap.bind(new InetSocketAddress(this.boundTo.get().getPort()));
 		channelGroup.add(tcpChannel);
 
@@ -151,14 +266,6 @@ public class Server {
 	public String toString() {
 
 		return "DNSServer [" + boundTo.get() + "]";
-	}
-
-	public static void main(String[] args) throws InterruptedException {
-
-		Server server = new Server(1053);
-		synchronized (server) {
-			server.wait();
-		}
 	}
 
 }

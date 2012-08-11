@@ -18,6 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import biz.neustar.hopper.message.Message;
+import biz.neustar.hopper.nio.handler.DNSMessageDecoder;
+import biz.neustar.hopper.nio.handler.DNSMessageEncoder;
+import biz.neustar.hopper.nio.handler.TCPDecoder;
+import biz.neustar.hopper.nio.handler.TCPEncoder;
 
 /**
  * TCP client for DNS messages.
@@ -65,8 +69,8 @@ public class TCPClient {
 		pipeline.addLast("TCPDecoder", new TCPDecoder());
 		pipeline.addLast("TCPEncoder", new TCPEncoder());
 		pipeline.addLast("Logger", new LoggingHandler());
-		pipeline.addLast("MessageDecoder", new MessageDecoder());
-		pipeline.addLast("MessageEncoder", new MessageEncoder());
+		pipeline.addLast("MessageDecoder", new DNSMessageDecoder());
+		pipeline.addLast("MessageEncoder", new DNSMessageEncoder());
 		// a 10 thread pool for execution of 
 		pipeline.addLast("ApplicationThreadPool", new ExecutionHandler(new OrderedMemoryAwareThreadPoolExecutor(10, 0, 0)));
 

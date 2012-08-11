@@ -20,6 +20,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import biz.neustar.hopper.message.Message;
+import biz.neustar.hopper.nio.handler.DNSMessageDecoder;
+import biz.neustar.hopper.nio.handler.DNSMessageEncoder;
 
 /**
  * A UDP client for the DNS protocol
@@ -61,8 +63,8 @@ public class UDPClient {
 		log.info("{} {}", host, port);
 
 		pipeline.addLast("Logger", new LoggingHandler());
-		pipeline.addLast("MessageDecoder", new MessageDecoder());
-		pipeline.addLast("MessageEncoder", new MessageEncoder());
+		pipeline.addLast("MessageDecoder", new DNSMessageDecoder());
+		pipeline.addLast("MessageEncoder", new DNSMessageEncoder());
 
 		// Configure the client.
 		bootstrap = new ConnectionlessBootstrap(new NioDatagramChannelFactory(ioThreadPool));

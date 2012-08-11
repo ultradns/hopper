@@ -1,4 +1,4 @@
-package biz.neustar.hopper.nio;
+package biz.neustar.hopper.nio.handler;
 
 import org.jboss.netty.handler.codec.frame.LengthFieldPrepender;
 

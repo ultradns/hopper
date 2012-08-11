@@ -9,6 +9,7 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import biz.neustar.hopper.exception.TextParseException;
+import biz.neustar.hopper.nio.example.EchoServerHandler;
 
 /**
  * Test for the UDP client
@@ -21,7 +22,7 @@ public class UDPClientTest {
 	@Test
 	public void test() throws TextParseException, UnknownHostException, InterruptedException {
 
-		Server server = new Server(0);
+		Server server = Server.builder().port(0).serverMessageHandler(new EchoServerHandler()).build();
 		UDPClient client = new UDPClient();
 		MessageReceivedTrap messageReceivedTrap = new MessageReceivedTrap(1);
 		client.getPipeline().addLast("trap", messageReceivedTrap);

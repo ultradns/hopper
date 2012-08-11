@@ -1,4 +1,4 @@
-package biz.neustar.hopper.nio;
+package biz.neustar.hopper.nio.handler;
 
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.jboss.netty.channel.Channel;
@@ -15,9 +15,9 @@ import biz.neustar.hopper.message.Message;
  * @author Marty Kube marty@beavercreekconsulting.com
  * 
  */
-public class MessageEncoder extends OneToOneEncoder {
+public class DNSMessageEncoder extends OneToOneEncoder {
 
-	private final static Logger log = LoggerFactory.getLogger(MessageEncoder.class);
+	private final static Logger log = LoggerFactory.getLogger(DNSMessageEncoder.class);
 
 	@Override
 	protected Object encode(ChannelHandlerContext context, Channel channel, Object message) throws Exception {
