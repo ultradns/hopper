@@ -1,6 +1,5 @@
 package biz.neustar.hopper.message;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -8,6 +7,7 @@ import biz.neustar.hopper.record.Record;
 
 /**
  * All changes between two versions of a zone in an IXFR response.
+ * 
  * @author Marty Kube marty@beavercreekconsulting.com
  */
 public class Delta {
@@ -17,10 +17,16 @@ public class Delta {
 
     /** A list of records deleted between the start and end versions */
     private List<Record> deletes = new LinkedList<Record>();
+    
+    /** The starting SOA serial number */
+    private long start;
+
+	/** The ending SOA serial number */
+    private long end;
 
     public Delta() {
-        adds = new ArrayList<Record>();
-        deletes = new ArrayList<Record>();
+        adds = new LinkedList<Record>();
+        deletes = new LinkedList<Record>();
     }
 
 	protected List<Record> getAdds() {
@@ -29,6 +35,22 @@ public class Delta {
 
 	protected List<Record> getDeletes() {
 		return deletes;
+	}
+
+    public long getStart() {
+		return start;
+	}
+
+	public void setStart(long start) {
+		this.start = start;
+	}
+
+	public long getEnd() {
+		return end;
+	}
+
+	public void setEnd(long end) {
+		this.end = end;
 	}
 
 }

@@ -136,7 +136,8 @@ public class HMACTest extends TestCase {
         assertFalse(h.verify(tmp));
     }
 
-    public void test_ctor_digest_key() throws NoSuchAlgorithmException,
+    @SuppressWarnings("deprecation")
+	public void test_ctor_digest_key() throws NoSuchAlgorithmException,
             CloneNotSupportedException {
         for (int i = 0; i < tests.length; ++i) {
             MessageDigest md = MessageDigest.getInstance("md5");
@@ -145,7 +146,8 @@ public class HMACTest extends TestCase {
         }
     }
 
-    public void test_ctor_digestName_key() throws NoSuchAlgorithmException,
+    @SuppressWarnings("deprecation")
+	public void test_ctor_digestName_key() throws NoSuchAlgorithmException,
             CloneNotSupportedException {
         for (int i = 0; i < tests.length; ++i) {
             HMAC h = new HMAC("md5", tests[i].key);
@@ -153,7 +155,8 @@ public class HMACTest extends TestCase {
         }
     }
 
-    public void test_ctor_digestName_key_invalid() {
+    @SuppressWarnings("deprecation")
+	public void test_ctor_digestName_key_invalid() {
         try {
             new HMAC("no name", new byte[0]);
             fail("IllegalArgumentException not thrown");

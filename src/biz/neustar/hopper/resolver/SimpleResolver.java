@@ -23,6 +23,7 @@ import biz.neustar.hopper.message.Section;
 import biz.neustar.hopper.message.TSIG;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.message.ZoneTransferIn;
+import biz.neustar.hopper.message.ZoneTransferResult;
 import biz.neustar.hopper.record.OPTRecord;
 import biz.neustar.hopper.record.Record;
 
@@ -370,12 +371,13 @@ public class SimpleResolver implements Resolver {
         xfrin.setTimeout((int) (getTimeout() / 1000));
         xfrin.setConnectTimeout((int) (getConnectTimeout() / 1000));
         xfrin.setLocalAddress(localAddress);
+        ZoneTransferResult run = null;
         try {
-            xfrin.run();
+            run = xfrin.run();
         } catch (ZoneTransferException e) {
             throw new WireParseException(e.getMessage());
         }
-        List<Record> records = xfrin.getAXFR();
+        List<Record> records = run.getAxfr();
         Message response = new Message(query.getHeader().getID());
         response.getHeader().setFlag(Flags.AA);
         response.getHeader().setFlag(Flags.QR);
