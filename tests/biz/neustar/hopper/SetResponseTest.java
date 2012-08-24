@@ -45,7 +45,7 @@ import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.record.ARecord;
 import biz.neustar.hopper.record.CNAMERecord;
 import biz.neustar.hopper.record.DNAMERecord;
-import biz.neustar.hopper.record.RRset;
+import biz.neustar.hopper.record.RRSet;
 import biz.neustar.hopper.resolver.SetResponse;
 
 public class SetResponseTest extends TestCase {
@@ -91,7 +91,7 @@ public class SetResponseTest extends TestCase {
                 SetResponse.SUCCESSFUL };
 
         for (int i = 0; i < types.length; ++i) {
-            RRset rs = new RRset();
+            RRSet rs = new RRSet();
             SetResponse sr = new SetResponse(types[i], rs);
             assertSame(rs, sr.getNS());
             assertEquals(types[i] == SetResponse.UNKNOWN, sr.isUnknown());
@@ -106,7 +106,7 @@ public class SetResponseTest extends TestCase {
 
     public void test_ctor_2arg_toosmall() {
         try {
-            new SetResponse(-1, new RRset());
+            new SetResponse(-1, new RRSet());
             fail("IllegalArgumentException not thrown");
         } catch (IllegalArgumentException a) {
         }
@@ -114,7 +114,7 @@ public class SetResponseTest extends TestCase {
 
     public void test_ctor_2arg_toobig() {
         try {
-            new SetResponse(7, new RRset());
+            new SetResponse(7, new RRSet());
             fail("IllegalArgumentException not thrown");
         } catch (IllegalArgumentException a) {
         }
@@ -177,7 +177,7 @@ public class SetResponseTest extends TestCase {
     }
 
     public void test_addRRset() throws TextParseException, UnknownHostException {
-        RRset rrs = new RRset();
+        RRSet rrs = new RRSet();
         rrs.addRR(new ARecord(Name.fromString("The.Name."), DClass.IN, 0xABCD,
                 InetAddress.getByName("192.168.0.1")));
         rrs.addRR(new ARecord(Name.fromString("The.Name."), DClass.IN, 0xABCD,
@@ -185,19 +185,19 @@ public class SetResponseTest extends TestCase {
         SetResponse sr = new SetResponse(SetResponse.SUCCESSFUL);
         sr.addRRset(rrs);
 
-        RRset[] exp = new RRset[] { rrs };
+        RRSet[] exp = new RRSet[] { rrs };
         assertTrue(Arrays.equals(exp, sr.answers()));
     }
 
     public void test_addRRset_multiple() throws TextParseException,
             UnknownHostException {
-        RRset rrs = new RRset();
+        RRSet rrs = new RRSet();
         rrs.addRR(new ARecord(Name.fromString("The.Name."), DClass.IN, 0xABCD,
                 InetAddress.getByName("192.168.0.1")));
         rrs.addRR(new ARecord(Name.fromString("The.Name."), DClass.IN, 0xABCD,
                 InetAddress.getByName("192.168.0.2")));
 
-        RRset rrs2 = new RRset();
+        RRSet rrs2 = new RRSet();
         rrs2.addRR(new ARecord(Name.fromString("The.Other.Name."), DClass.IN,
                 0xABCE, InetAddress.getByName("192.168.1.1")));
         rrs2.addRR(new ARecord(Name.fromString("The.Other.Name."), DClass.IN,
@@ -207,17 +207,17 @@ public class SetResponseTest extends TestCase {
         sr.addRRset(rrs);
         sr.addRRset(rrs2);
 
-        RRset[] exp = new RRset[] { rrs, rrs2 };
+        RRSet[] exp = new RRSet[] { rrs, rrs2 };
         assertTrue(Arrays.equals(exp, sr.answers()));
     }
 
     public void test_answers_nonSUCCESSFUL() {
-        SetResponse sr = new SetResponse(SetResponse.UNKNOWN, new RRset());
+        SetResponse sr = new SetResponse(SetResponse.UNKNOWN, new RRSet());
         assertNull(sr.answers());
     }
 
     public void test_getCNAME() throws TextParseException, UnknownHostException {
-        RRset rrs = new RRset();
+        RRSet rrs = new RRSet();
         CNAMERecord cr = new CNAMERecord(Name.fromString("The.Name."),
                 DClass.IN, 0xABCD, Name.fromString("The.Alias."));
         rrs.addRR(cr);
@@ -226,7 +226,7 @@ public class SetResponseTest extends TestCase {
     }
 
     public void test_getDNAME() throws TextParseException, UnknownHostException {
-        RRset rrs = new RRset();
+        RRSet rrs = new RRSet();
         DNAMERecord dr = new DNAMERecord(Name.fromString("The.Name."),
                 DClass.IN, 0xABCD, Name.fromString("The.Alias."));
         rrs.addRR(dr);
@@ -239,7 +239,7 @@ public class SetResponseTest extends TestCase {
                 SetResponse.NXDOMAIN, SetResponse.NXRRSET,
                 SetResponse.DELEGATION, SetResponse.CNAME, SetResponse.DNAME,
                 SetResponse.SUCCESSFUL };
-        RRset rrs = new RRset();
+        RRSet rrs = new RRSet();
         rrs.addRR(new ARecord(Name.fromString("The.Name."), DClass.IN, 0xABCD,
                 InetAddress.getByName("192.168.0.1")));
 

@@ -22,7 +22,7 @@ import biz.neustar.hopper.message.Section;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.CNAMERecord;
 import biz.neustar.hopper.record.DNAMERecord;
-import biz.neustar.hopper.record.RRset;
+import biz.neustar.hopper.record.RRSet;
 import biz.neustar.hopper.record.Record;
 import biz.neustar.hopper.record.SOARecord;
 import biz.neustar.hopper.util.Master;
@@ -34,7 +34,7 @@ import biz.neustar.hopper.util.Master;
  * credible records replace less credible records, and lookups can specify the
  * minimum credibility of data they are requesting.
  * 
- * @see RRset
+ * @see RRSet
  * @see Credibility
  * 
  * @author Brian Wellington
@@ -61,7 +61,7 @@ public class Cache {
         return (int) expire;
     }
 
-    private static class CacheRRset extends RRset implements Element {
+    private static class CacheRRset extends RRSet implements Element {
         private static final long serialVersionUID = 5971755205903597024L;
 
         int credibility;
@@ -74,7 +74,7 @@ public class Cache {
             addRR(rec);
         }
 
-        public CacheRRset(RRset rrset, int cred, long maxttl) {
+        public CacheRRset(RRSet rrset, int cred, long maxttl) {
             super(rrset);
             this.credibility = cred;
             this.expire = limitExpire(rrset.getTTL(), maxttl);
@@ -368,9 +368,9 @@ public class Cache {
      *            The RRset to be added
      * @param cred
      *            The credibility of these records
-     * @see RRset
+     * @see RRSet
      */
-    public synchronized void addRRset(RRset rrset, int cred) {
+    public synchronized void addRRset(RRSet rrset, int cred) {
         long ttl = rrset.getTTL();
         Name name = rrset.getName();
         int type = rrset.getType();
@@ -549,7 +549,7 @@ public class Cache {
         return lookup(name, type, minCred);
     }
 
-    private RRset[] findRecords(Name name, int type, int minCred) {
+    private RRSet[] findRecords(Name name, int type, int minCred) {
         SetResponse cr = lookupRecords(name, type, minCred);
         if (cr.isSuccessful()) {
             return cr.answers();
@@ -569,7 +569,7 @@ public class Cache {
      * @return An array of RRsets, or null
      * @see Credibility
      */
-    public RRset[] findRecords(Name name, int type) {
+    public RRSet[] findRecords(Name name, int type) {
         return findRecords(name, type, Credibility.NORMAL);
     }
 
@@ -584,7 +584,7 @@ public class Cache {
      * @return An array of RRsets, or null
      * @see Credibility
      */
-    public RRset[] findAnyRecords(Name name, int type) {
+    public RRSet[] findAnyRecords(Name name, int type) {
         return findRecords(name, type, Credibility.GLUE);
     }
 
@@ -608,7 +608,7 @@ public class Cache {
         }
     }
 
-    private static void markAdditional(RRset rrset, Set<Name> names) {
+    private static void markAdditional(RRSet rrset, Set<Name> names) {
         Record first = rrset.first();
         if (first.getAdditionalName() == null) {
             return;
@@ -645,7 +645,7 @@ public class Cache {
         int cred;
         int rcode = in.getHeader().getRcode();
         boolean completed = false;
-        RRset[] answers, auth, addl;
+        RRSet[] answers, auth, addl;
         SetResponse response = null;
         boolean verbose = Options.check("verbosecache");
         Set<Name> additionalNames;
@@ -702,7 +702,7 @@ public class Cache {
         }
 
         auth = in.getSectionRRsets(Section.AUTHORITY);
-        RRset soa = null, ns = null;
+        RRSet soa = null, ns = null;
         for (int i = 0; i < auth.length; i++) {
             if (auth[i].getType() == Type.SOA
                     && curname.subdomain(auth[i].getName())) {
@@ -774,7 +774,7 @@ public class Cache {
      *            The name of the records to be flushed
      * @param type
      *            The type of the records to be flushed
-     * @see RRset
+     * @see RRSet
      */
     public void flushSet(Name name, int type) {
         removeElement(name, type);
@@ -785,7 +785,7 @@ public class Cache {
      * 
      * @param name
      *            The name of the records to be flushed
-     * @see RRset
+     * @see RRSet
      */
     public void flushName(Name name) {
         removeName(name);

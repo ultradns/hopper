@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Iterator;
 
 import biz.neustar.hopper.exception.RelativeNameException;
-import biz.neustar.hopper.record.RRset;
+import biz.neustar.hopper.record.RRSet;
 import biz.neustar.hopper.record.Record;
 import biz.neustar.hopper.util.Tokenizer;
 
@@ -176,7 +176,7 @@ public class Update extends Message {
      * Indicates that all of the records in the rrset should be inserted into
      * the zone.
      */
-    public void add(RRset rrset) {
+    public void add(RRSet rrset) {
         for (Iterator<Record> it = rrset.rrs(); it.hasNext();) {
             add(it.next());
         }
@@ -242,7 +242,7 @@ public class Update extends Message {
      * Indicates that all of the records in the rrset should be deleted from the
      * zone.
      */
-    public void delete(RRset rrset) {
+    public void delete(RRSet rrset) {
         for (Iterator<Record> it = rrset.rrs(); it.hasNext();) {
             delete(it.next());
         }
@@ -299,7 +299,7 @@ public class Update extends Message {
      * Indicates that all of the records in the rrset should be inserted into
      * the zone replacing any other records with the same name and type.
      */
-    public void replace(RRset rrset) {
+    public void replace(RRSet rrset) {
         delete(rrset.getName(), rrset.getType());
         for (Iterator<Record> it = rrset.rrs(); it.hasNext();) {
             add(it.next());

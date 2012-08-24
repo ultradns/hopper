@@ -46,14 +46,14 @@ import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 
 public class RRsetTest extends TestCase {
-    private RRset m_rs;
+    private RRSet m_rs;
     Name m_name, m_name2;
     long m_ttl;
     ARecord m_a1, m_a2;
     RRSIGRecord m_s1, m_s2;
 
     public void setUp() throws TextParseException, UnknownHostException {
-        m_rs = new RRset();
+        m_rs = new RRSet();
         m_name = Name.fromString("this.is.a.test.");
         m_name2 = Name.fromString("this.is.another.test.");
         m_ttl = 0xABCDL;
@@ -198,7 +198,7 @@ public class RRsetTest extends TestCase {
         m_rs.addRR(m_s1);
         m_rs.addRR(m_s2);
 
-        RRset rs2 = new RRset(m_rs);
+        RRSet rs2 = new RRSet(m_rs);
 
         assertEquals(2, rs2.size());
         assertEquals(m_a1, rs2.first());

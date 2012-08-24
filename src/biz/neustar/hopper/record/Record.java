@@ -580,7 +580,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      * @return The type of record, if not RRSIG. If the type is RRSIG, the type
      *         covered is returned.
      * @see Type
-     * @see RRset
+     * @see RRSet
      * @see SIGRecord
      */
     public int getRRsetType() {

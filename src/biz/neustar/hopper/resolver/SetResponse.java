@@ -8,7 +8,7 @@ import java.util.List;
 import biz.neustar.hopper.message.Zone;
 import biz.neustar.hopper.record.CNAMERecord;
 import biz.neustar.hopper.record.DNAMERecord;
-import biz.neustar.hopper.record.RRset;
+import biz.neustar.hopper.record.RRSet;
 
 /**
  * The Response from a query to Cache.lookupRecords() or Zone.findRecords()
@@ -74,7 +74,7 @@ public class SetResponse {
     private SetResponse() {
     }
 
-    public SetResponse(int type, RRset rrset) {
+    public SetResponse(int type, RRSet rrset) {
         if (type < 0 || type > 6) {
             throw new IllegalArgumentException("invalid type");
         }
@@ -112,11 +112,11 @@ public class SetResponse {
     }
 
     // mutator making this not thread-safe
-    public void addRRset(RRset rrset) {
+    public void addRRset(RRSet rrset) {
         if (data == null) {
-            data = new ArrayList<RRset>();
+            data = new ArrayList<RRSet>();
         }
-        List<RRset> l = (List<RRset>) data;
+        List<RRSet> l = (List<RRSet>) data;
         l.add(rrset);
     }
 
@@ -156,33 +156,33 @@ public class SetResponse {
     }
 
     /** If the query was successful, return the answers */
-    public RRset[] answers() {
+    public RRSet[] answers() {
         if (type != SUCCESSFUL) {
             return null;
         }
-        List<RRset> l = (List<RRset>) data;
-        return l.toArray(new RRset[0]);
+        List<RRSet> l = (List<RRSet>) data;
+        return l.toArray(new RRSet[0]);
     }
 
     /**
      * If the query encountered a CNAME, return it.
      */
     public CNAMERecord getCNAME() {
-        return (CNAMERecord) ((RRset) data).first();
+        return (CNAMERecord) ((RRSet) data).first();
     }
 
     /**
      * If the query encountered a DNAME, return it.
      */
     public DNAMERecord getDNAME() {
-        return (DNAMERecord) ((RRset) data).first();
+        return (DNAMERecord) ((RRSet) data).first();
     }
 
     /**
      * If the query hit a delegation point, return the NS set.
      */
-    public RRset getNS() {
-        return (RRset) data;
+    public RRSet getNS() {
+        return (RRSet) data;
     }
 
     /** Prints the value of the SetResponse */

@@ -22,7 +22,7 @@ import biz.neustar.hopper.message.Type;
  * @author Brian Wellington
  */
 
-public class RRset implements Serializable {
+public class RRSet implements Serializable {
 
     private static final long serialVersionUID = -3270249290171239695L;
 
@@ -35,20 +35,20 @@ public class RRset implements Serializable {
     private short position;
 
     /** Creates an empty RRset */
-    public RRset() {
+    public RRSet() {
         rrs = new ArrayList<Record>(1);
         nsigs = 0;
         position = 0;
     }
 
     /** Creates an RRset and sets its contents to the specified record */
-    public RRset(Record record) {
+    public RRSet(Record record) {
         this();
         safeAddRR(record);
     }
 
     /** Creates an RRset with the contents of an existing RRset */
-    public RRset(RRset rrset) {
+    public RRSet(RRSet rrset) {
         // whoa... yuck - TODO: fix this..
         synchronized (rrset) {
             rrs = new ArrayList<Record>(rrset.rrs);
@@ -114,7 +114,7 @@ public class RRset implements Serializable {
         nsigs = 0;
     }
 
-    private synchronized Iterator<Record> iterator(boolean data, boolean cycle) {
+    private synchronized Iterator<Record> getIterator(boolean data, boolean cycle) {
         int size, start, total;
 
         total = rrs.size();
@@ -163,7 +163,18 @@ public class RRset implements Serializable {
      *            start with a different record.
      */
     public synchronized Iterator<Record> rrs(boolean cycle) {
-        return iterator(true, cycle);
+        return getIterator(true, cycle);
+    }
+
+    /**
+     * Returns an Iterator listing all (data) records.
+     * 
+     * @param cycle
+     *            If true, cycle through the records so that each Iterator will
+     *            start with a different record.
+     */
+    public synchronized Iterator<Record> iterator(boolean cycle) {
+        return rrs(cycle);
     }
 
     /**
@@ -171,12 +182,20 @@ public class RRset implements Serializable {
      * records, so each Iterator will start with a different record.
      */
     public synchronized Iterator<Record> rrs() {
-        return iterator(true, true);
+        return getIterator(true, true);
+    }
+
+    /**
+     * Returns an Iterator listing all (data) records. This cycles through the
+     * records, so each Iterator will start with a different record.
+     */
+    public synchronized Iterator<Record> iterator() {
+        return rrs();
     }
 
     /** Returns an Iterator listing all signature records */
     public synchronized Iterator<Record> sigs() {
-        return iterator(false, false);
+        return getIterator(false, false);
     }
 
     /** Returns the number of (data) records */
@@ -254,10 +273,10 @@ public class RRset implements Serializable {
         sb.append(getTTL() + " ");
         sb.append(getDClass().getName() + " ");
         sb.append(Type.string(getType()) + " ");
-        sb.append(iteratorToString(iterator(true, false)));
+        sb.append(iteratorToString(getIterator(true, false)));
         if (nsigs > 0) {
             sb.append(" sigs: ");
-            sb.append(iteratorToString(iterator(false, false)));
+            sb.append(iteratorToString(getIterator(false, false)));
         }
         sb.append(" }");
         return sb.toString();

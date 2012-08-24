@@ -39,7 +39,7 @@ import biz.neustar.hopper.message.Zone;
 import biz.neustar.hopper.record.CNAMERecord;
 import biz.neustar.hopper.record.DNAMERecord;
 import biz.neustar.hopper.record.OPTRecord;
-import biz.neustar.hopper.record.RRset;
+import biz.neustar.hopper.record.RRSet;
 import biz.neustar.hopper.record.Record;
 import biz.neustar.hopper.record.TSIGRecord;
 import biz.neustar.hopper.record.impl.Address;
@@ -185,12 +185,12 @@ public class JNamed {
 		return null;
 	}
 
-	public RRset findExactMatch(Name name, int type, DClass in, boolean glue) {
+	public RRSet findExactMatch(Name name, int type, DClass in, boolean glue) {
 		Zone zone = findBestZone(name);
 		if (zone != null)
 			return zone.findExactMatch(name, type);
 		else {
-			RRset[] rrsets;
+			RRSet[] rrsets;
 			Cache cache = getCache(in);
 			if (glue)
 				rrsets = cache.findAnyRecords(name, type);
@@ -203,7 +203,7 @@ public class JNamed {
 		}
 	}
 
-	void addRRset(Name name, Message response, RRset rrset, int section, int flags) {
+	void addRRset(Name name, Message response, RRSet rrset, int section, int flags) {
 		for (int s = 1; s <= section; s++)
 			if (response.findRRset(name, rrset.getType(), s))
 				return;
@@ -232,7 +232,7 @@ public class JNamed {
 	}
 
 	private final void addNS(Message response, Zone zone, int flags) {
-		RRset nsRecords = zone.getNS();
+		RRSet nsRecords = zone.getNS();
 		addRRset(nsRecords.getName(), response, nsRecords, Section.AUTHORITY, flags);
 	}
 
@@ -240,7 +240,7 @@ public class JNamed {
 		SetResponse sr = cache.lookupRecords(name, Type.NS, Credibility.HINT);
 		if (!sr.isDelegation())
 			return;
-		RRset nsRecords = sr.getNS();
+		RRSet nsRecords = sr.getNS();
 		Iterator it = nsRecords.rrs();
 		while (it.hasNext()) {
 			Record r = (Record) it.next();
@@ -249,7 +249,7 @@ public class JNamed {
 	}
 
 	private void addGlue(Message response, Name name, int flags) {
-		RRset a = findExactMatch(name, Type.A, DClass.IN, true);
+		RRSet a = findExactMatch(name, Type.A, DClass.IN, true);
 		if (a == null)
 			return;
 		addRRset(name, response, a, Section.ADDITIONAL, flags);
@@ -308,18 +308,18 @@ public class JNamed {
 					response.getHeader().setFlag(Flags.AA);
 			}
 		} else if (sr.isDelegation()) {
-			RRset nsRecords = sr.getNS();
+			RRSet nsRecords = sr.getNS();
 			addRRset(nsRecords.getName(), response, nsRecords, Section.AUTHORITY, flags);
 		} else if (sr.isCNAME()) {
 			CNAMERecord cname = sr.getCNAME();
-			RRset rrset = new RRset(cname);
+			RRSet rrset = new RRSet(cname);
 			addRRset(name, response, rrset, Section.ANSWER, flags);
 			if (zone != null && iterations == 0)
 				response.getHeader().setFlag(Flags.AA);
 			rcode = addAnswer(response, cname.getTarget(), type, dclass, iterations + 1, flags);
 		} else if (sr.isDNAME()) {
 			DNAMERecord dname = sr.getDNAME();
-			RRset rrset = new RRset(dname);
+			RRSet rrset = new RRSet(dname);
 			addRRset(name, response, rrset, Section.ANSWER, flags);
 			Name newname;
 			try {
@@ -327,13 +327,13 @@ public class JNamed {
 			} catch (NameTooLongException e) {
 				return Rcode.YXDOMAIN;
 			}
-			rrset = new RRset(new CNAMERecord(name, dclass, 0, newname));
+			rrset = new RRSet(new CNAMERecord(name, dclass, 0, newname));
 			addRRset(name, response, rrset, Section.ANSWER, flags);
 			if (zone != null && iterations == 0)
 				response.getHeader().setFlag(Flags.AA);
 			rcode = addAnswer(response, newname, type, dclass, iterations + 1, flags);
 		} else if (sr.isSuccessful()) {
-			RRset[] rrsets = sr.answers();
+			RRSet[] rrsets = sr.answers();
 			for (int i = 0; i < rrsets.length; i++)
 				addRRset(name, response, rrsets[i], Section.ANSWER, flags);
 			if (zone != null) {
@@ -357,7 +357,7 @@ public class JNamed {
 			dataOut = new DataOutputStream(s.getOutputStream());
 			int id = query.getHeader().getID();
 			while (it.hasNext()) {
-				RRset rrset = (RRset) it.next();
+				RRSet rrset = (RRSet) it.next();
 				Message response = new Message(id);
 				Header header = response.getHeader();
 				header.setFlag(Flags.QR);

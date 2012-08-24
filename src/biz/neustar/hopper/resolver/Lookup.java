@@ -21,7 +21,7 @@ import biz.neustar.hopper.message.Rcode;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.record.CNAMERecord;
 import biz.neustar.hopper.record.DNAMERecord;
-import biz.neustar.hopper.record.RRset;
+import biz.neustar.hopper.record.RRSet;
 import biz.neustar.hopper.record.Record;
 import biz.neustar.hopper.util.Mnemonic;
 
@@ -456,7 +456,7 @@ public final class Lookup {
 
     private void processResponse(Name name, SetResponse response) {
         if (response.isSuccessful()) {
-            RRset[] rrsets = response.answers();
+            RRSet[] rrsets = response.answers();
             List<Record> l = new ArrayList<Record>();
             int i;
 

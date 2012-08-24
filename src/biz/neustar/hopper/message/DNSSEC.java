@@ -25,7 +25,7 @@ import biz.neustar.hopper.record.DNSKEYRecord;
 import biz.neustar.hopper.record.DSRecord;
 import biz.neustar.hopper.record.KEYRecord;
 import biz.neustar.hopper.record.RRSIGRecord;
-import biz.neustar.hopper.record.RRset;
+import biz.neustar.hopper.record.RRSet;
 import biz.neustar.hopper.record.Record;
 import biz.neustar.hopper.record.SIGRecord;
 import biz.neustar.hopper.record.impl.SIGBase;
@@ -39,7 +39,7 @@ import biz.neustar.hopper.util.Mnemonic;
  * 
  * @see RRSIGRecord
  * @see DNSKEYRecord
- * @see RRset
+ * @see RRSet
  * 
  * @author Brian Wellington
  */
@@ -152,7 +152,7 @@ public class DNSSEC {
      *            The data to be signed/verified.
      * @return The data to be cryptographically signed or verified.
      */
-    public static byte[] digestRRset(RRSIGRecord rrsig, RRset rrset) {
+    public static byte[] digestRRset(RRSIGRecord rrsig, RRSet rrset) {
         DNSOutput out = new DNSOutput();
         digestSIG(out, rrsig);
 
@@ -665,7 +665,7 @@ public class DNSSEC {
      * @throws DNSSECException
      *             Some other error occurred.
      */
-    public static void verify(RRset rrset, RRSIGRecord rrsig, DNSKEYRecord key)
+    public static void verify(RRSet rrset, RRSIGRecord rrsig, DNSKEYRecord key)
             throws DNSSECException {
         if (!matches(rrsig, key)) {
             throw new KeyMismatchException(key, rrsig);
@@ -795,7 +795,7 @@ public class DNSSEC {
      *             Some other error occurred.
      * @return The generated signature
      */
-    public static RRSIGRecord sign(RRset rrset, DNSKEYRecord key,
+    public static RRSIGRecord sign(RRSet rrset, DNSKEYRecord key,
             PrivateKey privkey, Date inception, Date expiration)
             throws DNSSECException {
         return sign(rrset, key, privkey, inception, expiration, null);
@@ -826,7 +826,7 @@ public class DNSSEC {
      *             Some other error occurred.
      * @return The generated signature
      */
-    public static RRSIGRecord sign(RRset rrset, DNSKEYRecord key,
+    public static RRSIGRecord sign(RRSet rrset, DNSKEYRecord key,
             PrivateKey privkey, Date inception, Date expiration, String provider)
             throws DNSSECException {
         int alg = key.getAlgorithm();

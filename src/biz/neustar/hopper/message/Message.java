@@ -11,7 +11,7 @@ import java.util.Set;
 
 import biz.neustar.hopper.exception.WireParseException;
 import biz.neustar.hopper.record.OPTRecord;
-import biz.neustar.hopper.record.RRset;
+import biz.neustar.hopper.record.RRSet;
 import biz.neustar.hopper.record.Record;
 import biz.neustar.hopper.record.SIGRecord;
 import biz.neustar.hopper.record.TSIGRecord;
@@ -63,7 +63,7 @@ public class Message implements Cloneable {
     static final int TSIG_FAILED = 4;
 
     private static Record[] emptyRecordArray = new Record[0];
-    private static RRset[] emptyRRsetArray = new RRset[0];
+    private static RRSet[] emptyRRsetArray = new RRSet[0];
 
     private Message(Header header) {
         sections = new List[4];
@@ -234,7 +234,7 @@ public class Message implements Cloneable {
      * Determines if an RRset with the given name and type is already present in
      * the given section.
      * 
-     * @see RRset
+     * @see RRSet
      * @see Section
      */
     public boolean findRRset(Name name, int type, int section) {
@@ -254,7 +254,7 @@ public class Message implements Cloneable {
      * Determines if an RRset with the given name and type is already present in
      * any section.
      * 
-     * @see RRset
+     * @see RRSet
      * @see Section
      */
     public boolean findRRset(Name name, int type) {
@@ -368,14 +368,14 @@ public class Message implements Cloneable {
      * Returns an array containing all records in the given section grouped into
      * RRsets.
      * 
-     * @see RRset
+     * @see RRSet
      * @see Section
      */
-    public RRset[] getSectionRRsets(int section) {
+    public RRSet[] getSectionRRsets(int section) {
         if (sections[section] == null) {
             return emptyRRsetArray;
         }
-        List<RRset> sets = new LinkedList<RRset>();
+        List<RRSet> sets = new LinkedList<RRSet>();
         Record[] recs = getSectionArray(section);
         Set<Name> hash = new HashSet<Name>();
         for (int i = 0; i < recs.length; i++) {
@@ -383,7 +383,7 @@ public class Message implements Cloneable {
             boolean newset = true;
             if (hash.contains(name)) {
                 for (int j = sets.size() - 1; j >= 0; j--) {
-                    RRset set = sets.get(j);
+                    RRSet set = sets.get(j);
                     if (set.getType() == recs[i].getRRsetType()
                             && set.getDClass() == recs[i].getDClass()
                             && set.getName().equals(name)) {
@@ -394,12 +394,12 @@ public class Message implements Cloneable {
                 }
             }
             if (newset) {
-                RRset set = new RRset(recs[i]);
+                RRSet set = new RRSet(recs[i]);
                 sets.add(set);
                 hash.add(name);
             }
         }
-        return sets.toArray(new RRset[sets.size()]);
+        return sets.toArray(new RRSet[sets.size()]);
     }
 
     void toWire(DNSOutput out) {
