@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<ruleset name="UltraDNS Custom ruleset"
+    xmlns="http://pmd.sf.net/ruleset/1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://pmd.sf.net/ruleset/1.0.0 http://pmd.sf.net/ruleset_xml_schema.xsd"
+    xsi:noNamespaceSchemaLocation="http://pmd.sf.net/ruleset_xml_schema.xsd">
+
+  <description>
+    Neustar ruleset for PMD
+  </description>
+
+  <!-- We'll use the entire 'strings' ruleset -->
+  <rule ref="rulesets/basic.xml"/>
+  <rule ref="rulesets/strings.xml">
+    <exclude name="AvoidDuplicateLiterals"/>
+  </rule>
+  <rule ref="rulesets/codesize.xml">
+    <exclude name="TooManyMethods"/>
+  </rule>
+  <rule ref="rulesets/design.xml">
+    <exclude name="ConfusingTernary"/>
+  </rule>
+
+  <rule ref="rulesets/controversial.xml/DoNotCallGarbageCollectionExplicitly"/>
+  <rule ref="rulesets/optimizations.xml/AddEmptyString"/>
+
+  <!-- customize a rule's property value -->
+  <rule ref="rulesets/strings.xml/AvoidDuplicateLiterals">
+    <properties>
+        <property name="skipAnnotations" value="true"/>
+    </properties>
+  </rule>
+  <rule ref="rulesets/codesize.xml/TooManyMethods">
+    <properties>
+        <property name="maxmethods" value="25"/>
+    </properties>
+  </rule>
+</ruleset>
+

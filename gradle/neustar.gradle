@@ -1,0 +1,263 @@
+/**
+ * Copyright 2012-2013 NeuStar, Inc. All rights reserved.
+ * NeuStar, the Neustar logo and related names and logos are registered
+ * trademarks, service marks or tradenames of NeuStar, Inc. All other
+ * product names, company names, marks, logos and symbols may be trademarks
+ * of their respective owners.
+ */
+
+
+task createWrapper(type: Wrapper) {
+  description = "Create a gradle wrapper for you project"
+  gradleVersion = '1.3'
+}
+
+
+defaultTasks ''
+
+// Generators
+apply from: file('gradle/generators.gradle')
+
+// version
+apply from: file('gradle/version.gradle')
+
+
+
+task gitBuildId {
+  description = "Determine the build id from git"
+  def buildIdOut = new ByteArrayOutputStream()
+  try {
+    exec {
+      // TODO: use a java git library?
+      standardOutput = buildIdOut
+      commandLine 'git', 'log', '-1', '--pretty=format:%ct', 'HEAD'
+    }
+  } catch (Exception e) {
+    buildIdOut.write('0'.getBytes())
+  }
+  println "buildId = ${buildIdOut.toString()}"
+  ext.output = {
+    return buildIdOut.toString()
+  }
+}
+
+def buildId = rootProject.tasks.gitBuildId.output()
+
+
+// load properties for neustar ldap user & passwd
+task loadNeustarCredentials {
+  description = "Load neustar credentials from the neustar.properties file"
+  def credsFileName = "${project.gradle.gradleUserHomeDir}/neustar.properties"
+  
+  if (!loadProperties(credsFileName)) {
+    def exampleContents = """\
+Example File Contents:
+    ldapUsername = yourldapname
+    ldapPassword = yourldappassword
+    """
+    throw new GradleException(
+      "Properties file not found.\nPlease create '${credsFileName}' file with appropriate credentials set\n" + 
+      exampleContents)
+  }
+}
+
+
+allprojects {
+  apply plugin: 'java'
+  apply plugin: 'maven'
+  apply plugin: 'signing'
+  
+  
+  // update runtime classpath to include conf dir BEFORE applying application to make this easy
+  sourceSets.all {
+    it.runtimeClasspath = it.runtimeClasspath + fileTree(dir: 'conf')
+  }
+  
+  apply plugin: 'application'
+  
+  // IDE support
+  apply from: file('gradle/ide.gradle')
+  
+  // code checks
+  //disabled -jd - apply from: file('gradle/codechecks.gradle')
+  
+
+  // best guess ..
+  project.ext.mainPackageName = project.name.toLowerCase()
+  project.ext.mainServiceName = project.name.capitalize()
+  project.ext.serviceClassName = "biz.neustar." + ext.mainPackageName + '.' + ext.mainServiceName + "Service"
+
+  // If you want to specify a version, do so before applying this otherwise 
+  // one will be picked from either environment variable 'VERSION' or default to '0.0.0'
+  // The version will then be appended with a build id that corresponds to the git revision commit timestamp
+  // The resulting version will be of the form: 0.0.0-buildNumber
+  
+  if (version == 'unspecified') {
+    version = '0.0.0'
+
+    def envVersion = System.env['VERSION']
+    if (envVersion) {
+      version = envVersion
+    }
+  }
+  
+  version += '-' + buildId
+
+  def repoBaseUrl = "https://repo.nexgen.neustar.biz/nexus"
+  rootProject.ext.repoBaseUrl = repoBaseUrl
+
+  repositories {
+      maven {
+          credentials {
+              username rootProject.ldapUsername
+              password rootProject.ldapPassword
+          }
+          url repoBaseUrl + "/content/groups/public/"
+      }
+  }
+
+  // Upload to maven repo ( Nexus )
+  uploadArchives {
+    repositories.mavenDeployer {
+      repository(url: repoBaseUrl + "/content/repositories/releases/") {
+          authentication(userName: rootProject.ldapUsername, password: rootProject.ldapPassword)
+      }
+    }
+  }
+  
+  configurations {
+    service
+  }
+  
+  artifacts {
+    service distZip
+  }
+    
+  task uploadDistZip(type: Upload, dependsOn: distZip) {
+    configuration = configurations.service
+    repositories.mavenDeployer {
+      configuration = configurations.service
+      repository(url: repoBaseUrl + "/content/repositories/services/") {
+        authentication(userName: rootProject.ldapUsername, password: rootProject.ldapPassword)
+      }
+    }
+  }
+  
+  task uploadService(dependsOn: uploadDistZip)
+  
+
+  group = 'biz.neustar'
+  def vendor = 'Neustar, Inc.'
+
+  jar.doFirst {
+    manifest {
+        // (project.version != "unspecified" ? project.version : rootProject.version)  - Should we do this?
+        
+        attributes 'Implementation-Title': "${project.name}",
+                   'Implementation-Version': "${project.version}",
+                   'Implementation-Vendor': "${vendor}",
+                   provider: 'gradle'
+    }
+  }
+  
+  // application support
+  //////////////////////
+  
+  distZip.doFirst {
+    // copy in the conf dir
+    copy {
+      from file("conf")
+      into file("src/dist/conf")
+      includeEmptyDirs = true
+    }
+    copy {
+      from('bin') {
+        include '**/*'
+      }
+      into file("src/dist/bin")
+      fileMode = 0755
+    }
+  }
+  
+  // update start scripts
+  startScripts{
+    doLast{
+      copy {
+        from('bin') {
+          include '**/*'
+        }
+        into outputDir
+      }
+      
+      // setup the heap dump path
+//      unixScript.text = unixScript.text.replace('\nCLASSPATH=', '\n. $APP_HOME/bin/proj_opts.sh\n\nCLASSPATH=')
+//      windowsScript.text = windowsScript.text.replace('%DEFAULT_JVM_OPTS% ', '%DEFAULT_JVM_OPTS% -XX:HeapDumpPath="%APP_HOME%\\log" ')
+    }
+  }
+}
+
+
+task showRepos << {
+  description = "List the current repositories"
+  println "Repositories: "
+  println repositories.collect { it.name }
+}
+
+// compile target for java, should narrow this to just java type projects..
+task compile << {
+  dependsOn compileJava, compileTestJava
+}
+
+// Update Checking ...
+buildscript {
+   repositories {
+       mavenCentral()
+   }
+   dependencies {
+       classpath group: 'org.codehaus.groovy.modules.http-builder', name: 'http-builder', version: '0.5.1'
+   }
+}
+
+
+task checkVersion {
+  // Should look like: nexus/service/local/artifact/maven/content?r=releases&g=biz.neustar&a=neuproject&v=LATEST
+  def restClient = new groovyx.net.http.RESTClient(rootProject.ext.repoBaseUrl + "/service/local/artifact/maven/content")
+  restClient.auth.basic( rootProject.ldapUsername, rootProject.ldapPassword )
+  def resp = restClient.head([ query: [ r: "releases", g: "biz.neustar", a: "neuproject", v: "LATEST"]])
+  def latestVersion = resp.getLastHeader('Content-Disposition').getValue().replaceAll('.*neuproject-', '').replaceAll('\\.jar.*','')
+  
+  if (newerVersionCheck(rootProject.ext.neustarScriptVersion, latestVersion)) {
+    println "[WARNING] Newer version ($latestVersion) of gradle scripts are available. Currently running: " + neustarScriptVersion
+    println "[WARNING] Go to: https://confluence.nexgen.neustar.biz/display/NGSERVICES/Project+Creation"
+  }
+}
+
+def newerVersionCheck(currentVer, remoteVer) {
+  // only check for version changes, not builds
+  try {
+    if (!currentVer.equals('latest') && 
+        !currentVer.replaceAll('-.*', '').equals(remoteVer.replaceAll('-.*', ''))) {
+      return true;
+    }
+  } catch (Exception ex) {
+    ex.printStackTrace();
+  }
+  return false;
+}
+
+// Utility method
+/////////////////
+def loadProperties(String sourceFileName) {
+    def config = new Properties()
+    def propFile = new File(sourceFileName)
+    if (propFile.canRead()) {
+        config.load(new FileInputStream(propFile))
+        for (Map.Entry property in config) {
+            ext[property.key] = property.value;
+        }
+        return true
+    }
+    return false
+}
+
+

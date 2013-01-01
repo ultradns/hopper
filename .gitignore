@@ -9,11 +9,6 @@ lib/default
 *.class
 .classpath
 .project
-
-lib/nio/logback-classic.jar
-
-lib/nio/logback-core.jar
-
-lib/nio/netty.jar
-
-lib/nio/slf4j-api.jar
+.gradle
+.settings
+tmp

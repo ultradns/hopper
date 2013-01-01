@@ -1,0 +1,125 @@
+/**
+ * Copyright 2012-2013 NeuStar, Inc. All rights reserved.
+ * NeuStar, the Neustar logo and related names and logos are registered
+ * trademarks, service marks or tradenames of NeuStar, Inc. All other
+ * product names, company names, marks, logos and symbols may be trademarks
+ * of their respective owners.
+ */
+
+// Generators Rules & Tasks
+
+def validProjectName(String name) {
+  return name.matches("[\\p{Alpha}_][\\p{Alnum}_]*")
+}
+
+//for ant filter
+import org.apache.tools.ant.filters.ReplaceTokens
+
+tasks.addRule("Pattern: bootstrap<ProjectType>#<ProjectName>") { String taskName ->
+    if (taskName.startsWith("bootstrap")) {
+        task(taskName, dependsOn: createWrapper) << {
+          def taskParams = (taskName - 'bootstrap')
+          
+          rootProject.ext.projectType = (taskParams.split('#')[0])
+          rootProject.ext.projectName = (taskParams - (projectType + '#'))
+          // default to "Bare"
+          if (projectType == '') {
+            projectType = 'Bare'
+          }
+          
+          if (!validProjectName(projectName)) {
+            throw new GradleException(
+              "Project name invalid, it should contain no spaces")
+          }
+          
+          rootProject.ext.projectNameLower = projectName.toLowerCase()
+          rootProject.ext.projectNameCamel = projectName.capitalize()
+          
+          println "Bootstrapping Project: " + projectName + ' type: ' + projectType
+          // setup the default directory structure & files
+          // Copy a template-ized settings file
+          copy {
+            from 'settings.gradle.templ'
+            rename '(.*)\\.templ', '$1'
+            into '.'
+            filter(ReplaceTokens, tokens:[projectName: projectName, 
+              projectNameLower: projectNameLower,
+              projectNameCamel: projectNameCamel])
+          }
+          delete { 'settings.gradle.templ' }
+          
+          copy {
+            from 'bin/projectName.sh.templ'
+            rename '(.*)\\.templ', projectNameLower + '.sh'
+            into 'bin'
+            filter(ReplaceTokens, tokens:[projectName: projectName, 
+              projectNameLower: projectNameLower,
+              projectNameCamel: projectNameCamel])
+          }
+          delete { 'bin/projectName.sh.templ' }
+
+          tasks['generate'+projectType].execute()
+          // remove the project templates dir
+          delete { 'gradle/templates' }
+        }
+    }
+}
+
+// Generator tasks
+//////////////////
+
+def copyTemplateFile(String fromFile, String toDir, String toFile = '$1', Map<String, ?> tokensMap) {
+  copy {
+    from fromFile
+    rename '(.*)\\.templ', toFile
+    into toDir
+    filter(ReplaceTokens, tokens: tokensMap) 
+  }
+  delete { fromFile }
+}
+
+task generateBare << {
+  println "Generating Bare project..."
+  def projectDir = file("src/main/java/biz/neustar/" + rootProject.ext.projectNameLower)
+  projectDir.mkdirs()
+}
+
+task generateTool << {
+  println "Generating Tool..."
+}
+
+task generateService(dependsOn: generateBare) << {
+  println "Generating Service..."
+  
+  def templatesDir = 'gradle/templates'
+  
+  copyTemplateFile("$templatesDir/Configuration.java.templ", 
+    'src/main/java/biz/neustar/' + rootProject.ext.projectNameLower, 
+    rootProject.ext.projectNameCamel + '$1',
+    [projectName: rootProject.ext.projectName, 
+      projectNameLower: rootProject.ext.projectNameLower,
+      projectNameCamel: rootProject.ext.projectNameCamel])
+    
+  copyTemplateFile("$templatesDir/Service.java.templ", 
+    'src/main/java/biz/neustar/' + rootProject.ext.projectNameLower, 
+    rootProject.ext.projectNameCamel + '$1',
+    [projectName: rootProject.ext.projectName, 
+      projectNameLower: rootProject.ext.projectNameLower,
+      projectNameCamel: rootProject.ext.projectNameCamel])
+
+  copyTemplateFile("$templatesDir/example.yml.templ",
+    "conf/", rootProject.ext.projectNameLower + '.yml', [:])
+    
+  copyTemplateFile("$templatesDir/start.sh.templ",
+      "bin/",
+      [projectName: rootProject.ext.projectName, 
+        projectNameLower: rootProject.ext.projectNameLower,
+        projectNameCamel: rootProject.ext.projectNameCamel])
+}
+
+task generateUpdate << {
+  println "Updating scripts..."
+  // nothing to do yet..
+}
+
+///////////////////

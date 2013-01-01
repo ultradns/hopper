@@ -1,0 +1,25 @@
+/**
+ * Copyright 2012-2013 NeuStar, Inc. All rights reserved.
+ * NeuStar, the Neustar logo and related names and logos are registered
+ * trademarks, service marks or tradenames of NeuStar, Inc. All other
+ * product names, company names, marks, logos and symbols may be trademarks
+ * of their respective owners.
+ */
+ 
+// checks
+apply plugin: 'findbugs'
+apply plugin: 'pmd'
+apply plugin: 'checkstyle'  
+apply from: file('gradle/jacoco.gradle')
+
+
+checkstyle {
+  // ignoreFailures = true
+  configFile = rootProject.file('gradle/config/checkstyle.xml')
+}
+// exclude the checkstyle, findbugsTest, pmdTest on test source.. 
+gradle.startParameter.excludedTaskNames += ["checkstyleTest", "findbugsTest", "pmdTest"]
+
+pmd {
+  ruleSetFiles = files('gradle/config/pmd.xml')
+}

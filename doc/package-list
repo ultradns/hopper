@@ -1,0 +1,8 @@
+biz.neustar.hopper.apps
+biz.neustar.hopper.config
+biz.neustar.hopper.exception
+biz.neustar.hopper.message
+biz.neustar.hopper.record
+biz.neustar.hopper.record.impl
+biz.neustar.hopper.resolver
+biz.neustar.hopper.util

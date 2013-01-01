@@ -1,0 +1,41 @@
+// Hopper
+/////////
+
+
+allprojects {
+  version = '0.1.0'
+}
+
+// apply the common neustar gradle tasks to setup artifact repos, etc.
+apply from: file('gradle/neustar.gradle')
+
+// If this project has subprojects, you can customize them here
+//subprojects {
+//    dependencies {
+//      // common dependencies for multi-projects
+//    }
+//}
+
+// If you rename your packages, feel free to rename this..
+mainClassName = ext.serviceClassName
+
+allprojects {
+  dependencies {
+    testCompile 'junit:junit:4.+'
+    testCompile 'org.mockito:mockito-all:[1.8.5,)'
+
+    compile 'commons-codec:commons-codec:1.6'
+    compile 'io.netty:netty:3.5.7.Final'
+
+    // logging
+    compile 'org.slf4j:slf4j-api:1.7.+'
+    compile 'org.slf4j:slf4j-ext:1.7.+'
+    compile 'org.slf4j:jcl-over-slf4j:1.7.+'
+    compile 'org.slf4j:jul-to-slf4j:1.7.+'
+    compile 'org.slf4j:log4j-over-slf4j:1.7.+'
+    
+    compile 'ch.qos.logback:logback-core:1.0.+'
+    compile 'ch.qos.logback:logback-classic:1.0.+'
+  }
+}
+
