@@ -14,9 +14,8 @@ import biz.neustar.hopper.util.Mnemonic;
 
 public final class ExtendedFlag extends TrackedType {
     private static final TrackedTypeRegistrar REGISTRAR = 
-            new TrackedTypeRegistrar(ExtendedFlag.class, "FLAG")
-                .allowNumericName(true)
-                .maxValue(0xFFFF);
+            registrarBuilder(ExtendedFlag.class)
+                .prefix("FLAG").allowNumericName(true).maxValue(0xFFFF).build();
 
     private static Mnemonic extflags = new Mnemonic("EDNS Flag",
             Mnemonic.CASE_LOWER);

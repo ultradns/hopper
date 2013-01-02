@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
+import biz.neustar.hopper.message.impl.TrackedTypeRegistrar.RegistrarBuilder;
+
 public abstract class TrackedType {
     private final String name;
     private final int value;
@@ -29,6 +31,11 @@ public abstract class TrackedType {
         }
         
         this.altNames = Collections.unmodifiableSet(nameSet);
+    }
+    
+    
+    public static <T extends TrackedType> RegistrarBuilder<T> registrarBuilder(Class<T> trackedClass) {
+        return new RegistrarBuilder<T>(trackedClass);
     }
     
     public String getName() {

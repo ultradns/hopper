@@ -13,9 +13,8 @@ import biz.neustar.hopper.message.impl.TrackedTypeRegistrar;
 
 public final class Flag extends TrackedType {
     private static final TrackedTypeRegistrar REGISTRAR = 
-            new TrackedTypeRegistrar(Flag.class, "FLAG")
-                .allowNumericName(true)
-                .maxValue(0xF);
+            registrarBuilder(Flag.class)
+                .prefix("FLAG").allowNumericName(true).maxValue(0xF).build();
 
     /** query/response */
     public static final Flag QR = REGISTRAR.add(new Flag(0, "qr"));

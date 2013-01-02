@@ -2,7 +2,6 @@
 
 package biz.neustar.hopper.message;
 
-import biz.neustar.hopper.exception.InvalidDClassException;
 import biz.neustar.hopper.message.impl.TrackedType;
 import biz.neustar.hopper.message.impl.TrackedTypeRegistrar;
 
@@ -13,10 +12,8 @@ import biz.neustar.hopper.message.impl.TrackedTypeRegistrar;
  */
 
 public final class DClass extends TrackedType {
-    private static final TrackedTypeRegistrar REGISTRAR = 
-            new TrackedTypeRegistrar(DClass.class, "CLASS")
-                .allowNumericName(true)
-                .maxValue(0xFFFF);
+    private static final TrackedTypeRegistrar REGISTRAR = registrarBuilder(DClass.class)
+            .prefix("CLASS").allowNumericName(true).maxValue(0xFFFF).build();
     
     /** Internet */
     public static final DClass IN = REGISTRAR.add(new DClass(1, "IN"));

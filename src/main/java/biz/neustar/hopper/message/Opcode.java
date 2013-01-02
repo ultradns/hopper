@@ -10,10 +10,8 @@ import biz.neustar.hopper.message.impl.TrackedTypeRegistrar;
  */
 
 public final class Opcode extends TrackedType {
-    private static final TrackedTypeRegistrar REGISTRAR = 
-            new TrackedTypeRegistrar(Opcode.class, "RESERVED")
-                .allowNumericName(true)
-                .maxValue(0xF);
+    private static final TrackedTypeRegistrar REGISTRAR = registrarBuilder(Opcode.class)
+            .prefix("RESERVED").allowNumericName(true).maxValue(0xF).build();
     
     /** A standard query */
     public static final Opcode QUERY = REGISTRAR.add(new Opcode(0, "QUERY"));

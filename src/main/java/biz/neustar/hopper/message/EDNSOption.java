@@ -20,10 +20,8 @@ import biz.neustar.hopper.util.Mnemonic;
 public abstract class EDNSOption {
 
     public static class Code extends TrackedType {
-        private static final TrackedTypeRegistrar REGISTRAR = 
-                new TrackedTypeRegistrar(Code.class, "CODE")
-                    .allowNumericName(true)
-                    .maxValue(0xFFFF);
+        private static final TrackedTypeRegistrar REGISTRAR = registrarBuilder(Code.class)
+                .prefix("CODE").allowNumericName(true).maxValue(0xFFFF).build();
 
         /** Name Server Identifier, RFC 5001 */
         public final static Code NSID = REGISTRAR.add(new Code(3, "NSID"));

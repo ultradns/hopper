@@ -17,14 +17,49 @@ public class TrackedTypeRegistrar {
     private final Class<? extends TrackedType> trackedClass;
     private final Set<TrackedType> registered = 
             new CopyOnWriteArraySet<TrackedType>();
-    private volatile boolean allowNumericName = true;
-    private volatile int max = Integer.MAX_VALUE;
-
+    private boolean allowNumericName = true;
+    private int max = Integer.MAX_VALUE;
+    
+    
+    public static class RegistrarBuilder<T extends TrackedType> {
+        private boolean allowNumericName = true;
+        private int max = Integer.MAX_VALUE;
+        private Class<T> trackedClass;
+        private String prefix = "";
+        
+        public RegistrarBuilder(Class<T> trackedClass) {
+            this.trackedClass = trackedClass;
+        }
+        
+        public RegistrarBuilder<T> allowNumericName(boolean allow) {
+            this.allowNumericName = allow;
+            return this;
+        }
+        
+        public RegistrarBuilder<T> maxValue(int max) {
+            this.max = max;
+            return this;
+        }
+        
+        public RegistrarBuilder<T> prefix(String prefix) {
+            this.prefix = prefix;
+            return this;
+        }
+        
+        public TrackedTypeRegistrar build() {
+            TrackedTypeRegistrar registrar = new TrackedTypeRegistrar(this.trackedClass, prefix);
+            registrar.allowNumericName = this.allowNumericName;
+            registrar.max = this.max;
+            return registrar;
+        }
+    }
+    
+    
     /**
      * 
      * @param prefix used in the type name
      */
-    public <T extends TrackedType> TrackedTypeRegistrar(Class<T> trackedClass, String prefix) {
+    protected <T extends TrackedType> TrackedTypeRegistrar(Class<T> trackedClass, String prefix) {
         this.trackedClass = trackedClass;
         this.prefix = prefix;
     }
@@ -32,16 +67,6 @@ public class TrackedTypeRegistrar {
     public <T extends TrackedType> T add(T type) {
         registered.add(type);
         return type;
-    }
-    
-    public TrackedTypeRegistrar allowNumericName(boolean allow) {
-        this.allowNumericName = allow;
-        return this;
-    }
-    
-    public TrackedTypeRegistrar maxValue(int max) {
-        this.max = max;
-        return this;
     }
     
     @SuppressWarnings("unchecked")
