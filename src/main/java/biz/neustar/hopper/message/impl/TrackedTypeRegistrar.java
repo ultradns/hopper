@@ -21,27 +21,27 @@ public class TrackedTypeRegistrar {
     private int max = Integer.MAX_VALUE;
     
     
-    public static class RegistrarBuilder<T extends TrackedType> {
+    public static class Builder<T extends TrackedType> {
         private boolean allowNumericName = true;
         private int max = Integer.MAX_VALUE;
         private Class<T> trackedClass;
         private String prefix = "";
         
-        public RegistrarBuilder(Class<T> trackedClass) {
+        public Builder(Class<T> trackedClass) {
             this.trackedClass = trackedClass;
         }
         
-        public RegistrarBuilder<T> allowNumericName(boolean allow) {
+        public Builder<T> allowNumericName(boolean allow) {
             this.allowNumericName = allow;
             return this;
         }
         
-        public RegistrarBuilder<T> maxValue(int max) {
+        public Builder<T> maxValue(int max) {
             this.max = max;
             return this;
         }
         
-        public RegistrarBuilder<T> prefix(String prefix) {
+        public Builder<T> prefix(String prefix) {
             this.prefix = prefix;
             return this;
         }

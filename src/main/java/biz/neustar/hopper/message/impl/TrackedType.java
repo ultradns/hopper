@@ -12,7 +12,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
-import biz.neustar.hopper.message.impl.TrackedTypeRegistrar.RegistrarBuilder;
+import biz.neustar.hopper.message.impl.TrackedTypeRegistrar.Builder;
 
 public abstract class TrackedType {
     private final String name;
@@ -34,8 +34,8 @@ public abstract class TrackedType {
     }
     
     
-    public static <T extends TrackedType> RegistrarBuilder<T> registrarBuilder(Class<T> trackedClass) {
-        return new RegistrarBuilder<T>(trackedClass);
+    public static <T extends TrackedType> Builder<T> registrarBuilder(Class<T> trackedClass) {
+        return new Builder<T>(trackedClass);
     }
     
     public String getName() {
