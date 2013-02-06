@@ -25,7 +25,8 @@ public abstract class KEYBase extends Record {
 
     private static final long serialVersionUID = 3469321722693285454L;
 
-    protected int flags, proto, alg;
+    protected int flags, proto;
+    protected DNSSEC.Algorithm alg;
     protected byte[] key;
     protected int footprint = -1;
     protected PublicKey publicKey = null;
@@ -34,18 +35,18 @@ public abstract class KEYBase extends Record {
     }
 
     public KEYBase(Name name, int type, DClass dclass, long ttl, int flags,
-            int proto, int alg, byte[] key) {
+            int proto, DNSSEC.Algorithm alg, byte[] key) {
         super(name, type, dclass, ttl);
         this.flags = checkU16("flags", flags);
         this.proto = checkU8("proto", proto);
-        this.alg = checkU8("alg", alg);
+        this.alg = alg;
         this.key = key;
     }
 
     protected void rrFromWire(DNSInput in) throws IOException {
         flags = in.readU16();
         proto = in.readU8();
-        alg = in.readU8();
+        alg = DNSSEC.Algorithm.valueOf(in.readU8());
         if (in.remaining() > 0) {
             key = in.readByteArray();
         }
@@ -58,7 +59,7 @@ public abstract class KEYBase extends Record {
         sb.append(" ");
         sb.append(proto);
         sb.append(" ");
-        sb.append(alg);
+        sb.append(alg.getValue());
         if (key != null) {
             if (Options.check("multiline")) {
                 sb.append(" (\n");
@@ -90,7 +91,7 @@ public abstract class KEYBase extends Record {
     /**
      * Returns the key's algorithm
      */
-    public int getAlgorithm() {
+    public DNSSEC.Algorithm getAlgorithm() {
         return alg;
     }
 
@@ -154,7 +155,7 @@ public abstract class KEYBase extends Record {
     public void rrToWire(DNSOutput out, Compression c, boolean canonical) {
         out.writeU16(flags);
         out.writeU8(proto);
-        out.writeU8(alg);
+        out.writeU8(alg.getValue());
         if (key != null) {
             out.writeByteArray(key);
         }

@@ -54,7 +54,7 @@ public class RRSIGRecord extends SIGBase {
      * @param signature
      *            Binary data representing the signature
      */
-    public RRSIGRecord(Name name, DClass in, long ttl, int covered, int alg,
+    public RRSIGRecord(Name name, DClass in, long ttl, int covered, DNSSEC.Algorithm alg,
             long origttl, Date expire, Date timeSigned, int footprint,
             Name signer, byte[] signature) {
         super(name, Type.RRSIG, in, ttl, covered, alg, origttl, expire,

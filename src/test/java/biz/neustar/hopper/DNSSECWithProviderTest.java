@@ -1,25 +1,23 @@
 package biz.neustar.hopper;
 
+import static org.junit.Assert.*;
+
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.Signature;
 
-import junit.framework.TestCase;
-import biz.neustar.hopper.message.DNSSEC.Algorithm;
+import org.junit.Test;
 
-public class DNSSECWithProviderTest extends TestCase {
+import biz.neustar.hopper.message.DNSSEC;
+
+public class DNSSECWithProviderTest {
 
     private static final String SIGNATURE_ALGORITHM = "SHA1withRSA";
     private static final String KEY_ALGORITHM = "RSA";
-    int algorithm = Algorithm.RSASHA1;
+    private DNSSEC.Algorithm algorithm = DNSSEC.Algorithm.RSASHA1;
     byte[] toSign = "The quick brown fox jumped over the lazy dog.".getBytes();
 
-    public void setUp() {
-    }
-
-    public void tearDown() {
-    }
-
+    @Test
     public void testSignSoftware() throws Exception {
 
         KeyPairGenerator keyPairGenerator = KeyPairGenerator

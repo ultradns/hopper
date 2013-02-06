@@ -42,6 +42,7 @@ import java.util.Iterator;
 import junit.framework.TestCase;
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.message.DClass;
+import biz.neustar.hopper.message.DNSSEC;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 
@@ -62,9 +63,11 @@ public class RRsetTest extends TestCase {
         m_a2 = new ARecord(m_name, DClass.IN, m_ttl + 1,
                 InetAddress.getByName("192.169.232.12"));
 
-        m_s1 = new RRSIGRecord(m_name, DClass.IN, m_ttl, Type.A, 0xF, 0xABCDEL,
+        DNSSEC.Algorithm algorithm = DNSSEC.Algorithm.valueOf(0xF); // why 15?
+        m_s1 = new RRSIGRecord(m_name, DClass.IN, m_ttl, Type.A, 
+                algorithm, 0xABCDEL,
                 new Date(), new Date(), 0xA, m_name, new byte[0]);
-        m_s2 = new RRSIGRecord(m_name, DClass.IN, m_ttl, Type.A, 0xF, 0xABCDEL,
+        m_s2 = new RRSIGRecord(m_name, DClass.IN, m_ttl, Type.A, algorithm, 0xABCDEL,
                 new Date(), new Date(), 0xA, m_name2, new byte[0]);
     }
 

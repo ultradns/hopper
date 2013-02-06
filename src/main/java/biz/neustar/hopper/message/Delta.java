@@ -13,10 +13,10 @@ import biz.neustar.hopper.record.Record;
 public class Delta {
 
     /** A list of records added between the start and end versions */
-    private List<Record> adds = new LinkedList<Record>();
+    private final List<Record> adds = new LinkedList<Record>();
 
     /** A list of records deleted between the start and end versions */
-    private List<Record> deletes = new LinkedList<Record>();
+    private final List<Record> deletes = new LinkedList<Record>();
     
     /** The starting SOA serial number */
     private long start;
@@ -25,8 +25,6 @@ public class Delta {
     private long end;
 
     public Delta() {
-        adds = new LinkedList<Record>();
-        deletes = new LinkedList<Record>();
     }
 
 	protected List<Record> getAdds() {

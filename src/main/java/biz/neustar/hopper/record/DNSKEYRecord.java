@@ -67,7 +67,7 @@ public class DNSKEYRecord extends KEYBase {
      *            Binary representation of the key
      */
     public DNSKEYRecord(Name name, DClass dclass, long ttl, int flags, int proto,
-            int alg, byte[] key) {
+            DNSSEC.Algorithm alg, byte[] key) {
         super(name, Type.DNSKEY, dclass, ttl, flags, proto, alg, key);
     }
 
@@ -86,7 +86,7 @@ public class DNSKEYRecord extends KEYBase {
      *             The PublicKey could not be converted into DNS format.
      */
     public DNSKEYRecord(Name name, DClass dclass, long ttl, int flags, int proto,
-            int alg, PublicKey key) throws DNSSEC.DNSSECException {
+            DNSSEC.Algorithm alg, PublicKey key) throws DNSSEC.DNSSECException {
         super(name, Type.DNSKEY, dclass, ttl, flags, proto, alg, DNSSEC
                 .fromPublicKey(key, alg));
         publicKey = key;
@@ -96,10 +96,7 @@ public class DNSKEYRecord extends KEYBase {
         flags = st.getUInt16();
         proto = st.getUInt8();
         String algString = st.getString();
-        alg = DNSSEC.Algorithm.value(algString);
-        if (alg < 0) {
-            throw st.exception("Invalid algorithm: " + algString);
-        }
+        alg = DNSSEC.Algorithm.valueOf(algString);
         key = st.getBase64();
     }
 

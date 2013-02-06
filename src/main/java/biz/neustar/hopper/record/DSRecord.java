@@ -43,7 +43,7 @@ public class DSRecord extends Record {
     private static final long serialVersionUID = -9001819329700081493L;
 
     private int footprint;
-    private int alg;
+    private DNSSEC.Algorithm alg;
     private int digestid;
     private byte[] digest;
 
@@ -66,11 +66,12 @@ public class DSRecord extends Record {
      * @param digest
      *            A hash of the original key.
      */
-    public DSRecord(Name name, DClass in, long ttl, int footprint, int alg,
+    public DSRecord(Name name, DClass in, long ttl, int footprint, DNSSEC.Algorithm alg,
             int digestid, byte[] digest) {
         super(name, Type.DS, in, ttl);
         this.footprint = checkU16("footprint", footprint);
-        this.alg = checkU8("alg", alg);
+        // TODO: move this check into the Algorithm
+        this.alg = alg;
         this.digestid = checkU8("digestid", digestid);
         this.digest = digest;
     }
@@ -91,14 +92,14 @@ public class DSRecord extends Record {
 
     protected void rrFromWire(DNSInput in) throws IOException {
         footprint = in.readU16();
-        alg = in.readU8();
+        alg = DNSSEC.Algorithm.valueOf(in.readU8());
         digestid = in.readU8();
         digest = in.readByteArray();
     }
 
     protected void rdataFromString(Tokenizer st, Name origin) throws IOException {
         footprint = st.getUInt16();
-        alg = st.getUInt8();
+        alg = DNSSEC.Algorithm.valueOf(st.getUInt8());
         digestid = st.getUInt8();
         digest = st.getHex();
     }
@@ -110,7 +111,7 @@ public class DSRecord extends Record {
         StringBuffer sb = new StringBuffer();
         sb.append(footprint);
         sb.append(" ");
-        sb.append(alg);
+        sb.append(alg.getValue());
         sb.append(" ");
         sb.append(digestid);
         if (digest != null) {
@@ -124,7 +125,7 @@ public class DSRecord extends Record {
     /**
      * Returns the key's algorithm.
      */
-    public int getAlgorithm() {
+    public DNSSEC.Algorithm getAlgorithm() {
         return alg;
     }
 
@@ -151,7 +152,7 @@ public class DSRecord extends Record {
 
     public void rrToWire(DNSOutput out, Compression c, boolean canonical) {
         out.writeU16(footprint);
-        out.writeU8(alg);
+        out.writeU8(alg.getValue());
         out.writeU8(digestid);
         if (digest != null) {
             out.writeByteArray(digest);

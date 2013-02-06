@@ -44,6 +44,7 @@ import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
+import biz.neustar.hopper.message.DNSSEC;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.util.Hex;
@@ -63,7 +64,7 @@ public class DSRecordTest extends TestCase {
         assertEquals(0, dr.getType());
         assertNull(dr.getDClass());
         assertEquals(0, dr.getTTL());
-        assertEquals(0, dr.getAlgorithm());
+        assertNull(dr.getAlgorithm());
         assertEquals(0, dr.getDigestID());
         assertNull(dr.getDigest());
         assertEquals(0, dr.getFootprint());
@@ -79,7 +80,7 @@ public class DSRecordTest extends TestCase {
         private Name m_n;
         private long m_ttl;
         private int m_footprint;
-        private int m_algorithm;
+        private DNSSEC.Algorithm m_algorithm;
         private int m_digestid;
         private byte[] m_digest;
 
@@ -87,7 +88,7 @@ public class DSRecordTest extends TestCase {
             m_n = Name.fromString("The.Name.");
             m_ttl = 0xABCDL;
             m_footprint = 0xEF01;
-            m_algorithm = 0x23;
+            m_algorithm = DNSSEC.Algorithm.valueOf(0x23);
             m_digestid = 0x45;
             m_digest = new byte[] { (byte) 0x67, (byte) 0x89, (byte) 0xAB,
                     (byte) 0xCD, (byte) 0xEF };
@@ -118,24 +119,6 @@ public class DSRecordTest extends TestCase {
         public void test_toobig_footprint() throws TextParseException {
             try {
                 new DSRecord(m_n, DClass.IN, m_ttl, 0x10000, m_algorithm,
-                        m_digestid, m_digest);
-                fail("IllegalArgumentException not thrown");
-            } catch (IllegalArgumentException e) {
-            }
-        }
-
-        public void test_toosmall_algorithm() throws TextParseException {
-            try {
-                new DSRecord(m_n, DClass.IN, m_ttl, m_footprint, -1,
-                        m_digestid, m_digest);
-                fail("IllegalArgumentException not thrown");
-            } catch (IllegalArgumentException e) {
-            }
-        }
-
-        public void test_toobig_algorithm() throws TextParseException {
-            try {
-                new DSRecord(m_n, DClass.IN, m_ttl, m_footprint, 0x10000,
                         m_digestid, m_digest);
                 fail("IllegalArgumentException not thrown");
             } catch (IllegalArgumentException e) {
@@ -182,7 +165,7 @@ public class DSRecordTest extends TestCase {
         DSRecord dr = new DSRecord();
         dr.rrFromWire(in);
         assertEquals(0xABCD, dr.getFootprint());
-        assertEquals(0xEF, dr.getAlgorithm());
+        assertEquals(0xEF, dr.getAlgorithm().getValue());
         assertEquals(0x01, dr.getDigestID());
         assertTrue(Arrays.equals(new byte[] { (byte) 0x23, (byte) 0x45,
                 (byte) 0x67, (byte) 0x89 }, dr.getDigest()));
@@ -195,7 +178,7 @@ public class DSRecordTest extends TestCase {
         DSRecord dr = new DSRecord();
         dr.rdataFromString(t, null);
         assertEquals(0xABCD, dr.getFootprint());
-        assertEquals(0xEF, dr.getAlgorithm());
+        assertEquals(0xEF, dr.getAlgorithm().getValue());
         assertEquals(0x01, dr.getDigestID());
         assertTrue(Arrays.equals(new byte[] { (byte) 0x23, (byte) 0x45,
                 (byte) 0x67, (byte) 0x89, (byte) 0xAB }, dr.getDigest()));
@@ -205,14 +188,14 @@ public class DSRecordTest extends TestCase {
         String exp = 0xABCD + " " + 0xEF + " " + 0x01 + " 23456789AB";
 
         DSRecord dr = new DSRecord(Name.fromString("The.Name."), DClass.IN,
-                0x123, 0xABCD, 0xEF, 0x01, new byte[] { (byte) 0x23,
+                0x123, 0xABCD, DNSSEC.Algorithm.valueOf(0xEF), 0x01, new byte[] { (byte) 0x23,
                         (byte) 0x45, (byte) 0x67, (byte) 0x89, (byte) 0xAB });
         assertEquals(exp, dr.rrToString());
     }
 
     public void test_rrToWire() throws TextParseException {
         DSRecord dr = new DSRecord(Name.fromString("The.Name."), DClass.IN,
-                0x123, 0xABCD, 0xEF, 0x01, new byte[] { (byte) 0x23,
+                0x123, 0xABCD, DNSSEC.Algorithm.valueOf(0xEF), 0x01, new byte[] { (byte) 0x23,
                         (byte) 0x45, (byte) 0x67, (byte) 0x89, (byte) 0xAB });
 
         byte[] exp = new byte[] { (byte) 0xAB, (byte) 0xCD, (byte) 0xEF,

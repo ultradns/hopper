@@ -8,7 +8,6 @@ import biz.neustar.hopper.message.impl.TrackedTypeRegistrar;
 /**
  * Constants and functions relating to flags in the DNS header.
  * 
- * @author Brian Wellington
  */
 
 public final class Flag extends TrackedType {

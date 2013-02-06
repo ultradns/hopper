@@ -120,7 +120,7 @@ public class CERTRecord extends Record {
     private static final long serialVersionUID = 4763014646517016835L;
 
     private int certType, keyTag;
-    private int alg;
+    private DNSSEC.Algorithm alg;
     private byte[] cert;
 
     public CERTRecord() {
@@ -143,18 +143,18 @@ public class CERTRecord extends Record {
      *            Binary data representing the certificate
      */
     public CERTRecord(Name name, DClass dclass, long ttl, int certType,
-            int keyTag, int alg, byte[] cert) {
+            int keyTag, DNSSEC.Algorithm alg, byte[] cert) {
         super(name, Type.CERT, dclass, ttl);
         this.certType = checkU16("certType", certType);
         this.keyTag = checkU16("keyTag", keyTag);
-        this.alg = checkU8("alg", alg);
+        this.alg = alg;
         this.cert = cert;
     }
 
     protected void rrFromWire(DNSInput in) throws IOException {
         certType = in.readU16();
         keyTag = in.readU16();
-        alg = in.readU8();
+        alg = DNSSEC.Algorithm.valueOf(in.readU8());
         cert = in.readByteArray();
     }
 
@@ -165,10 +165,7 @@ public class CERTRecord extends Record {
             throw st.exception("Invalid certificate type: " + certTypeString);
         keyTag = st.getUInt16();
         String algString = st.getString();
-        alg = DNSSEC.Algorithm.value(algString);
-        if (alg < 0) {
-            throw st.exception("Invalid algorithm: " + algString);
-        }
+        alg = DNSSEC.Algorithm.valueOf(algString);
         cert = st.getBase64();
     }
 
@@ -211,7 +208,7 @@ public class CERTRecord extends Record {
     /**
      * Returns the algorithm of the associated KEYRecord, if present
      */
-    public int getAlgorithm() {
+    public DNSSEC.Algorithm getAlgorithm() {
         return alg;
     }
 
@@ -225,7 +222,7 @@ public class CERTRecord extends Record {
     public void rrToWire(DNSOutput out, Compression c, boolean canonical) {
         out.writeU16(certType);
         out.writeU16(keyTag);
-        out.writeU8(alg);
+        out.writeU8(alg.getValue());
         out.writeByteArray(cert);
     }
 

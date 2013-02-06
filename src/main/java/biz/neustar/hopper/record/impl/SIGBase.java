@@ -30,7 +30,8 @@ public abstract class SIGBase extends Record {
     private static final long serialVersionUID = -3738444391533812369L;
 
     protected int covered;
-    protected int alg, labels;
+    protected int labels;
+    private DNSSEC.Algorithm alg;
     protected long origttl;
     protected Date expire, timeSigned;
     protected int footprint;
@@ -41,13 +42,13 @@ public abstract class SIGBase extends Record {
     }
 
     public SIGBase(Name name, int type, DClass any, long ttl, int covered,
-            int alg, long origttl, Date expire, Date timeSigned, int footprint,
+            DNSSEC.Algorithm alg, long origttl, Date expire, Date timeSigned, int footprint,
             Name signer, byte[] signature) {
         super(name, type, any, ttl);
         Type.check(covered);
         TTL.check(origttl);
         this.covered = covered;
-        this.alg = checkU8("alg", alg);
+        this.alg = alg;
         this.labels = name.labels() - 1;
         if (name.isWild()) {
             this.labels--;
@@ -62,7 +63,7 @@ public abstract class SIGBase extends Record {
 
     protected void rrFromWire(DNSInput in) throws IOException {
         covered = in.readU16();
-        alg = in.readU8();
+        alg = DNSSEC.Algorithm.valueOf(in.readU8());
         labels = in.readU8();
         origttl = in.readU32();
         expire = new Date(1000 * in.readU32());
@@ -79,10 +80,7 @@ public abstract class SIGBase extends Record {
             throw st.exception("Invalid type: " + typeString);
         }
         String algString = st.getString();
-        alg = DNSSEC.Algorithm.value(algString);
-        if (alg < 0) {
-            throw st.exception("Invalid algorithm: " + algString);
-        }
+        alg = DNSSEC.Algorithm.valueOf(algString);
         labels = st.getUInt8();
         origttl = st.getTTL();
         expire = FormattedTime.parse(st.getString());
@@ -132,7 +130,7 @@ public abstract class SIGBase extends Record {
      * Returns the cryptographic algorithm of the key that generated the
      * signature
      */
-    public int getAlgorithm() {
+    public DNSSEC.Algorithm getAlgorithm() {
         return alg;
     }
 
@@ -181,7 +179,7 @@ public abstract class SIGBase extends Record {
 
     public void rrToWire(DNSOutput out, Compression c, boolean canonical) {
         out.writeU16(covered);
-        out.writeU8(alg);
+        out.writeU8(alg.getValue());
         out.writeU8(labels);
         out.writeU32(origttl);
         out.writeU32(expire.getTime() / 1000);

@@ -18,8 +18,8 @@ import biz.neustar.hopper.util.Tokenizer;
 
 public class Update extends Message {
 
-    private Name origin;
-    private DClass dclass;
+    private final Name origin;
+    private final DClass dclass;
 
     /**
      * Creates an update message.

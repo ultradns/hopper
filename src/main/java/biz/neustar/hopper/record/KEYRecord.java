@@ -321,7 +321,7 @@ public class KEYRecord extends KEYBase {
      *            Binary data representing the key
      */
     public KEYRecord(Name name, DClass in, long ttl, int flags, int proto,
-            int alg, byte[] key) {
+            DNSSEC.Algorithm  alg, byte[] key) {
         super(name, Type.KEY, in, ttl, flags, proto, alg, key);
     }
 
@@ -340,7 +340,7 @@ public class KEYRecord extends KEYBase {
      *             The PublicKey could not be converted into DNS format.
      */
     public KEYRecord(Name name, DClass dclass, long ttl, int flags, int proto,
-            int alg, PublicKey key) throws DNSSEC.DNSSECException {
+            DNSSEC.Algorithm  alg, PublicKey key) throws DNSSEC.DNSSECException {
         super(name, Type.KEY, dclass, ttl, flags, proto, alg, DNSSEC
                 .fromPublicKey(key, alg));
         publicKey = key;
@@ -358,10 +358,7 @@ public class KEYRecord extends KEYBase {
             throw st.exception("Invalid protocol: " + protoString);
         }
         String algString = st.getIdentifier();
-        alg = DNSSEC.Algorithm.value(algString);
-        if (alg < 0) {
-            throw st.exception("Invalid algorithm: " + algString);
-        }
+        alg = DNSSEC.Algorithm.valueOf(algString);
         /* If this is a null KEY, there's no key data */
         if ((flags & Flags.USE_MASK) == Flags.NOKEY) {
             key = null;

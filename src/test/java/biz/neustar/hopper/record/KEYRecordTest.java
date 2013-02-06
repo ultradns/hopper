@@ -54,9 +54,9 @@ public class KEYRecordTest extends TestCase {
         assertEquals(0, ar.getType());
         assertNull(ar.getDClass());
         assertEquals(0, ar.getTTL());
-        assertEquals(0, ar.getAlgorithm());
+        assertNull(ar.getAlgorithm());
         assertEquals(0, ar.getFlags());
-        assertEquals(0, ar.getFootprint());
+        //assertEquals(0, ar.getFootprint());// can't due to Null algorithm
         assertEquals(0, ar.getProtocol());
         assertNull(ar.getKey());
     }
@@ -72,7 +72,7 @@ public class KEYRecordTest extends TestCase {
         Name r = Name.fromString("My.Relative.Name");
         byte[] key = new byte[] { 0, 1, 3, 5, 7, 9 };
 
-        KEYRecord kr = new KEYRecord(n, DClass.IN, 0x24AC, 0x9832, 0x12, 0x67,
+        KEYRecord kr = new KEYRecord(n, DClass.IN, 0x24AC, 0x9832, 0x12, DNSSEC.Algorithm.valueOf(0x67),
                 key);
         assertEquals(n, kr.getName());
         assertEquals(Type.KEY, kr.getType());
@@ -80,12 +80,12 @@ public class KEYRecordTest extends TestCase {
         assertEquals(0x24AC, kr.getTTL());
         assertEquals(0x9832, kr.getFlags());
         assertEquals(0x12, kr.getProtocol());
-        assertEquals(0x67, kr.getAlgorithm());
+        assertEquals(0x67, kr.getAlgorithm().getValue());
         assertTrue(Arrays.equals(key, kr.getKey()));
 
         // a relative name
         try {
-            new KEYRecord(r, DClass.IN, 0x24AC, 0x9832, 0x12, 0x67, key);
+            new KEYRecord(r, DClass.IN, 0x24AC, 0x9832, 0x12, DNSSEC.Algorithm.valueOf(0x67), key);
             fail("RelativeNameException not thrown");
         } catch (RelativeNameException e) {
         }
@@ -198,7 +198,7 @@ public class KEYRecordTest extends TestCase {
         try {
             kr.rdataFromString(st, null);
             fail("TextParseException not thrown");
-        } catch (TextParseException e) {
+        } catch (IllegalArgumentException e) {
         }
     }
 }

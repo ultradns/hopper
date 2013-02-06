@@ -21,6 +21,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 
+import biz.neustar.hopper.message.impl.TrackedType;
+import biz.neustar.hopper.message.impl.TrackedTypeRegistrar;
 import biz.neustar.hopper.record.DNSKEYRecord;
 import biz.neustar.hopper.record.DSRecord;
 import biz.neustar.hopper.record.KEYRecord;
@@ -28,9 +30,8 @@ import biz.neustar.hopper.record.RRSIGRecord;
 import biz.neustar.hopper.record.RRSet;
 import biz.neustar.hopper.record.Record;
 import biz.neustar.hopper.record.SIGRecord;
-import biz.neustar.hopper.record.impl.SIGBase;
 import biz.neustar.hopper.record.impl.KEYBase;
-import biz.neustar.hopper.util.Mnemonic;
+import biz.neustar.hopper.record.impl.SIGBase;
 
 /**
  * Constants and methods relating to DNSSEC.
@@ -46,84 +47,59 @@ import biz.neustar.hopper.util.Mnemonic;
 
 public class DNSSEC {
 
-    public static class Algorithm {
-        private Algorithm() {
-        }
-
+    public static class Algorithm  extends TrackedType {
+        private static final TrackedTypeRegistrar REGISTRAR = 
+                registrarBuilder(Algorithm.class)
+                .maxValue(0xFF).allowNumericName(true).build();
+        
         /** RSA/MD5 public key (deprecated) */
-        public static final int RSAMD5 = 1;
-
+        public static final Algorithm RSAMD5 = REGISTRAR.add(new Algorithm(1, "RSAMD5"));
+                
         /** Diffie Hellman key */
-        public static final int DH = 2;
+        public static final Algorithm DH = REGISTRAR.add(new Algorithm(2, "DH"));
 
         /** DSA public key */
-        public static final int DSA = 3;
+        public static final Algorithm DSA = REGISTRAR.add(new Algorithm(3, "DSA"));
 
         /** Elliptic Curve key */
-        public static final int ECC = 4;
+        public static final Algorithm ECC = REGISTRAR.add(new Algorithm(4, "ECC"));
 
         /** RSA/SHA1 public key */
-        public static final int RSASHA1 = 5;
+        public static final Algorithm RSASHA1 = REGISTRAR.add(new Algorithm(5, "RSASHA1"));
 
         /** DSA/SHA1, NSEC3-aware public key */
-        public static final int DSA_NSEC3_SHA1 = 6;
-
+        public static final Algorithm DSA_NSEC3_SHA1 = REGISTRAR.add(new Algorithm(6, "DSA-NSEC3-SHA1"));
+        
         /** RSA/SHA1, NSEC3-aware public key */
-        public static final int RSA_NSEC3_SHA1 = 7;
+        public static final Algorithm RSA_NSEC3_SHA1 = REGISTRAR.add(new Algorithm(7, "RSA-NSEC3-SHA1"));
 
         /** RSA/SHA256 public key */
-        public static final int RSASHA256 = 8;
+        public static final Algorithm RSASHA256 = REGISTRAR.add(new Algorithm(8, "RSASHA256"));
 
         /** RSA/SHA512 public key */
-        public static final int RSASHA512 = 10;
+        public static final Algorithm RSASHA512 = REGISTRAR.add(new Algorithm(10, "RSASHA512"));
 
         /** Indirect keys; the actual key is elsewhere. */
-        public static final int INDIRECT = 252;
+        public static final Algorithm INDIRECT = REGISTRAR.add(new Algorithm(252, "INDIRECT"));
 
         /** Private algorithm, specified by domain name */
-        public static final int PRIVATEDNS = 253;
+        public static final Algorithm PRIVATEDNS = REGISTRAR.add(new Algorithm(253, "PRIVATEDNS"));
 
         /** Private algorithm, specified by OID */
-        public static final int PRIVATEOID = 254;
+        public static final Algorithm PRIVATEOID = REGISTRAR.add(new Algorithm(254, "PRIVATEOID"));
 
-        private static Mnemonic algs = new Mnemonic("DNSSEC algorithm",
-                Mnemonic.CASE_UPPER);
-
-        static {
-            algs.setMaximum(0xFF);
-            algs.setNumericAllowed(true);
-
-            algs.add(RSAMD5, "RSAMD5");
-            algs.add(DH, "DH");
-            algs.add(DSA, "DSA");
-            algs.add(ECC, "ECC");
-            algs.add(RSASHA1, "RSASHA1");
-            algs.add(DSA_NSEC3_SHA1, "DSA-NSEC3-SHA1");
-            algs.add(RSA_NSEC3_SHA1, "RSA-NSEC3-SHA1");
-            algs.add(RSASHA256, "RSASHA256");
-            algs.add(RSASHA512, "RSASHA512");
-            algs.add(INDIRECT, "INDIRECT");
-            algs.add(PRIVATEDNS, "PRIVATEDNS");
-            algs.add(PRIVATEOID, "PRIVATEOID");
+        
+        public Algorithm(int value, String name, String... altNames) {
+            super(value, name, altNames); // "DNSSEC algorithm"
         }
 
-        /**
-         * Converts an algorithm into its textual representation
-         */
-        public static String string(int alg) {
-            return algs.getText(alg);
+        
+        public static Algorithm valueOf(int value) {
+            return REGISTRAR.getOrCreateType(value);
         }
-
-        /**
-         * Converts a textual representation of an algorithm into its numeric
-         * code. Integers in the range 0..255 are also accepted.
-         * 
-         * @param s
-         *            The textual representation of the algorithm
-         * @return The algorithm code, or -1 on error.
-         */
-        public static int value(String s) {
-            return algs.getValue(s);
+        
+        public static Algorithm valueOf(String name) {
+            return REGISTRAR.getOrCreateType(name);
         }
     }
 
@@ -132,7 +108,7 @@ public class DNSSEC {
 
     private static void digestSIG(DNSOutput out, SIGBase sig) {
         out.writeU16(sig.getTypeCovered());
-        out.writeU8(sig.getAlgorithm());
+        out.writeU8(sig.getAlgorithm().getValue());
         out.writeU8(sig.getLabels());
         out.writeU32(sig.getOrigTTL());
         out.writeU32(sig.getExpire().getTime() / 1000);
@@ -241,6 +217,10 @@ public class DNSSEC {
         UnsupportedAlgorithmException(int alg) {
             super("Unsupported algorithm: " + alg);
         }
+        
+        UnsupportedAlgorithmException(DNSSEC.Algorithm alg) {
+            super("Unsupported algorithm: " + alg);
+        }
     }
 
     /**
@@ -263,10 +243,10 @@ public class DNSSEC {
 
         KeyMismatchException(KEYBase key, SIGBase sig) {
             super("key " + key.getName() + "/"
-                    + DNSSEC.Algorithm.string(key.getAlgorithm()) + "/"
+                    + key.getAlgorithm().getName() + "/"
                     + key.getFootprint() + " " + "does not match signature "
                     + sig.getSigner() + "/"
-                    + DNSSEC.Algorithm.string(sig.getAlgorithm()) + "/"
+                    + sig.getAlgorithm().getName() + "/"
                     + sig.getFootprint());
         }
     }
@@ -410,21 +390,23 @@ public class DNSSEC {
 
     /** Converts a KEY/DNSKEY record into a PublicKey */
     public static PublicKey toPublicKey(KEYBase r) throws DNSSECException {
-        int alg = r.getAlgorithm();
+        DNSSEC.Algorithm alg = r.getAlgorithm();
         try {
-            switch (alg) {
-            case Algorithm.RSAMD5:
-            case Algorithm.RSASHA1:
-            case Algorithm.RSA_NSEC3_SHA1:
-            case Algorithm.RSASHA256:
-            case Algorithm.RSASHA512:
+            if (alg.equals(Algorithm.RSAMD5) ||
+                    alg.equals(Algorithm.RSASHA1) ||
+                    alg.equals(Algorithm.RSA_NSEC3_SHA1) ||
+                    alg.equals(Algorithm.RSASHA256) ||
+                    alg.equals(Algorithm.RSASHA512)) {
+                
                 return toRSAPublicKey(r);
-            case Algorithm.DSA:
-            case Algorithm.DSA_NSEC3_SHA1:
+            } else if (alg.equals(Algorithm.DSA) ||
+                    alg.equals(Algorithm.DSA_NSEC3_SHA1)) {
+                
                 return toDSAPublicKey(r);
-            default:
+            } else {
                 throw new UnsupportedAlgorithmException(alg);
             }
+            
         } catch (IOException e) {
             throw new MalformedKeyException(r);
         } catch (GeneralSecurityException e) {
@@ -468,25 +450,25 @@ public class DNSSEC {
     }
 
     /** Builds a DNSKEY record from a PublicKey */
-    public static byte[] fromPublicKey(PublicKey key, int alg) throws DNSSECException {
+    public static byte[] fromPublicKey(PublicKey key, Algorithm alg) throws DNSSECException {
 
-        switch (alg) {
-        case Algorithm.RSAMD5:
-        case Algorithm.RSASHA1:
-        case Algorithm.RSA_NSEC3_SHA1:
-        case Algorithm.RSASHA256:
-        case Algorithm.RSASHA512:
+        if (alg.equals(Algorithm.RSAMD5) ||
+                alg.equals(Algorithm.RSASHA1) ||
+                alg.equals(Algorithm.RSA_NSEC3_SHA1) ||
+                alg.equals(Algorithm.RSASHA256) ||
+                alg.equals(Algorithm.RSASHA512)) {
             if (!(key instanceof RSAPublicKey)) {
                 throw new IncompatibleKeyException();
             }
             return fromRSAPublicKey((RSAPublicKey) key);
-        case Algorithm.DSA:
-        case Algorithm.DSA_NSEC3_SHA1:
+        } else if (alg.equals(Algorithm.DSA) ||
+                alg.equals(Algorithm.DSA_NSEC3_SHA1)) {
+        
             if (!(key instanceof DSAPublicKey)) {
                 throw new IncompatibleKeyException();
             }
             return fromDSAPublicKey((DSAPublicKey) key);
-        default:
+        } else {
             throw new UnsupportedAlgorithmException(alg);
         }
     }
@@ -499,22 +481,22 @@ public class DNSSEC {
      * @throws UnsupportedAlgorithmException
      *             The algorithm is unknown.
      */
-    public static String algString(int alg)
+    public static String algString(DNSSEC.Algorithm alg)
             throws UnsupportedAlgorithmException {
-        switch (alg) {
-        case Algorithm.RSAMD5:
+        
+        if (alg.equals(Algorithm.RSAMD5)) {
             return "MD5withRSA";
-        case Algorithm.DSA:
-        case Algorithm.DSA_NSEC3_SHA1:
+        } else if (alg.equals(Algorithm.DSA) ||
+                alg.equals(Algorithm.DSA_NSEC3_SHA1)) {
             return "SHA1withDSA";
-        case Algorithm.RSASHA1:
-        case Algorithm.RSA_NSEC3_SHA1:
+        } else if (alg.equals(Algorithm.RSASHA1) ||
+                alg.equals(Algorithm.RSA_NSEC3_SHA1)) {
             return "SHA1withRSA";
-        case Algorithm.RSASHA256:
+        } else if (alg.equals(Algorithm.RSASHA256)) {
             return "SHA256withRSA";
-        case Algorithm.RSASHA512:
+        } else if (alg.equals(Algorithm.RSASHA512)) {
             return "SHA512withRSA";
-        default:
+        } else {
             throw new UnsupportedAlgorithmException(alg);
         }
     }
@@ -613,7 +595,7 @@ public class DNSSEC {
         return out.toByteArray();
     }
 
-    private static void verify(PublicKey key, int alg, byte[] data,
+    private static void verify(PublicKey key, DNSSEC.Algorithm alg, byte[] data,
             byte[] signature) throws DNSSECException {
         if (key instanceof DSAPublicKey) {
             try {
@@ -697,7 +679,7 @@ public class DNSSEC {
      * @throws DNSSECException
      *             If things go poorly
      */
-    public static byte[] sign(PrivateKey privkey, PublicKey pubkey, int alg,
+    public static byte[] sign(PrivateKey privkey, PublicKey pubkey, Algorithm alg,
             byte[] data) throws DNSSECException {
         return sign(privkey, pubkey, alg, data, null);
     }
@@ -719,7 +701,7 @@ public class DNSSEC {
      * @throws DNSSECException
      *             If things go poorly
      */
-    public static byte[] sign(PrivateKey privkey, PublicKey pubkey, int alg,
+    public static byte[] sign(PrivateKey privkey, PublicKey pubkey, Algorithm alg,
             byte[] data, String provider) throws DNSSECException {
         byte[] signature;
         try {
@@ -750,25 +732,25 @@ public class DNSSEC {
         return signature;
     }
 
-    static void checkAlgorithm(PrivateKey key, int alg)
+    static void checkAlgorithm(PrivateKey key, DNSSEC.Algorithm alg)
             throws UnsupportedAlgorithmException {
-        switch (alg) {
-        case Algorithm.RSAMD5:
-        case Algorithm.RSASHA1:
-        case Algorithm.RSA_NSEC3_SHA1:
-        case Algorithm.RSASHA256:
-        case Algorithm.RSASHA512:
+        
+        if (alg.equals(Algorithm.RSAMD5) ||
+                alg.equals(Algorithm.RSASHA1) ||
+                alg.equals(Algorithm.RSA_NSEC3_SHA1) ||
+                alg.equals(Algorithm.RSASHA256) ||
+                alg.equals(Algorithm.RSASHA512)) {
+        
             if (!(key instanceof RSAPrivateKey)) {
                 throw new IncompatibleKeyException();
             }
-            break;
-        case Algorithm.DSA:
-        case Algorithm.DSA_NSEC3_SHA1:
+        } else if (alg.equals(Algorithm.DSA) ||
+                alg.equals(Algorithm.DSA_NSEC3_SHA1)) {
+            
             if (!(key instanceof DSAPrivateKey)) {
                 throw new IncompatibleKeyException();
             }
-            break;
-        default:
+        } else {
             throw new UnsupportedAlgorithmException(alg);
         }
     }
@@ -829,7 +811,7 @@ public class DNSSEC {
     public static RRSIGRecord sign(RRSet rrset, DNSKEYRecord key,
             PrivateKey privkey, Date inception, Date expiration, String provider)
             throws DNSSECException {
-        int alg = key.getAlgorithm();
+        DNSSEC.Algorithm alg = key.getAlgorithm();
         checkAlgorithm(privkey, alg);
 
         RRSIGRecord rrsig = new RRSIGRecord(rrset.getName(), rrset.getDClass(),
@@ -844,7 +826,7 @@ public class DNSSEC {
     public static SIGRecord signMessage(Message message, SIGRecord previous,
             KEYRecord key, PrivateKey privkey, Date inception, Date expiration)
             throws DNSSECException {
-        int alg = key.getAlgorithm();
+        DNSSEC.Algorithm alg = key.getAlgorithm();
         checkAlgorithm(privkey, alg);
 
         SIGRecord sig = new SIGRecord(Name.root, DClass.ANY, 0, 0, alg, 0,
