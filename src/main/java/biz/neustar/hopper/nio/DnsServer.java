@@ -3,6 +3,7 @@ package biz.neustar.hopper.nio;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
@@ -87,7 +88,7 @@ public class DnsServer {
         private Map<String, Object> udpOptions = new HashMap<String, Object>();
         private NioServerSocketChannelFactory nioServerSocketChannelFactory = new NioServerSocketChannelFactory();
         private Map<String, Object> tcpOptions = new HashMap<String, Object>();
-        private OrderedMemoryAwareThreadPoolExecutor omaThreadPoolExecutor;
+        private Executor executor;
 
         public Builder() {
             udpOptions.put("receiveBufferSize", receiveBufferSize);
@@ -166,15 +167,15 @@ public class DnsServer {
         }
 
         /**
-         * The omaThreadPoolExecutor use to call application
+         * The executor use to call application
          * hooks. If this is set, threadPoolSize is ignored.
          * 
-         * @param omaThreadPoolExecutor
+         * @param executor
          * @return
          */
-        public Builder omaThreadPoolExecutor(
-                OrderedMemoryAwareThreadPoolExecutor omaThreadPoolExecutorArg) {
-            this.omaThreadPoolExecutor = omaThreadPoolExecutorArg;
+        public Builder executor(
+                Executor executorArg) {
+            this.executor = executorArg;
             return this;
         }
 
@@ -242,9 +243,9 @@ public class DnsServer {
 
         LOGGER.debug("Binding to {}", builder.port);
 
-        final OrderedMemoryAwareThreadPoolExecutor omaThreadPoolExecutor =
-                builder.omaThreadPoolExecutor == null ? new OrderedMemoryAwareThreadPoolExecutor(
-                builder.threadPoolSize, 0, 0) : builder.omaThreadPoolExecutor;
+        final Executor executor =
+                builder.executor == null ? new OrderedMemoryAwareThreadPoolExecutor(
+                builder.threadPoolSize, 0, 0) : builder.executor;
 
                 // Start listening for UDP request
                 udpChannelFactory.set(builder.nioDatagramChannelFactory);
@@ -258,7 +259,7 @@ public class DnsServer {
                         return Channels.pipeline(
                                 new LoggingHandler(), new DNSMessageDecoder(),
                                 new DNSMessageEncoder(),
-                                new ExecutionHandler(omaThreadPoolExecutor),
+                                new ExecutionHandler(executor),
                                 new ServerMessageHandlerUDPInvoker(
                                         builder.serverMessageHandler));
                     }
@@ -282,7 +283,7 @@ public class DnsServer {
                                 new TCPDecoder(), new TCPEncoder(),
                                 new DNSMessageDecoder(),
                                 new DNSMessageEncoder(),
-                                new ExecutionHandler(omaThreadPoolExecutor),
+                                new ExecutionHandler(executor),
                                 new ServerMessageHandlerTCPInvoker(
                                                 builder.serverMessageHandler));
                     }
