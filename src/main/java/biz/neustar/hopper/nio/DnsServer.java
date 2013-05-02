@@ -20,8 +20,11 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import org.jboss.netty.handler.logging.LoggingHandler;
+import org.jboss.netty.handler.timeout.IdleStateHandler;
 import org.jboss.netty.logging.InternalLoggerFactory;
 import org.jboss.netty.logging.Slf4JLoggerFactory;
+import org.jboss.netty.util.HashedWheelTimer;
+import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +34,7 @@ import biz.neustar.hopper.nio.handler.ServerMessageHandlerTCPInvoker;
 import biz.neustar.hopper.nio.handler.ServerMessageHandlerUDPInvoker;
 import biz.neustar.hopper.nio.handler.TCPDecoder;
 import biz.neustar.hopper.nio.handler.TCPEncoder;
+import biz.neustar.hopper.nio.handler.TcpIdleChannelHandler;
 
 /**
  * A Server for the DNS protocol that handles TCP and UPD request. Register a
@@ -68,15 +72,22 @@ public class DnsServer {
             LoggerFactory.getLogger(DnsServer.class);
 
     /**
+     * The timer for TCP idle state.
+     */
+    private final Timer timer = new HashedWheelTimer();
+
+    /**
      * Server builder.
      */
     public static class Builder {
         private static final int DNS_PORT = 53;
         private int port = DNS_PORT;
+        private boolean logging = false;
         private ServerMessageHandler serverMessageHandler;
 
         private static final int DEFAULT_POOLSIZE = 10;
-        private int threadPoolSize = DEFAULT_POOLSIZE;
+        private int udpThreadPoolSize = DEFAULT_POOLSIZE;
+        private int tcpThreadPoolSize = DEFAULT_POOLSIZE;
 
         private static final int UDP_BUF_SIZE = 512;
 
@@ -88,7 +99,8 @@ public class DnsServer {
         private Map<String, Object> udpOptions = new HashMap<String, Object>();
         private NioServerSocketChannelFactory nioServerSocketChannelFactory = new NioServerSocketChannelFactory();
         private Map<String, Object> tcpOptions = new HashMap<String, Object>();
-        private Executor executor;
+        private Executor udpExecutor;
+        private Executor tcpExecutor;
 
         public Builder() {
             udpOptions.put("receiveBufferSize", receiveBufferSize);
@@ -105,6 +117,11 @@ public class DnsServer {
          */
         public Builder port(int portArg) {
             this.port = portArg;
+            return this;
+        }
+
+        public Builder logging(boolean loggingArg) {
+            this.logging = loggingArg;
             return this;
         }
 
@@ -130,9 +147,18 @@ public class DnsServer {
         /**
          * The application thread pool size. Default is 10.
          */
-        public Builder threadPoolSize(int threadPoolSizeArg) {
+        public Builder udpThreadPoolSize(int threadPoolSizeArg) {
 
-            this.threadPoolSize = threadPoolSizeArg;
+            this.udpThreadPoolSize = threadPoolSizeArg;
+            return this;
+        }
+
+        /**
+         * The application thread pool size. Default is 10.
+         */
+        public Builder tcpThreadPoolSize(int threadPoolSizeArg) {
+
+            this.tcpThreadPoolSize = threadPoolSizeArg;
             return this;
         }
 
@@ -169,13 +195,26 @@ public class DnsServer {
         /**
          * The executor use to call application
          * hooks. If this is set, threadPoolSize is ignored.
-         * 
-         * @param executor
+         *
+         * @param executorArg
          * @return
          */
-        public Builder executor(
-                Executor executorArg) {
-            this.executor = executorArg;
+        public Builder udpExecutor(
+                final Executor executorArg) {
+            this.udpExecutor = executorArg;
+            return this;
+        }
+
+        /**
+         * The executor use to call application
+         * hooks. If this is set, threadPoolSize is ignored.
+         *
+         * @param executorArg
+         * @return
+         */
+        public Builder tcpExecutor(
+                final Executor executorArg) {
+            this.tcpExecutor = executorArg;
             return this;
         }
 
@@ -243,58 +282,86 @@ public class DnsServer {
 
         LOGGER.debug("Binding to {}", builder.port);
 
-        final Executor executor =
-                builder.executor == null ? new OrderedMemoryAwareThreadPoolExecutor(
-                builder.threadPoolSize, 0, 0) : builder.executor;
+        final Executor udpExecutor =
+                builder.udpExecutor == null ? new OrderedMemoryAwareThreadPoolExecutor(
+                        builder.udpThreadPoolSize, 0, 0) : builder.udpExecutor;
 
-                // Start listening for UDP request
-                udpChannelFactory.set(builder.nioDatagramChannelFactory);
-                ConnectionlessBootstrap udpBootstrap =
-                        new ConnectionlessBootstrap(udpChannelFactory.get());
-                udpBootstrap.setOptions(builder.udpOptions);
-                udpBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+        final Executor tcpExecutor =
+                builder.tcpExecutor == null ? new OrderedMemoryAwareThreadPoolExecutor(
+                        builder.tcpThreadPoolSize, 0, 0) : builder.tcpExecutor;
 
-                    @Override
-                    public ChannelPipeline getPipeline() {
-                        return Channels.pipeline(
-                                new LoggingHandler(), new DNSMessageDecoder(),
-                                new DNSMessageEncoder(),
-                                new ExecutionHandler(executor),
-                                new ServerMessageHandlerUDPInvoker(
-                                        builder.serverMessageHandler));
-                    }
-                });
-                Channel udpChannel = udpBootstrap.bind(
-                        new InetSocketAddress(builder.port));
-                channelGroup.add(udpChannel);
-                this.boundTo.set(
-                        ((InetSocketAddress) udpChannel.getLocalAddress()));
+        // Start listening for UDP request
+        udpChannelFactory.set(builder.nioDatagramChannelFactory);
+        ConnectionlessBootstrap udpBootstrap =
+                new ConnectionlessBootstrap(udpChannelFactory.get());
+        udpBootstrap.setOptions(builder.udpOptions);
+        udpBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 
-                // Start listening for TCP request on the same port
-                tcpChannelFactory.set(builder.nioServerSocketChannelFactory);
-                ServerBootstrap tcpBootstrap = new ServerBootstrap(
-                        tcpChannelFactory.get());
-                tcpBootstrap.setOptions(builder.tcpOptions);
-                tcpBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+            @Override
+            public ChannelPipeline getPipeline() {
+                if (builder.logging) {
+                    return Channels.pipeline(
+                            new LoggingHandler(),
+                            new DNSMessageDecoder(),
+                            new DNSMessageEncoder(),
+                            new ExecutionHandler(udpExecutor),
+                            new ServerMessageHandlerUDPInvoker(
+                                    builder.serverMessageHandler));
+                } else {
+                    return Channels.pipeline(
+                            new DNSMessageDecoder(),
+                            new DNSMessageEncoder(),
+                            new ExecutionHandler(udpExecutor),
+                            new ServerMessageHandlerUDPInvoker(
+                                    builder.serverMessageHandler));
+                }
+            }
+        });
+        Channel udpChannel = udpBootstrap.bind(
+                new InetSocketAddress(builder.port));
+        channelGroup.add(udpChannel);
+        this.boundTo.set(
+                ((InetSocketAddress) udpChannel.getLocalAddress()));
 
-                    @Override
-                    public ChannelPipeline getPipeline() {
-                        return Channels.pipeline(new LoggingHandler(),
-                                new TCPDecoder(), new TCPEncoder(),
-                                new DNSMessageDecoder(),
-                                new DNSMessageEncoder(),
-                                new ExecutionHandler(executor),
-                                new ServerMessageHandlerTCPInvoker(
-                                                builder.serverMessageHandler));
-                    }
-                });
-                LOGGER.info("Binding to {}", builder.port);
-                Channel tcpChannel = tcpBootstrap.bind(
-                        new InetSocketAddress(this.boundTo.get().getPort()));
-                channelGroup.add(tcpChannel);
+        // Start listening for TCP request on the same port
+        tcpChannelFactory.set(builder.nioServerSocketChannelFactory);
+        ServerBootstrap tcpBootstrap = new ServerBootstrap(
+                tcpChannelFactory.get());
+        tcpBootstrap.setOptions(builder.tcpOptions);
+        tcpBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 
-                // let clients know what we are up to
-                LOGGER.info("Bound to {}", udpChannel.getLocalAddress());
+            @Override
+            public ChannelPipeline getPipeline() {
+                if (builder.logging) {
+                    return Channels.pipeline(new LoggingHandler(),
+                            new TCPDecoder(), new TCPEncoder(),
+                            new DNSMessageDecoder(),
+                            new DNSMessageEncoder(),
+                            new ExecutionHandler(tcpExecutor),
+                            new ServerMessageHandlerTCPInvoker(
+                                    builder.serverMessageHandler),
+                                    new IdleStateHandler(timer, 10, 0, 0),
+                                    new TcpIdleChannelHandler());
+                } else {
+                    return Channels.pipeline(
+                            new TCPDecoder(), new TCPEncoder(),
+                            new DNSMessageDecoder(),
+                            new DNSMessageEncoder(),
+                            new ExecutionHandler(tcpExecutor),
+                            new ServerMessageHandlerTCPInvoker(
+                                    builder.serverMessageHandler),
+                                    new IdleStateHandler(timer, 10, 0, 0),
+                                    new TcpIdleChannelHandler());
+                }
+            }
+        });
+        LOGGER.info("Binding to {}", builder.port);
+        Channel tcpChannel = tcpBootstrap.bind(
+                new InetSocketAddress(this.boundTo.get().getPort()));
+        channelGroup.add(tcpChannel);
+
+        // let clients know what we are up to
+        LOGGER.info("Bound to {}", udpChannel.getLocalAddress());
     }
 
     /**
