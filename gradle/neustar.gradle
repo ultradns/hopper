@@ -125,6 +125,7 @@ allprojects {
     }
   }
   
+
   configurations {
     service
   }
@@ -133,6 +134,17 @@ allprojects {
     service distZip
   }
     
+  // Upload to ultra maven repo ( Ultra Nexus )
+  task uploadArchivesToUltraNexus (type: Upload, dependsOn: distZip) {
+    configuration = configurations.service
+    repositories.mavenDeployer {
+      configuration = configurations.service
+      repository(url: "http://stulhdebuild3.ultra.neustar.com:8081/nexus" + "/content/repositories/releases") {
+        authentication(userName: rootProject.ldapUsername, password: rootProject.ldapPassword)
+      }
+    }
+  }
+
   task uploadDistZip(type: Upload, dependsOn: distZip) {
     configuration = configurations.service
     repositories.mavenDeployer {
