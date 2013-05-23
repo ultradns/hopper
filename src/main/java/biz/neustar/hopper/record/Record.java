@@ -34,10 +34,10 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
 
     private static final long serialVersionUID = 2694906050116005466L;
 
-    private Name name;
-    private int type; 
-    private DClass dclass;
-    private long ttl;
+    protected Name name;
+    protected int type;
+    protected DClass dclass;
+    protected long ttl;
 
     private static final DecimalFormat byteFormat = new DecimalFormat();
 
