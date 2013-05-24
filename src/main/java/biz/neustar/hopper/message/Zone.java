@@ -184,6 +184,28 @@ public class Zone implements Serializable {
         validate();
     }
 
+    /**
+     * Creates a Zone from a list of records.
+     *
+     * @param zone
+     *            The name of the zone.
+     * @param records
+     *            The records to add to the zone.
+     * @see Master
+     */
+    public Zone(Name zone, List<Record> records) throws IOException {
+        data = new TreeMap<Name, Object>();
+
+        if (zone == null) {
+            throw new IllegalArgumentException("no zone name specified");
+        }
+        origin = zone;
+        for (Record record : records) {
+            maybeAddRecord(record);
+        }
+        validate();
+    }
+
     private void fromXFR(ZoneTransferIn xfrin) throws IOException,
             ZoneTransferException {
         data = new TreeMap<Name, Object>();

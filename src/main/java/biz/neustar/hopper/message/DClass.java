@@ -43,4 +43,12 @@ public final class DClass extends TrackedType {
     public static DClass valueOf(String name) {
         return REGISTRAR.getOrCreateType(name);
     }
+    
+    public static DClass value(String name) {
+        try {
+            return REGISTRAR.getOrCreateType(name);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
 }

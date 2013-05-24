@@ -17,7 +17,7 @@ public class Delta {
 
     /** A list of records deleted between the start and end versions */
     private final List<Record> deletes = new LinkedList<Record>();
-    
+
     /** The starting SOA serial number */
     private long start;
 
@@ -27,15 +27,15 @@ public class Delta {
     public Delta() {
     }
 
-	protected List<Record> getAdds() {
+    public List<Record> getAdds() {
 		return adds;
 	}
 
-	protected List<Record> getDeletes() {
+	public List<Record> getDeletes() {
 		return deletes;
 	}
 
-    public long getStart() {
+	public long getStart() {
 		return start;
 	}
 

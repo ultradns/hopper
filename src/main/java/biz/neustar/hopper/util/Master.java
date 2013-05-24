@@ -157,7 +157,7 @@ public class Master {
         // type
         seen_class = false;
         s = st.getString();
-        if ((currentDClass = DClass.valueOf(s)) != null) {
+        if ((currentDClass = DClass.value(s)) != null) {
             s = st.getString();
             seen_class = true;
         }
@@ -175,7 +175,7 @@ public class Master {
         }
 
         if (!seen_class) {
-            if ((currentDClass = DClass.valueOf(s)) != null) {
+            if ((currentDClass = DClass.value(s)) != null) {
                 s = st.getString();
             } else {
                 currentDClass = DClass.IN;

@@ -23,7 +23,6 @@ import biz.neustar.hopper.record.CNAMERecord;
 import biz.neustar.hopper.record.DNAMERecord;
 import biz.neustar.hopper.record.RRSet;
 import biz.neustar.hopper.record.Record;
-import biz.neustar.hopper.util.Mnemonic;
 
 /**
  * The Lookup object issues queries to caching DNS servers. The input consists
