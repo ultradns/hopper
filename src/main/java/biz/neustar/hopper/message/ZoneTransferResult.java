@@ -60,7 +60,7 @@ public class ZoneTransferResult implements ZoneTransferHandler {
 
 	public void handleRecord(Record r) {
 		List<Record> list;
-		if (ixfr != null) {
+		if (!ixfr.isEmpty()) {
 			Delta delta = (Delta) ixfr.get(ixfr.size() - 1);
 			if (delta.getAdds().size() > 0)
 				list = delta.getAdds();

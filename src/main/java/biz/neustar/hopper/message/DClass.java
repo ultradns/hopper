@@ -2,6 +2,9 @@
 
 package biz.neustar.hopper.message;
 
+import java.util.Set;
+import java.util.TreeSet;
+
 import biz.neustar.hopper.message.impl.TrackedType;
 import biz.neustar.hopper.message.impl.TrackedTypeRegistrar;
 
@@ -14,7 +17,7 @@ import biz.neustar.hopper.message.impl.TrackedTypeRegistrar;
 public final class DClass extends TrackedType {
     private static final TrackedTypeRegistrar REGISTRAR = registrarBuilder(DClass.class)
             .prefix("CLASS").allowNumericName(true).maxValue(0xFFFF).build();
-    
+    // TODO: Add method to register new class
     /** Internet */
     public static final DClass IN = REGISTRAR.add(new DClass(1, "IN"));
     
@@ -30,8 +33,18 @@ public final class DClass extends TrackedType {
     /** Matches any class */
     public static final DClass ANY = REGISTRAR.add(new DClass(255, "ANY"));
     
-    
-    
+    private static Set<String> registeredClasses = new TreeSet<String>();
+
+    static {
+        registeredClasses.add("IN");
+        registeredClasses.add("CH");
+        registeredClasses.add("CHAOS");
+        registeredClasses.add("HS");
+        registeredClasses.add("HESIOD");
+        registeredClasses.add("NONE");
+        registeredClasses.add("ANY");
+    }
+
     public DClass(int value, String name, String ...altNames) {
         super(value, name, altNames);
     }
@@ -43,11 +56,11 @@ public final class DClass extends TrackedType {
     public static DClass valueOf(String name) {
         return REGISTRAR.getOrCreateType(name);
     }
-    
+
     public static DClass value(String name) {
-        try {
+        if (registeredClasses.contains(name)) {
             return REGISTRAR.getOrCreateType(name);
-        } catch (Exception ex) {
+        } else {
             return null;
         }
     }
