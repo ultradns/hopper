@@ -101,6 +101,10 @@ public class DNSSEC {
         public static Algorithm valueOf(String name) {
             return REGISTRAR.getOrCreateType(name);
         }
+
+        public String toString() {
+            return String.valueOf(getValue());
+        }
     }
 
     private DNSSEC() {
