@@ -35,6 +35,11 @@ public class ZoneTransferResult implements ZoneTransferHandler {
 	/** The IXFR response */
 	private List<Delta> ixfr = new ArrayList<Delta>();
 
+	/**
+	 * The wire format data.
+	 */
+	private byte[] wireFormat;
+
 	public void startAXFR() {
 		upToDate = false;
 		axfr = new ArrayList<Record>();
@@ -53,7 +58,7 @@ public class ZoneTransferResult implements ZoneTransferHandler {
 	}
 
 	public void startIXFRAdds(Record soa) {
-		Delta delta = (Delta) ixfr.get(ixfr.size() - 1);
+		Delta delta = ixfr.get(ixfr.size() - 1);
 		delta.getAdds().add(soa);
 		delta.setEnd(getSOASerial(soa));
 	}
@@ -107,5 +112,19 @@ public class ZoneTransferResult implements ZoneTransferHandler {
 		SOARecord soa = (SOARecord) rec;
 		return soa.getSerial();
 	}
+
+    /**
+     * @return the wireFormat
+     */
+    public byte[] getWireFormat() {
+        return wireFormat;
+    }
+
+    /**
+     * @param wireFormat the wireFormat to set
+     */
+    public void setWireFormat(byte[] wireFormat) {
+        this.wireFormat = wireFormat;
+    }
 
 }
