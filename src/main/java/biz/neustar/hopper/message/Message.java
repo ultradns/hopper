@@ -108,6 +108,10 @@ public class Message implements Cloneable {
     }
 
     Message(DNSInput in) throws IOException {
+        this(in, new DefaultRecordProcessor());
+    }
+
+    Message(DNSInput in, RecordProcessor recordProcessor) throws IOException {
         this(new Header(in));
         boolean isUpdate = (header.getOpcode() == Opcode.UPDATE);
         boolean truncated = header.isFlagSet(Flag.TC);
@@ -120,7 +124,7 @@ public class Message implements Cloneable {
                 for (int j = 0; j < count; j++) {
                     int pos = in.current();
                     Record rec = Record.fromWire(in, i, isUpdate);
-                    sections[i].add(rec);
+                    recordProcessor.process(i, this, rec);
                     if (rec.getType() == Type.TSIG) {
                         tsigstart = pos;
                     }
@@ -179,6 +183,20 @@ public class Message implements Cloneable {
         header.incCount(section);
         sections[section].add(r);
     }
+
+    /**
+     * Adds a record to a section of the Message, and adjusts the header.
+     *
+     * @see Record
+     * @see Section
+     */
+    public void addRecordWithoutHeaderUpdate(Record r, int section) {
+        if (sections[section] == null) {
+            sections[section] = new LinkedList<Record>();
+        }
+        sections[section].add(r);
+    }
+
 
     /**
      * Removes a record from a section of the Message, and adjusts the header.

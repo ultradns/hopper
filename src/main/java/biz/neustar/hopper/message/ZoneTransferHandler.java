@@ -45,4 +45,18 @@ public interface ZoneTransferHandler {
 	 *            The DNS record.
 	 */
 	void handleRecord(Record r) throws ZoneTransferException;
+
+	/**
+	 * Called when wired format AXFR/IXFR is available to be processed.
+	 *
+	 * @param wiredData The wired format AXFR/IXFR data.
+	 */
+	void handleWiredData(byte [] wiredData);
+
+	/**
+	 * Returns record processor for the handler.
+	 *
+	 * @return The record processor.
+	 */
+	RecordProcessor getRecordProcessor();
 };

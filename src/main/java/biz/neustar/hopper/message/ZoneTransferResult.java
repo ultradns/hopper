@@ -40,6 +40,17 @@ public class ZoneTransferResult implements ZoneTransferHandler {
 	 */
 	private byte[] wireFormat;
 
+	/**
+	 * The record processor.
+	 */
+	private RecordProcessor recordProcessor = new DefaultRecordProcessor();
+
+	/**
+	 * The wired data processor.
+	 */
+	private WiredDataProcessor wiredDataProcessor =
+	        new DefaultWiredDataProcessor();
+
 	public void startAXFR() {
 		upToDate = false;
 		axfr = new ArrayList<Record>();
@@ -125,6 +136,39 @@ public class ZoneTransferResult implements ZoneTransferHandler {
      */
     public void setWireFormat(byte[] wireFormat) {
         this.wireFormat = wireFormat;
+    }
+
+    /**
+     * @return the recordProcessor
+     */
+    public RecordProcessor getRecordProcessor() {
+        return recordProcessor;
+    }
+
+    /**
+     * @param recordProcessor the recordProcessor to set
+     */
+    public void setRecordProcessor(RecordProcessor recordProcessor) {
+        this.recordProcessor = recordProcessor;
+    }
+
+    @Override
+    public void handleWiredData(byte[] wiredData) {
+        wiredDataProcessor.process(this, wiredData);
+    }
+
+    /**
+     * @return the wiredDataProcessor
+     */
+    public WiredDataProcessor getWiredDataProcessor() {
+        return wiredDataProcessor;
+    }
+
+    /**
+     * @param wiredDataProcessor the wiredDataProcessor to set
+     */
+    public void setWiredDataProcessor(WiredDataProcessor wiredDataProcessor) {
+        this.wiredDataProcessor = wiredDataProcessor;
     }
 
 }

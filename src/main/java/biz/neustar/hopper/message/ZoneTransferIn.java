@@ -474,7 +474,7 @@ public class ZoneTransferIn {
 
     private Message parseMessage(byte[] b) throws WireParseException {
         try {
-            return new Message(b);
+            return new Message(new DNSInput(b), handler.getRecordProcessor());
         } catch (IOException e) {
             if (e instanceof WireParseException) {
                 throw (WireParseException) e;
@@ -483,18 +483,14 @@ public class ZoneTransferIn {
         }
     }
 
-    private void doxfr(boolean storeWireFormat) throws IOException, ZoneTransferException {
+    private void doxfr() throws IOException, ZoneTransferException {
         sendQuery();
         while (state != END) {
             byte[] in = client.recv();
-            // This code is temporary for prototype.
-            if (storeWireFormat) {
-                ((ZoneTransferResult) handler).setWireFormat(in);
-            }
+            handler.handleWiredData(in);
             Message response = parseMessage(in);
             if (response.getHeader().getRcode() == Rcode.NOERROR
                     && verifier != null) {
-                response.getTSIG();
 
                 int error = verifier.verify(response, in);
                 if (error != Rcode.NOERROR) {
@@ -509,7 +505,7 @@ public class ZoneTransferIn {
                 if (rcode != Rcode.NOERROR) {
                     if (qtype == Type.IXFR && rcode == Rcode.NOTIMP) {
                         fallback();
-                        doxfr(storeWireFormat);
+                        doxfr();
                         return;
                     }
                     fail(Rcode.string(rcode));
@@ -525,7 +521,7 @@ public class ZoneTransferIn {
 
                 if (answers.length == 0 && qtype == Type.IXFR) {
                     fallback();
-                    doxfr(storeWireFormat);
+                    doxfr();
                     return;
                 }
             }
@@ -541,27 +537,6 @@ public class ZoneTransferIn {
     }
 
 	/**
-     * Does the zone transfer in a streaming manner
-	 * 
-	 * @param handler
-	 *            The callback object that handles the zone transfer data.
-	 * @throws IOException
-	 *             The zone transfer failed to due an IO problem.
-	 * @throws ZoneTransferException
-	 *             The zone transfer failed to due a problem with the zone
-	 *             transfer itself.
-	 */
-	private void runV2(ZoneTransferHandler handler) throws IOException, ZoneTransferException {
-		this.handler = handler;
-		try {
-			openConnection();
-			doxfr(true);
-		} finally {
-			closeConnection();
-		}
-	}
-
-	/**
 	 * Does the zone transfer in a streaming manner
 	 * 
 	 * @param handler
@@ -572,11 +547,11 @@ public class ZoneTransferIn {
 	 *             The zone transfer failed to due a problem with the zone
 	 *             transfer itself.
 	 */
-    private void run(ZoneTransferHandler handler) throws IOException, ZoneTransferException {
+    public void run(ZoneTransferHandler handler) throws IOException, ZoneTransferException {
         this.handler = handler;
         try {
             openConnection();
-            doxfr(false);
+            doxfr();
         } finally {
             closeConnection();
         }
@@ -599,23 +574,6 @@ public class ZoneTransferIn {
 		run(zoneTransferResult);
 		return zoneTransferResult;
 	}
-
-    /**
-     * Does the zone transfer in a non-streaming manner
-     * 
-     * @return A transfer result object
-     * @throws IOException
-     *             The zone transfer failed to due an IO problem.
-     * @throws ZoneTransferException
-     *             The zone transfer failed to due a problem with the zone
-     *             transfer itself.
-     */
-    public ZoneTransferResult runV2() throws IOException, ZoneTransferException {
-
-        ZoneTransferResult zoneTransferResult = new ZoneTransferResult();
-        runV2(zoneTransferResult);
-        return zoneTransferResult;
-    }
 
     /**
      * Returns true if the response is an AXFR-style response (List of Records).
