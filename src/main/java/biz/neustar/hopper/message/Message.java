@@ -107,7 +107,7 @@ public class Message implements Cloneable {
         return new Update(zone);
     }
 
-    Message(DNSInput in) throws IOException {
+    public Message(DNSInput in) throws IOException {
         this(in, new DefaultRecordProcessor());
     }
 
