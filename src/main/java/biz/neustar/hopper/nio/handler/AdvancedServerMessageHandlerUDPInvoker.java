@@ -34,7 +34,7 @@ public class AdvancedServerMessageHandlerUDPInvoker extends SimpleChannelUpstrea
             final MessageEvent e) throws Exception {
 
         Object request = e.getMessage();
-        if (request instanceof Message) {
+        if ((null != request) && (request instanceof Message)) {
             Message response = handler.handleRequest(ctx, (Message) request);
             ctx.getChannel().write(response, e.getRemoteAddress());
         }
