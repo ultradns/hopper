@@ -3,7 +3,7 @@ package biz.neustar.hopper.nio;
 import biz.neustar.hopper.message.Message;
 
 /**
- * Handler definition for server side message processing.
+ * Handler definition for basic server side message processing.
  */
 public interface ServerMessageHandler {
 

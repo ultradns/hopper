@@ -13,6 +13,7 @@ import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
+import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.jboss.netty.channel.group.ChannelGroup;
 import org.jboss.netty.channel.group.DefaultChannelGroup;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
@@ -28,6 +29,8 @@ import org.jboss.netty.util.Timer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import biz.neustar.hopper.nio.handler.AdvancedServerMessageHandlerTCPInvoker;
+import biz.neustar.hopper.nio.handler.AdvancedServerMessageHandlerUDPInvoker;
 import biz.neustar.hopper.nio.handler.DNSMessageDecoder;
 import biz.neustar.hopper.nio.handler.DNSMessageEncoder;
 import biz.neustar.hopper.nio.handler.ServerMessageHandlerTCPInvoker;
@@ -82,8 +85,10 @@ public class DnsServer {
     public static class Builder {
         private static final int DNS_PORT = 53;
         private int port = DNS_PORT;
+        private boolean advanced = false;
         private boolean logging = false;
         private ServerMessageHandler serverMessageHandler;
+        private AdvancedServerMessageHandler advancedServerMessageHandler;
 
         private static final int DEFAULT_POOLSIZE = 10;
         private int udpThreadPoolSize = DEFAULT_POOLSIZE;
@@ -125,6 +130,11 @@ public class DnsServer {
             return this;
         }
 
+        public Builder advanced(boolean advancedArg) {
+            this.advanced = advancedArg;
+            return this;
+        }
+
         public Builder receiveBufferSize(int receiveBufferSizeArg) {
             this.receiveBufferSize = receiveBufferSizeArg;
             return this;
@@ -143,6 +153,16 @@ public class DnsServer {
             this.serverMessageHandler = serverMessageHandlerArg;
             return this;
         }
+
+        /**
+         * The advanced message handler to be invoked when a request is received.
+         */
+        public Builder advancedServerMessageHandler(
+                final AdvancedServerMessageHandler advancedServerMessageHandlerArg) {
+            this.advancedServerMessageHandler = advancedServerMessageHandlerArg;
+            return this;
+        }
+
 
         /**
          * The application thread pool size. Default is 10.
@@ -225,8 +245,14 @@ public class DnsServer {
          */
         public DnsServer build() {
 
-            if (serverMessageHandler == null) {
-                throw new IllegalStateException("serverMessageHandler must be set");
+            if (serverMessageHandler == null && !advanced) {
+                throw new IllegalStateException(
+                        "serverMessageHandler must be set");
+            }
+
+            if (advancedServerMessageHandler == null && advanced) {
+                throw new IllegalStateException(
+                        "advancedServerMessageHandler must be set");
             }
             return new DnsServer(this);
         }
@@ -285,38 +311,19 @@ public class DnsServer {
         final Executor udpExecutor =
                 builder.udpExecutor == null ? new OrderedMemoryAwareThreadPoolExecutor(
                         builder.udpThreadPoolSize, 0, 0) : builder.udpExecutor;
+        builder.udpExecutor = udpExecutor;
 
         final Executor tcpExecutor =
                 builder.tcpExecutor == null ? new OrderedMemoryAwareThreadPoolExecutor(
                         builder.tcpThreadPoolSize, 0, 0) : builder.tcpExecutor;
+        builder.tcpExecutor = tcpExecutor;
 
         // Start listening for UDP request
         udpChannelFactory.set(builder.nioDatagramChannelFactory);
         ConnectionlessBootstrap udpBootstrap =
                 new ConnectionlessBootstrap(udpChannelFactory.get());
         udpBootstrap.setOptions(builder.udpOptions);
-        udpBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
-
-            @Override
-            public ChannelPipeline getPipeline() {
-                if (builder.logging) {
-                    return Channels.pipeline(
-                            new LoggingHandler(),
-                            new DNSMessageDecoder(),
-                            new DNSMessageEncoder(),
-                            new ExecutionHandler(udpExecutor),
-                            new ServerMessageHandlerUDPInvoker(
-                                    builder.serverMessageHandler));
-                } else {
-                    return Channels.pipeline(
-                            new DNSMessageDecoder(),
-                            new DNSMessageEncoder(),
-                            new ExecutionHandler(udpExecutor),
-                            new ServerMessageHandlerUDPInvoker(
-                                    builder.serverMessageHandler));
-                }
-            }
-        });
+        udpBootstrap.setPipelineFactory(getUdpChannelPipelineFactory(builder));
         Channel udpChannel = udpBootstrap.bind(
                 new InetSocketAddress(builder.port));
         channelGroup.add(udpChannel);
@@ -328,7 +335,74 @@ public class DnsServer {
         ServerBootstrap tcpBootstrap = new ServerBootstrap(
                 tcpChannelFactory.get());
         tcpBootstrap.setOptions(builder.tcpOptions);
-        tcpBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
+        tcpBootstrap.setPipelineFactory(getTcpChannelPipelineFactory(builder));
+        LOGGER.info("Binding to {}", builder.port);
+        Channel tcpChannel = tcpBootstrap.bind(
+                new InetSocketAddress(this.boundTo.get().getPort()));
+        channelGroup.add(tcpChannel);
+
+        // let clients know what we are up to
+        LOGGER.info("Bound to {}", udpChannel.getLocalAddress());
+    }
+
+    /**
+     * This method returns the UDP channel pipeline factory.
+     *
+     * @param builder The DNS server builder.
+     *
+     * @return The TCP channel pipeline factory.
+     */
+    private ChannelPipelineFactory getUdpChannelPipelineFactory(
+            final Builder builder) {
+        return new ChannelPipelineFactory() {
+
+            @Override
+            public ChannelPipeline getPipeline() {
+                if (builder.logging) {
+                    return Channels.pipeline(
+                            new LoggingHandler(),
+                            new DNSMessageDecoder(),
+                            new DNSMessageEncoder(),
+                            new ExecutionHandler(builder.udpExecutor),
+                            getUdpServerHandler(builder));
+                } else {
+                    return Channels.pipeline(
+                            new DNSMessageDecoder(),
+                            new DNSMessageEncoder(),
+                            new ExecutionHandler(builder.udpExecutor),
+                            getUdpServerHandler(builder));
+                }
+            }
+        };
+    }
+
+    /**
+     * This method returns the UDP handler for server.
+     *
+     * @param builder The DNS server builder.
+     *
+     * @return The UDP server handler.
+     */
+    private SimpleChannelUpstreamHandler getUdpServerHandler(
+            final Builder builder) {
+        return builder.advanced
+                ? new AdvancedServerMessageHandlerUDPInvoker(
+                        builder.advancedServerMessageHandler)
+                : new ServerMessageHandlerUDPInvoker(
+                        builder.serverMessageHandler);
+
+    }
+
+    /**
+     * This method returns the TCP channel pipeline factory.
+     *
+     * @param builder The DNS server builder.
+     *
+     * @return The TCP channel pipeline factory.
+     */
+    private ChannelPipelineFactory getTcpChannelPipelineFactory(
+            final Builder builder) {
+        return new ChannelPipelineFactory() {
 
             @Override
             public ChannelPipeline getPipeline() {
@@ -337,31 +411,39 @@ public class DnsServer {
                             new TCPDecoder(), new TCPEncoder(),
                             new DNSMessageDecoder(),
                             new DNSMessageEncoder(),
-                            new ExecutionHandler(tcpExecutor),
-                            new ServerMessageHandlerTCPInvoker(
-                                    builder.serverMessageHandler),
-                                    new IdleStateHandler(timer, 10, 0, 0),
-                                    new TcpIdleChannelHandler());
+                            new ExecutionHandler(builder.tcpExecutor),
+                            getTcpServerHandler(builder),
+                            new IdleStateHandler(timer, 10, 0, 0),
+                            new TcpIdleChannelHandler());
                 } else {
                     return Channels.pipeline(
                             new TCPDecoder(), new TCPEncoder(),
                             new DNSMessageDecoder(),
                             new DNSMessageEncoder(),
-                            new ExecutionHandler(tcpExecutor),
-                            new ServerMessageHandlerTCPInvoker(
-                                    builder.serverMessageHandler),
-                                    new IdleStateHandler(timer, 10, 0, 0),
-                                    new TcpIdleChannelHandler());
+                            new ExecutionHandler(builder.tcpExecutor),
+                            getTcpServerHandler(builder),
+                            new IdleStateHandler(timer, 10, 0, 0),
+                            new TcpIdleChannelHandler());
                 }
             }
-        });
-        LOGGER.info("Binding to {}", builder.port);
-        Channel tcpChannel = tcpBootstrap.bind(
-                new InetSocketAddress(this.boundTo.get().getPort()));
-        channelGroup.add(tcpChannel);
+        };
+    }
 
-        // let clients know what we are up to
-        LOGGER.info("Bound to {}", udpChannel.getLocalAddress());
+    /**
+     * This method returns the TCP handler for server.
+     *
+     * @param builder The DNS server builder.
+     *
+     * @return The TCP server handler.
+     */
+    private SimpleChannelUpstreamHandler getTcpServerHandler(
+            final Builder builder) {
+        return builder.advanced
+                ? new AdvancedServerMessageHandlerTCPInvoker(
+                        builder.advancedServerMessageHandler)
+                : new ServerMessageHandlerTCPInvoker(
+                        builder.serverMessageHandler);
+
     }
 
     /**

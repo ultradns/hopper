@@ -23,6 +23,7 @@ import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Message;
 import biz.neustar.hopper.message.Name;
+import biz.neustar.hopper.nio.example.AdvancedEchoHandler;
 import biz.neustar.hopper.nio.example.EchoServerHandler;
 import biz.neustar.hopper.nio.example.LoggingClientHandler;
 import biz.neustar.hopper.record.ARecord;
@@ -35,6 +36,42 @@ public class TCPClientTest {
     @BeforeClass
     public static void setLogging() {
         InternalLoggerFactory.setDefaultFactory(new Slf4JLoggerFactory());
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void connectTCPAdvancedNegativeI() {
+        DnsServer.builder().port(0).advanced(true).serverMessageHandler(new EchoServerHandler()).build();
+    }
+
+    @Test
+    public void connectTCPAdvanced() throws InterruptedException {
+
+        // start server
+        DnsServer server = DnsServer.builder().port(0).advanced(true).advancedServerMessageHandler(new AdvancedEchoHandler()).build();
+        SocketAddress serverAddress = new InetSocketAddress("localhost", server.getLocalAddress().getPort());
+        DnsClient client = DnsClient.builder().clientMessageHandler(new LoggingClientHandler()).build();
+
+        // get a new connection
+        ChannelFuture connectTCP = client.connectTCP(serverAddress);
+        Assert.assertTrue(connectTCP.await(500));
+        Assert.assertTrue(connectTCP.isDone());
+        Assert.assertTrue(connectTCP.isSuccess());
+
+        // try to connect again, should be the same channel
+        int count = 0;
+        do {
+            Channel channel = connectTCP.getChannel();
+            connectTCP = client.connectTCP(serverAddress);
+            connectTCP.await(500);
+            Assert.assertTrue(connectTCP.isDone());
+            Assert.assertTrue(connectTCP.isSuccess());
+            Assert.assertEquals(channel, connectTCP.getChannel());
+            channel = connectTCP.getChannel();
+        } while (count++ < 100);
+
+        // shutdown
+        client.stop();
+        server.stop();
     }
 
     @Test
