@@ -45,9 +45,11 @@ public class AdvancedServerMessageHandlerTCPInvoker extends SimpleChannelUpstrea
             final MessageEvent e) throws Exception {
 
         Object request = e.getMessage();
-        if ((null != request) && (request instanceof Message)) {
-            Message response = handler.handleRequest(ctx, (Message) request);
-            ctx.getChannel().write(response);
+        if (request instanceof Message) {
+            Message response = handler.handleRequest(ctx, (Message) request, e);
+            if (null != response) {
+                ctx.getChannel().write(response);
+            }
         }
         super.messageReceived(ctx, e);
     }
@@ -65,7 +67,7 @@ public class AdvancedServerMessageHandlerTCPInvoker extends SimpleChannelUpstrea
     public void exceptionCaught(
             final ChannelHandlerContext ctx, final ExceptionEvent e)
                     throws Exception {
-        handler.handleException(ctx, e.getCause());
+        handler.handleException(ctx, e.getCause(), e);
         super.exceptionCaught(ctx, e);
     }
 

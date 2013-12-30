@@ -1,6 +1,8 @@
 package biz.neustar.hopper.nio.example;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,12 +15,14 @@ public class AdvancedEchoHandler implements AdvancedServerMessageHandler {
             AdvancedEchoHandler.class);
 
     @Override
-    public Message handleRequest(ChannelHandlerContext ctx, Message request) {
+    public Message handleRequest(ChannelHandlerContext ctx, Message request,
+            MessageEvent e) {
         return request;
     }
 
     @Override
-    public void handleException(ChannelHandlerContext ctx, Throwable throwable) {
+    public void handleException(ChannelHandlerContext ctx, Throwable throwable,
+            ExceptionEvent e) {
         LOGGER.error("Exception!", throwable);
     }
 

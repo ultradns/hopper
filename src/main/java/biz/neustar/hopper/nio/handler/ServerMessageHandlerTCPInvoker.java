@@ -43,9 +43,11 @@ public class ServerMessageHandlerTCPInvoker extends SimpleChannelUpstreamHandler
             final MessageEvent e) throws Exception {
 
         Object request = e.getMessage();
-        if ((null != request) && (request instanceof Message)) {
+        if (request instanceof Message) {
             Message response = handler.handleRequest((Message) request);
-            ctx.getChannel().write(response);
+            if (null != response) {
+                ctx.getChannel().write(response);
+            }
         }
         super.messageReceived(ctx, e);
     }

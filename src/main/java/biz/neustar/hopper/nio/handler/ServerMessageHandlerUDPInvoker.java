@@ -26,9 +26,11 @@ public class ServerMessageHandlerUDPInvoker extends SimpleChannelUpstreamHandler
             final MessageEvent e) throws Exception {
 
         Object request = e.getMessage();
-        if ((null != request) && (request instanceof Message)) {
+        if (request instanceof Message) {
             Message response = handler.handleRequest((Message) request);
-            ctx.getChannel().write(response, e.getRemoteAddress());
+            if (null != response) {
+                ctx.getChannel().write(response, e.getRemoteAddress());
+            }
         }
         super.messageReceived(ctx, e);
     }

@@ -1,6 +1,8 @@
 package biz.neustar.hopper.nio;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ExceptionEvent;
+import org.jboss.netty.channel.MessageEvent;
 
 import biz.neustar.hopper.message.Message;
 
@@ -13,11 +15,13 @@ public interface AdvancedServerMessageHandler {
      *
      * @param ctx The channel handler context for the pipeline.
      * @param request The request from the client
+     * @param e Message event.
      *
      * @return The response to the client
      */
     Message handleRequest(final ChannelHandlerContext ctx,
-            final Message request);
+            final Message request,
+            final MessageEvent e);
 
     /**
      * Handle exceptions raised while processing a client request.
@@ -25,7 +29,9 @@ public interface AdvancedServerMessageHandler {
      * @param ctx The channel handler context for the pipeline.
      * @param throwable
      *            The exception occurred during request handling.
+     * @param e The exception event.
      */
     void handleException(final ChannelHandlerContext ctx,
-            final Throwable throwable);
+            final Throwable throwable,
+            final ExceptionEvent e);
 }
