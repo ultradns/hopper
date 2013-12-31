@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 
 import biz.neustar.hopper.message.Message;
 import biz.neustar.hopper.nio.AdvancedServerMessageHandler;
+import biz.neustar.hopper.nio.ChannelType;
 
 public class AdvancedEchoHandler implements AdvancedServerMessageHandler {
 
@@ -16,13 +17,13 @@ public class AdvancedEchoHandler implements AdvancedServerMessageHandler {
 
     @Override
     public Message handleRequest(ChannelHandlerContext ctx, Message request,
-            MessageEvent e) {
+            MessageEvent e, ChannelType channelType) {
         return request;
     }
 
     @Override
     public void handleException(ChannelHandlerContext ctx, Throwable throwable,
-            ExceptionEvent e) {
+            ExceptionEvent e, ChannelType channelType) {
         LOGGER.error("Exception!", throwable);
     }
 

@@ -9,6 +9,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 
 import biz.neustar.hopper.message.Message;
 import biz.neustar.hopper.nio.AdvancedServerMessageHandler;
+import biz.neustar.hopper.nio.ChannelType;
 
 /**
  * Netty handler for invoking a ServerMessageHandler (a server side callback).
@@ -46,7 +47,8 @@ public class AdvancedServerMessageHandlerTCPInvoker extends SimpleChannelUpstrea
 
         Object request = e.getMessage();
         if (request instanceof Message) {
-            Message response = handler.handleRequest(ctx, (Message) request, e);
+            Message response = handler.handleRequest(ctx, (Message) request,
+                    e, ChannelType.TCP);
             if (null != response) {
                 ctx.getChannel().write(response);
             }
@@ -67,7 +69,7 @@ public class AdvancedServerMessageHandlerTCPInvoker extends SimpleChannelUpstrea
     public void exceptionCaught(
             final ChannelHandlerContext ctx, final ExceptionEvent e)
                     throws Exception {
-        handler.handleException(ctx, e.getCause(), e);
+        handler.handleException(ctx, e.getCause(), e, ChannelType.TCP);
         super.exceptionCaught(ctx, e);
     }
 

@@ -16,12 +16,14 @@ public interface AdvancedServerMessageHandler {
      * @param ctx The channel handler context for the pipeline.
      * @param request The request from the client
      * @param e Message event.
+     * @param channelType The type of transport channel.
      *
      * @return The response to the client
      */
     Message handleRequest(final ChannelHandlerContext ctx,
             final Message request,
-            final MessageEvent e);
+            final MessageEvent e,
+            final ChannelType channelType);
 
     /**
      * Handle exceptions raised while processing a client request.
@@ -30,8 +32,10 @@ public interface AdvancedServerMessageHandler {
      * @param throwable
      *            The exception occurred during request handling.
      * @param e The exception event.
+     * @param channelType The type of transport channel.
      */
     void handleException(final ChannelHandlerContext ctx,
             final Throwable throwable,
-            final ExceptionEvent e);
+            final ExceptionEvent e,
+            final ChannelType channelType);
 }
