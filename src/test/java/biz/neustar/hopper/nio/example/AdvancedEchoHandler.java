@@ -3,6 +3,7 @@ package biz.neustar.hopper.nio.example;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
+import org.jboss.netty.handler.stream.ChunkedInput;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +26,14 @@ public class AdvancedEchoHandler implements AdvancedServerMessageHandler {
     public void handleException(ChannelHandlerContext ctx, Throwable throwable,
             ExceptionEvent e, ChannelType channelType) {
         LOGGER.error("Exception!", throwable);
+    }
+
+    @Override
+    public ChunkedInput handleRequestAndGenerateResponseStream(
+            ChannelHandlerContext ctx,
+            Message request, MessageEvent e, ChannelType channelType) {
+        // TODO Auto-generated method stub
+        return new ChunkedResponse(request);
     }
 
 }

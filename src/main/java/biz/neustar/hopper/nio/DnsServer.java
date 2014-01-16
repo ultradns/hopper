@@ -21,6 +21,7 @@ import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
 import org.jboss.netty.handler.execution.ExecutionHandler;
 import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import org.jboss.netty.handler.logging.LoggingHandler;
+import org.jboss.netty.handler.stream.ChunkedWriteHandler;
 import org.jboss.netty.handler.timeout.IdleStateHandler;
 import org.jboss.netty.logging.InternalLoggerFactory;
 import org.jboss.netty.logging.Slf4JLoggerFactory;
@@ -413,6 +414,7 @@ public class DnsServer {
                             new DNSMessageEncoder(),
                             new ExecutionHandler(builder.tcpExecutor),
                             getTcpServerHandler(builder),
+                            new ChunkedWriteHandler(),
                             new IdleStateHandler(timer, 10, 0, 0),
                             new TcpIdleChannelHandler());
                 } else {
@@ -422,6 +424,7 @@ public class DnsServer {
                             new DNSMessageEncoder(),
                             new ExecutionHandler(builder.tcpExecutor),
                             getTcpServerHandler(builder),
+                            new ChunkedWriteHandler(),
                             new IdleStateHandler(timer, 10, 0, 0),
                             new TcpIdleChannelHandler());
                 }

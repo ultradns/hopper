@@ -220,6 +220,30 @@ public class TCPClientTest {
         }
     }
 
+    @Test
+    public void testMessageStreaming() throws Exception {
+
+        DnsServer server = DnsServer.builder()
+                .port(0)
+                .advanced(true)
+                .advancedServerMessageHandler(new AdvancedEchoHandler())
+                .build();
+        // Total 100 messages in response should be received.
+        MessageReceivedTrap messageReceivedTrap = new MessageReceivedTrap(100);
+        DnsClient client = DnsClient.builder()
+                .clientMessageHandler(messageReceivedTrap)
+                .closeConnectionOnMessageReceipt(false)
+                .build();
+        client.sendTCP(TCPClientTest.getQuery(0), new InetSocketAddress(
+                "localhost", server.getLocalAddress().getPort()));
+        try {
+            Assert.assertTrue(messageReceivedTrap.latch.await(
+                    20, TimeUnit.SECONDS));
+        } finally {
+            server.stop();
+        }
+    }
+
     public static Message getQuery(int i) throws TextParseException, UnknownHostException {
 
         return Message.newQuery(new ARecord(new Name(i + ".example.biz."), DClass.IN, 0l, InetAddress
