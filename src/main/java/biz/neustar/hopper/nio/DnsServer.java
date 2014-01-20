@@ -415,7 +415,7 @@ public class DnsServer {
                             new ExecutionHandler(builder.tcpExecutor),
                             getTcpServerHandler(builder),
                             new ChunkedWriteHandler(),
-                            new IdleStateHandler(timer, 10, 0, 0),
+                            new IdleStateHandler(timer, 0, 0, 10),
                             new TcpIdleChannelHandler());
                 } else {
                     return Channels.pipeline(
@@ -425,7 +425,7 @@ public class DnsServer {
                             new ExecutionHandler(builder.tcpExecutor),
                             getTcpServerHandler(builder),
                             new ChunkedWriteHandler(),
-                            new IdleStateHandler(timer, 10, 0, 0),
+                            new IdleStateHandler(timer, 0, 0, 10),
                             new TcpIdleChannelHandler());
                 }
             }

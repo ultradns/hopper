@@ -15,11 +15,12 @@ public class TcpIdleChannelHandler extends IdleStateAwareChannelHandler {
             LoggerFactory.getLogger(TcpIdleChannelHandler.class);
 
     @Override
-    public void channelIdle(ChannelHandlerContext ctx, IdleStateEvent e) {
+    public void channelIdle(final ChannelHandlerContext ctx,
+            final IdleStateEvent e) {
         LOGGER.debug("IdleStateEvent occured for channel {}",
                 e.getChannel().getId());
-        if (e.getState() == IdleState.READER_IDLE) {
-            LOGGER.debug("Closing channel after read timeout {}",
+        if (e.getState() == IdleState.ALL_IDLE) {
+            LOGGER.debug("Closing channel after idle channel timeout {}",
                     e.getChannel().getId());
             e.getChannel().close();
         }
