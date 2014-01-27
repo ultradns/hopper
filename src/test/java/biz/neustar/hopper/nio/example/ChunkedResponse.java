@@ -4,16 +4,15 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.jboss.netty.handler.stream.ChunkedInput;
-
 import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Flag;
 import biz.neustar.hopper.message.Message;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Section;
+import biz.neustar.hopper.nio.ChunkedStream;
 import biz.neustar.hopper.record.SOARecord;
 
-public class ChunkedResponse implements ChunkedInput {
+public class ChunkedResponse implements ChunkedStream<Message> {
 
     final List<Message> responseChain = new ArrayList<Message>();
     private Iterator<Message> itr;
@@ -42,16 +41,7 @@ public class ChunkedResponse implements ChunkedInput {
     }
 
     @Override
-    public Object nextChunk() throws Exception {
+    public Message nextChunk() throws Exception {
        return itr.next();
-    }
-
-    @Override
-    public boolean isEndOfInput() throws Exception {
-        return !itr.hasNext();
-    }
-
-    @Override
-    public void close() throws Exception {
     }
 }

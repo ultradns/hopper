@@ -11,6 +11,7 @@ import org.jboss.netty.handler.stream.ChunkedInput;
 import biz.neustar.hopper.message.Message;
 import biz.neustar.hopper.nio.AdvancedServerMessageHandler;
 import biz.neustar.hopper.nio.ChannelType;
+import biz.neustar.hopper.nio.ChunkedStream;
 
 /**
  * Netty handler for invoking a ServerMessageHandler (a server side callback).
@@ -46,16 +47,21 @@ public class AdvancedServerMessageHandlerTCPInvoker extends SimpleChannelUpstrea
             final ChannelHandlerContext ctx,
             final MessageEvent e) throws Exception {
 
-        Object request = e.getMessage();
-        if (request instanceof Message) {
-            ChunkedInput response =
-                    handler.handleRequestAndGenerateResponseStream(ctx,
-                            (Message) request, e, ChannelType.TCP);
-            if (null != response) {
-                ctx.getChannel().write(response);
+        handler.setContext();
+        try {
+            Object request = e.getMessage();
+            if (request instanceof Message) {
+                ChunkedStream<Message> stream =
+                        handler.handleRequestOnTcp(ctx,
+                                (Message) request, e, ChannelType.TCP);
+                while (null != stream && stream.hasNextChunk()) {
+                    ctx.getChannel().write(stream.nextChunk());
+                }
             }
+            super.messageReceived(ctx, e);
+        } finally {
+            handler.clearContext();
         }
-        super.messageReceived(ctx, e);
     }
 
     /**

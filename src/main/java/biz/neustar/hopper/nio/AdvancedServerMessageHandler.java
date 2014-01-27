@@ -3,7 +3,6 @@ package biz.neustar.hopper.nio;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.handler.stream.ChunkedInput;
 
 import biz.neustar.hopper.message.Message;
 
@@ -22,7 +21,7 @@ public interface AdvancedServerMessageHandler {
      *
      * @return The response to the client
      */
-    ChunkedInput handleRequestAndGenerateResponseStream(
+    ChunkedStream<Message> handleRequestOnTcp(
             final ChannelHandlerContext ctx,
             final Message request,
             final MessageEvent e,
@@ -38,7 +37,7 @@ public interface AdvancedServerMessageHandler {
      *
      * @return The response to the client
      */
-    Message handleRequest(final ChannelHandlerContext ctx,
+    Message handleRequestOnUdp(final ChannelHandlerContext ctx,
             final Message request,
             final MessageEvent e,
             final ChannelType channelType);
@@ -56,4 +55,15 @@ public interface AdvancedServerMessageHandler {
             final Throwable throwable,
             final ExceptionEvent e,
             final ChannelType channelType);
+
+    /**
+     * This method sets up context for request handling before start handling
+     * requests.
+     */
+    void setContext();
+
+    /**
+     * This method clears context after request handling.
+     */
+    void clearContext();
 }

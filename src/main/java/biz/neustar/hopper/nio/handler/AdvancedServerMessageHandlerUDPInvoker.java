@@ -4,7 +4,6 @@ import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.jboss.netty.handler.stream.ChunkedInput;
 
 import biz.neustar.hopper.message.Message;
 import biz.neustar.hopper.nio.AdvancedServerMessageHandler;
@@ -34,16 +33,20 @@ public class AdvancedServerMessageHandlerUDPInvoker extends SimpleChannelUpstrea
     public void messageReceived(
             final ChannelHandlerContext ctx,
             final MessageEvent e) throws Exception {
-
-        Object request = e.getMessage();
-        if (request instanceof Message) {
-            Message response = handler.handleRequest(ctx,
-                    (Message) request, e, ChannelType.UDP);
-            if (null != response) {
-                ctx.getChannel().write(response, e.getRemoteAddress());
+        handler.setContext();
+        try {
+            Object request = e.getMessage();
+            if (request instanceof Message) {
+                Message response = handler.handleRequestOnUdp(ctx,
+                        (Message) request, e, ChannelType.UDP);
+                if (null != response) {
+                    ctx.getChannel().write(response, e.getRemoteAddress());
+                }
             }
+            super.messageReceived(ctx, e);
+        } finally {
+            handler.clearContext();
         }
-        super.messageReceived(ctx, e);
     }
 
     @Override

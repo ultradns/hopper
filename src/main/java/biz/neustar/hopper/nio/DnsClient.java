@@ -61,6 +61,11 @@ public class DnsClient {
         private int threadPoolSize = DEFAULT_POOL_SIZE;
 
         /**
+         * Keep the binary data logging off.
+         */
+        private boolean logging = false;
+
+        /**
          * Execturor to make sure the events from the same Channel are executed
          * sequentially.
          */
@@ -196,6 +201,11 @@ public class DnsClient {
             return this;
         }
 
+        public Builder logging(boolean logging) {
+            this.logging = logging;
+            return this;
+        }
+
         /**
          * Obtain a new Client.
          */
@@ -215,7 +225,9 @@ public class DnsClient {
                     clientMessageHandler, closeConnectionOnMessageReceipt);
 
             // build the pipeline
-            udpChannelPipeline.addLast("Logger", new LoggingHandler());
+            if (logging) {
+                udpChannelPipeline.addLast("Logger", new LoggingHandler());
+            }
             udpChannelPipeline.addLast("MessageDecoder",
                     new DNSMessageDecoder());
             udpChannelPipeline.addLast("MessageEncoder",
@@ -226,7 +238,9 @@ public class DnsClient {
             udpChannelPipeline.addLast("ClientMessageHandlerInvoker",
                     clientMessageHandlerInvoker);
 
-            tcpChannelPipeline.addLast("Logger", new LoggingHandler());
+            if (logging) {
+                tcpChannelPipeline.addLast("Logger", new LoggingHandler());
+            }
             tcpChannelPipeline.addLast("TCPDecoder", new TCPDecoder());
             tcpChannelPipeline.addLast("TCPEncoder", new TCPEncoder());
             tcpChannelPipeline.addLast("MessageDecoder",
