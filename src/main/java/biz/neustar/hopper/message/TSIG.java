@@ -149,6 +149,18 @@ public class TSIG {
         getDigest();
     }
 
+    public String getName() {
+        return name.toString();
+    }
+
+    public String getKey() {
+        return base64.toString(key);
+    }
+
+    public String getAlgorithm() {
+        return alg.toString();
+    }
+
     /**
      * Creates a new TSIG object, which can be used to sign or verify a message.
      * 
