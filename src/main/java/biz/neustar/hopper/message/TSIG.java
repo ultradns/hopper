@@ -3,6 +3,8 @@
 package biz.neustar.hopper.message;
 
 import java.util.Date;
+import java.util.Map;
+import java.util.TreeMap;
 
 import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.exception.TextParseException;
@@ -28,6 +30,15 @@ public class TSIG {
     private static final String HMAC_SHA256_STR = "hmac-sha256.";
     private static final String HMAC_SHA384_STR = "hmac-sha384.";
     private static final String HMAC_SHA512_STR = "hmac-sha512.";
+    private static final Map<String, String> ALGORITHMS = new TreeMap<>();
+    static {
+        ALGORITHMS.put(HMAC_MD5_STR, "hmac-md5");
+        ALGORITHMS.put(HMAC_SHA1_STR, "hmac-sha1");
+        ALGORITHMS.put(HMAC_SHA224_STR, "hmac-sha224");
+        ALGORITHMS.put(HMAC_SHA256_STR, "hmac-sha256");
+        ALGORITHMS.put(HMAC_SHA384_STR, "hmac-sha384");
+        ALGORITHMS.put(HMAC_SHA512_STR, "hmac-sha512");
+    }
 
     /** The domain name representing the HMAC-MD5 algorithm. */
     public static final Name HMAC_MD5 = Name.fromConstantString(HMAC_MD5_STR);
@@ -158,7 +169,7 @@ public class TSIG {
     }
 
     public String getAlgorithm() {
-        return alg.toString();
+        return ALGORITHMS.get(alg.toString());
     }
 
     /**
