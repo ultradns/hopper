@@ -23,12 +23,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import biz.neustar.hopper.message.Message;
+import biz.neustar.hopper.nio.handler.AdvancedClientMessageHandlerInvoker;
 import biz.neustar.hopper.nio.handler.ClientMessageHandlerInvoker;
 import biz.neustar.hopper.nio.handler.DNSMessageDecoder;
 import biz.neustar.hopper.nio.handler.DNSMessageEncoder;
 import biz.neustar.hopper.nio.handler.TCPDecoder;
 import biz.neustar.hopper.nio.handler.TCPEncoder;
 
+// TODO: Auto-generated Javadoc
 /**
  * A client for the DNS protocol. This clien can sends DNS messages via TCP or
  * UDP.
@@ -50,11 +52,18 @@ public class DnsClient {
          */
         private static final int UDP_TIMEOUT = 20;
 
+        /** 
+         * The flag advanced.
+         */
+        private boolean advanced = false;
+
         /**
          * The handler for client message.
          */
         private ClientMessageHandler clientMessageHandler;
 
+        /** The advanced handler for client message. */
+        private AdvancedClientMessageHandler advancedClientMessageHandler;
         /**
          * The number of threads in thread pool.
          */
@@ -75,15 +84,13 @@ public class DnsClient {
          * Factory to create a client-side NIO-based SocketChannel. It utilizes
          * the non-blocking I/O mode.
          */
-        private NioClientSocketChannelFactory nioCSChannelFactory =
-                new NioClientSocketChannelFactory();
+        private NioClientSocketChannelFactory nioCSChannelFactory = new NioClientSocketChannelFactory();
 
         /**
          * Factory to create NIO-based datagram channel and a
          * Executors.newCachedThreadPool().
          */
-        private NioDatagramChannelFactory nioDChannelFactory =
-                new NioDatagramChannelFactory();
+        private NioDatagramChannelFactory nioDChannelFactory = new NioDatagramChannelFactory();
 
         /**
          * Options to set for channels.
@@ -116,14 +123,21 @@ public class DnsClient {
         private Builder() {
         }
 
+        /**
+         * Instance.
+         * 
+         * @return the builder
+         */
         public static Builder instance() {
             return new Builder();
         }
+
         /**
          * Set the application processing thread pool size.
-         *
-         * @param threadPoolSizeArg The size of thread pool to set.
-         *
+         * 
+         * @param threadPoolSizeArg
+         *            The size of thread pool to set.
+         * 
          * @return The builder.
          */
         public Builder threadPoolSize(final int threadPoolSizeArg) {
@@ -134,12 +148,13 @@ public class DnsClient {
         /**
          * Set the application thread pool executor. threadPoolSize is ignored
          * when this is set.
-         *
-         * @param omaThreadPoolExecutorArg The thread pool executor to set.
+         * 
+         * @param omaThreadPoolExecutorArg
+         *            The thread pool executor to set.
+         * @return the builder
          */
         public Builder orderedMemoryAwareThreadPoolExecutor(
-                final OrderedMemoryAwareThreadPoolExecutor
-                omaThreadPoolExecutorArg) {
+                final OrderedMemoryAwareThreadPoolExecutor omaThreadPoolExecutorArg) {
             this.omaThreadPoolExecutor = omaThreadPoolExecutorArg;
             return this;
         }
@@ -147,6 +162,10 @@ public class DnsClient {
         /**
          * Register a client side message handler to be invoked when responses
          * are received from a server.
+         * 
+         * @param clientMessageHandlerArg
+         *            the client message handler arg
+         * @return the builder
          */
         public Builder clientMessageHandler(
                 final ClientMessageHandler clientMessageHandlerArg) {
@@ -155,8 +174,26 @@ public class DnsClient {
         }
 
         /**
+         * Register a client side message handler to be invoked when responses
+         * are received from a server.
+         * 
+         * @param advClientMessageHandlerArg
+         *            the adv client message handler arg
+         * @return the builder
+         */
+        public Builder advancedClientMessageHandler(
+                final AdvancedClientMessageHandler advClientMessageHandlerArg) {
+            this.advancedClientMessageHandler = advClientMessageHandlerArg;
+            return this;
+        }
+
+        /**
          * Set the TCP channel factory. Defaults to a
          * NioClientSocketChannelFactory with CacheThreadPool executors.
+         * 
+         * @param nioCSChannelFactoryArg
+         *            the nio cs channel factory arg
+         * @return the builder
          */
         public Builder nioClientSocketChannelFactory(
                 final NioClientSocketChannelFactory nioCSChannelFactoryArg) {
@@ -167,6 +204,10 @@ public class DnsClient {
         /**
          * Set the UDP channel factory. Defaults to a with a CacheThreadPool
          * executor
+         * 
+         * @param nioDChannelFactoryArg
+         *            the nio d channel factory arg
+         * @return the builder
          */
         public Builder nioDatagramChannelFactory(
                 final NioDatagramChannelFactory nioDChannelFactoryArg) {
@@ -176,6 +217,10 @@ public class DnsClient {
 
         /**
          * Set the connection options.
+         * 
+         * @param optionsArg
+         *            the options arg
+         * @return the builder
          */
         public Builder options(final Map<String, Object> optionsArg) {
             this.options = optionsArg;
@@ -184,6 +229,10 @@ public class DnsClient {
 
         /**
          * How long to listen for a UDP response before giving up.
+         * 
+         * @param udpTimeoutSecondsArg
+         *            the udp timeout seconds arg
+         * @return the builder
          */
         public Builder udpTimeoutSeconds(int udpTimeoutSecondsArg) {
             this.udpTimeoutSeconds = udpTimeoutSecondsArg;
@@ -193,37 +242,69 @@ public class DnsClient {
         /**
          * Indicate if the connection should be closed after the response is
          * received. Default is false.
+         * 
+         * @param closeConnectionOnMessageReceiptArg
+         *            the close connection on message receipt arg
+         * @return the builder
          */
         public Builder closeConnectionOnMessageReceipt(
                 final Boolean closeConnectionOnMessageReceiptArg) {
-            this.closeConnectionOnMessageReceipt =
-                    closeConnectionOnMessageReceiptArg;
+            this.closeConnectionOnMessageReceipt = closeConnectionOnMessageReceiptArg;
             return this;
         }
 
+        /**
+         * Logging.
+         * 
+         * @param logging
+         *            the logging
+         * @return the builder
+         */
         public Builder logging(boolean logging) {
             this.logging = logging;
             return this;
         }
 
         /**
+         * Advanced.
+         * 
+         * @param advancedArg
+         *            the advanced arg
+         * @return the builder
+         */
+        public Builder advanced(boolean advancedArg) {
+            this.advanced = advancedArg;
+            return this;
+        }
+
+        /**
          * Obtain a new Client.
+         * 
+         * @return the dns client
          */
         public DnsClient build() {
 
             // Gotta have a client handler, otherwise what's the point?
-            if (clientMessageHandler == null) {
-                throw new IllegalStateException("clientMessageHandler must be set");
+            if (clientMessageHandler == null && !advanced) {
+                throw new IllegalStateException(
+                        "clientMessageHandler must be set");
+            }
+            if (advancedClientMessageHandler == null && advanced) {
+                throw new IllegalStateException(
+                        "advanced clientMessageHandler must be set");
             }
 
             // set up the application side thread pool
-            OrderedMemoryAwareThreadPoolExecutor omaThreadPoolExecutorArg =
-                    this.omaThreadPoolExecutor != null ? this.omaThreadPoolExecutor
-                            : new OrderedMemoryAwareThreadPoolExecutor(threadPoolSize, 0, 0);
+            OrderedMemoryAwareThreadPoolExecutor omaThreadPoolExecutorArg = this.omaThreadPoolExecutor != null ? this.omaThreadPoolExecutor
+                    : new OrderedMemoryAwareThreadPoolExecutor(threadPoolSize,
+                            0, 0);
             // client handler invoker
             ClientMessageHandlerInvoker clientMessageHandlerInvoker = new ClientMessageHandlerInvoker(
                     clientMessageHandler, closeConnectionOnMessageReceipt);
 
+            AdvancedClientMessageHandlerInvoker advancedClientMessageHandlerInvoker = new AdvancedClientMessageHandlerInvoker(
+                    advancedClientMessageHandler,
+                    closeConnectionOnMessageReceipt);
             // build the pipeline
             if (logging) {
                 udpChannelPipeline.addLast("Logger", new LoggingHandler());
@@ -233,10 +314,15 @@ public class DnsClient {
             udpChannelPipeline.addLast("MessageEncoder",
                     new DNSMessageEncoder());
             udpChannelPipeline.addLast("ApplicationThreadPool",
-                    new ExecutionHandler(
-                            omaThreadPoolExecutorArg));
-            udpChannelPipeline.addLast("ClientMessageHandlerInvoker",
-                    clientMessageHandlerInvoker);
+                    new ExecutionHandler(omaThreadPoolExecutorArg));
+            if (!advanced) {
+                udpChannelPipeline.addLast("ClientMessageHandlerInvoker",
+                        clientMessageHandlerInvoker);
+            } else {
+                udpChannelPipeline.addLast(
+                        "AdvancedClientMessageHandlerInvoker",
+                        advancedClientMessageHandlerInvoker);
+            }
 
             if (logging) {
                 tcpChannelPipeline.addLast("Logger", new LoggingHandler());
@@ -249,13 +335,19 @@ public class DnsClient {
                     new DNSMessageEncoder());
             tcpChannelPipeline.addLast("ApplicationThreadPool",
                     new ExecutionHandler(omaThreadPoolExecutorArg));
-            tcpChannelPipeline.addLast("ClientMessageHandlerInvoker",
-                    clientMessageHandlerInvoker);
-
+            if (!advanced) {
+                tcpChannelPipeline.addLast("ClientMessageHandlerInvoker",
+                        clientMessageHandlerInvoker);
+            } else {
+                tcpChannelPipeline.addLast(
+                        "AdvancedClientMessageHandlerInvoker",
+                        advancedClientMessageHandlerInvoker);
+            }
             return new DnsClient(this);
         }
     }
 
+    /** The Constant MILLIS_PER_SECOND. */
     private static final int MILLIS_PER_SECOND = 1000;
 
     /**
@@ -280,6 +372,8 @@ public class DnsClient {
 
     /**
      * Obtain a new client builder.
+     * 
+     * @return the builder
      */
     public static Builder builder() {
         return Builder.instance();
@@ -288,13 +382,11 @@ public class DnsClient {
     /**
      * Map from servers to connection open futures.
      */
-    private final
-    ConcurrentHashMap<SocketAddress, ChannelFuture> openTcpConnections =
-            new ConcurrentHashMap<SocketAddress, ChannelFuture>();
+    private final ConcurrentHashMap<SocketAddress, ChannelFuture> openTcpConnections = new ConcurrentHashMap<SocketAddress, ChannelFuture>();
 
     /**
      * Construct a new Client.
-     *
+     * 
      * @param builder
      *            Which has the client configuration
      */
@@ -324,16 +416,23 @@ public class DnsClient {
 
     }
 
-    public void sendUDP(final Message message,
-            final SocketAddress destination) {
+    /**
+     * Send udp.
+     * 
+     * @param message
+     *            the message
+     * @param destination
+     *            the destination
+     */
+    public void sendUDP(final Message message, final SocketAddress destination) {
 
         Channel channel = udpBootstrap.bind(new InetSocketAddress(0));
         ChannelFuture write = channel.write(message, destination);
         write.addListener(new ChannelFutureListener() {
 
             @Override
-            public void operationComplete(
-                    final ChannelFuture future) throws Exception {
+            public void operationComplete(final ChannelFuture future)
+                    throws Exception {
 
                 LOGGER.debug("Message sent {}", message);
             }
@@ -351,19 +450,22 @@ public class DnsClient {
      * Send a message via TCP asynchronously. This method returns prior to
      * completion of the request. Add a handler in the pipeline to process the
      * returned message.
-     *
+     * 
      * @param message
      *            The DNS message
+     * @param destination
+     *            the destination
      */
-    public void sendTCP(final Message message,
-            final SocketAddress destination) {
+    public void sendTCP(final Message message, final SocketAddress destination) {
 
         connectTCP(destination).addListener(new ChannelFutureListener() {
 
             @Override
-            public void operationComplete(ChannelFuture future) throws Exception {
+            public void operationComplete(ChannelFuture future)
+                    throws Exception {
 
-                LOGGER.debug("operationComplete for channel {}", future.getChannel());
+                LOGGER.debug("operationComplete for channel {}",
+                        future.getChannel());
                 if (future.isSuccess()) {
                     future.getChannel().write(message);
                 } else {
@@ -393,7 +495,7 @@ public class DnsClient {
 
     /**
      * Asynchronously open a connection or return an already open connection.
-     *
+     * 
      * @param destination
      *            To which the connection should be opened
      * @return A ChannelFuture for the connection operation
@@ -405,17 +507,17 @@ public class DnsClient {
             // open a connection
             toReturn = tcpBootstrap.connect(destination);
             LOGGER.debug("Opened {}", toReturn);
-            toReturn.getChannel().getCloseFuture().addListener(
-                    new ChannelFutureListener() {
+            toReturn.getChannel().getCloseFuture()
+                    .addListener(new ChannelFutureListener() {
 
                         @Override
-                        public void operationComplete(
-                                final ChannelFuture arg0) throws Exception {
+                        public void operationComplete(final ChannelFuture arg0)
+                                throws Exception {
                             openTcpConnections.remove(destination);
                         }
                     });
-            ChannelFuture toUse = openTcpConnections.putIfAbsent(
-                    destination, toReturn);
+            ChannelFuture toUse = openTcpConnections.putIfAbsent(destination,
+                    toReturn);
             if (toUse != null) {
                 // Already opened, discard this one and use the other one
                 toReturn.getChannel().close();
@@ -426,4 +528,3 @@ public class DnsClient {
         return toReturn;
     }
 }
-
