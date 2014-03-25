@@ -30,7 +30,6 @@ import biz.neustar.hopper.nio.handler.DNSMessageEncoder;
 import biz.neustar.hopper.nio.handler.TCPDecoder;
 import biz.neustar.hopper.nio.handler.TCPEncoder;
 
-// TODO: Auto-generated Javadoc
 /**
  * A client for the DNS protocol. This clien can sends DNS messages via TCP or
  * UDP.
@@ -50,7 +49,7 @@ public class DnsClient {
         /**
          * The default UDP timeout.
          */
-        private static final int UDP_TIMEOUT = 20;
+//        private static final int UDP_TIMEOUT = 20;
 
         /** 
          * The flag advanced.
@@ -105,7 +104,7 @@ public class DnsClient {
         /**
          * Timeout for UDP receive.
          */
-        private int udpTimeoutSeconds = UDP_TIMEOUT;
+//        private int udpTimeoutSeconds = UDP_TIMEOUT;
 
         /**
          * The UDP client pipeline.
@@ -234,10 +233,10 @@ public class DnsClient {
          *            the udp timeout seconds arg
          * @return the builder
          */
-        public Builder udpTimeoutSeconds(int udpTimeoutSecondsArg) {
-            this.udpTimeoutSeconds = udpTimeoutSecondsArg;
-            return this;
-        }
+//        public Builder udpTimeoutSeconds(int udpTimeoutSecondsArg) {
+//            this.udpTimeoutSeconds = udpTimeoutSecondsArg;
+//            return this;
+//        }
 
         /**
          * Indicate if the connection should be closed after the response is
@@ -348,7 +347,7 @@ public class DnsClient {
     }
 
     /** The Constant MILLIS_PER_SECOND. */
-    private static final int MILLIS_PER_SECOND = 1000;
+//    private static final int MILLIS_PER_SECOND = 1000;
 
     /**
      * The logger.
@@ -358,7 +357,7 @@ public class DnsClient {
     /**
      * UDP close timeout.
      */
-    private final int udpTimeoutSeconds;
+//    private final int udpTimeoutSeconds;
 
     /**
      * The connection bootstrap.
@@ -369,6 +368,8 @@ public class DnsClient {
      * The client helper.
      */
     private final ClientBootstrap tcpBootstrap;
+
+    private Channel channel;
 
     /**
      * Obtain a new client builder.
@@ -401,7 +402,8 @@ public class DnsClient {
                 return builder.udpChannelPipeline;
             }
         });
-        udpTimeoutSeconds = builder.udpTimeoutSeconds;
+//        udpTimeoutSeconds = builder.udpTimeoutSeconds;
+        channel = udpBootstrap.bind(new InetSocketAddress(0));
 
         // Configure the TCP client.
         tcpBootstrap = new ClientBootstrap(builder.nioCSChannelFactory);
@@ -426,7 +428,7 @@ public class DnsClient {
      */
     public void sendUDP(final Message message, final SocketAddress destination) {
 
-        Channel channel = udpBootstrap.bind(new InetSocketAddress(0));
+//        Channel channel = udpBootstrap.bind(new InetSocketAddress(0));
         ChannelFuture write = channel.write(message, destination);
         write.addListener(new ChannelFutureListener() {
 
@@ -438,12 +440,12 @@ public class DnsClient {
             }
         });
 
-        if (!channel.getCloseFuture().awaitUninterruptibly(
-                udpTimeoutSeconds * MILLIS_PER_SECOND)) {
-            LOGGER.error("Request timed out after {} seconds",
-                    udpTimeoutSeconds);
-            channel.close().awaitUninterruptibly();
-        }
+//        if (!channel.getCloseFuture().awaitUninterruptibly(
+//                udpTimeoutSeconds * MILLIS_PER_SECOND)) {
+//            LOGGER.error("Request timed out after {} seconds",
+//                    udpTimeoutSeconds);
+//            channel.close().awaitUninterruptibly();
+//        }
     }
 
     /**
@@ -490,6 +492,7 @@ public class DnsClient {
             }
         }
         tcpBootstrap.releaseExternalResources();
+        channel.close();
         udpBootstrap.releaseExternalResources();
     }
 

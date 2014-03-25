@@ -20,9 +20,12 @@ public class UDPClientTest {
     public void testBasic() throws TextParseException, UnknownHostException, InterruptedException {
 
         DnsServer server = DnsServer.builder().port(0).serverMessageHandler(new EchoServerHandler()).build();
-        MessageReceivedTrap messageReceivedTrap = new MessageReceivedTrap(1);
-        DnsClient client = DnsClient.builder().clientMessageHandler(messageReceivedTrap).closeConnectionOnMessageReceipt(true).build();
-        client.sendUDP(TCPClientTest.getQuery(0), new InetSocketAddress("localhost", server.getLocalAddress().getPort()));
+        MessageReceivedTrap messageReceivedTrap = new MessageReceivedTrap(100);
+        DnsClient client = DnsClient.builder().clientMessageHandler(messageReceivedTrap).closeConnectionOnMessageReceipt(false).build();
+        for (int i = 0; i< 100; i++) {
+            client.sendUDP(TCPClientTest.getQuery(0), new InetSocketAddress("localhost", server.getLocalAddress().getPort()));
+            Thread.sleep(10);
+        }
         try {
             Assert.assertTrue(messageReceivedTrap.latch.await(2, TimeUnit.SECONDS));
         } finally {
