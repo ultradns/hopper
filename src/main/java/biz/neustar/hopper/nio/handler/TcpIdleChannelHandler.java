@@ -1,6 +1,7 @@
 package biz.neustar.hopper.nio.handler;
 
 import org.jboss.netty.channel.ChannelHandlerContext;
+import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.handler.timeout.IdleState;
 import org.jboss.netty.handler.timeout.IdleStateAwareChannelHandler;
 import org.jboss.netty.handler.timeout.IdleStateEvent;
@@ -24,5 +25,13 @@ public class TcpIdleChannelHandler extends IdleStateAwareChannelHandler {
                     e.getChannel().getId());
             e.getChannel().close();
         }
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
+            throws Exception {
+        LOGGER.warn("Error occurred during idle processing of channel id '{}'."
+                + " The reason of error is : '{}'",
+                e.getChannel().getId(), e.getCause());
     }
 }
