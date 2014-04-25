@@ -38,6 +38,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
+import org.junit.Assert;
+
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
@@ -48,11 +50,40 @@ import biz.neustar.hopper.message.Header;
 import biz.neustar.hopper.message.Message;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Opcode;
+import biz.neustar.hopper.message.Section;
 import biz.neustar.hopper.record.ARecord;
+import biz.neustar.hopper.record.MXRecord;
 import biz.neustar.hopper.record.Record;
+import biz.neustar.hopper.record.SOARecord;
 
 public class MessageTest {
     public static class Test_init extends TestCase {
+
+        public void test_to_wire() throws Exception {
+            Message message = new Message();
+            SOARecord soaRecord = new SOARecord(
+                    Name.fromString("3MSabc.ni."), DClass.IN, 86400L,
+                    Name.fromString("3MSabc.ni."),
+                    Name.fromString("xfrtest.gmail.com."),
+                    1, 90L, 3600L, 604800L, 86400L);
+            MXRecord mxRecord = new MXRecord(Name.fromString("3MSabc.ni."), DClass.IN, 86400L,
+                    10, Name.fromString("mx.3MSabc.NI."));
+            message.addRecord(soaRecord, Section.ANSWER);
+            message.addRecord(mxRecord, Section.ANSWER);
+
+            // Test wired frame conversion with and without conversion.
+            Message message1 = new Message(message.toWire());
+            Message message2 = new Message(message.toWireWithoutCompression());
+            Assert.assertArrayEquals(message1.getSectionArray(Section.ANSWER),
+                    message2.getSectionArray(Section.ANSWER));
+            MXRecord mxRecord1 = (MXRecord) message1.getSectionArray(Section.ANSWER)[1];
+            MXRecord mxRecord2 = (MXRecord) message2.getSectionArray(Section.ANSWER)[1];
+
+            // The name compression
+            Assert.assertEquals("mx.3MSabc.ni.", mxRecord1.getTarget().toString());
+            Assert.assertEquals("mx.3MSabc.NI.", mxRecord2.getTarget().toString());
+        }
+
         public void test_0arg() {
             Message m = new Message();
             assertTrue(Arrays.equals(new Record[0], m.getSectionArray(0)));
