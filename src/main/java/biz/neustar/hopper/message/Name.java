@@ -39,6 +39,11 @@ public class Name implements Comparable<Name>, Serializable {
     /* Precomputed hashcode. */
     private int hashcode;
 
+    /**
+     * Precomputed case-sensitive hash code
+     */
+    private int hashCodeCaseSensitive;
+
     private static final byte[] emptyLabel = new byte[] { (byte) 0 };
     private static final byte[] wildLabel = new byte[] { (byte) 1, (byte) '*' };
 
@@ -853,6 +858,20 @@ public class Name implements Comparable<Name>, Serializable {
         return hashcode;
     }
 
+    /**
+     * Computes a hashcode based on the case-sensitive name.
+     */
+    public int hashCodeCaseSensitive() {
+        if (hashCodeCaseSensitive != 0) {
+            return (hashCodeCaseSensitive);
+        }
+        int code = 0;
+        for (int i = offset(0); i < name.length; i++) {
+            code += ((code << 3) + (name[i] & 0xFF));
+        }
+        hashCodeCaseSensitive = code;
+        return hashCodeCaseSensitive;
+    }
     /**
      * Compares this Name to another Object.
      * 

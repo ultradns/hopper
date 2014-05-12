@@ -25,6 +25,7 @@ public class Compression {
     private static final int MAX_POINTER = 0x3FFF;
     private Entry[] table;
     private boolean verbose = Options.check("verbosecompression");
+    private boolean caseSensitiveCompression = Options.check("case-sensitive-compression");
 
     /**
      * Creates a new Compression object.
@@ -45,7 +46,8 @@ public class Compression {
         if (pos > MAX_POINTER) {
             return;
         }
-        int row = (name.hashCode() & 0x7FFFFFFF) % TABLE_SIZE;
+        int hashCode = caseSensitiveCompression ? name.hashCodeCaseSensitive() : name.hashCode();
+        int row = (hashCode & 0x7FFFFFFF) % TABLE_SIZE;
         Entry entry = new Entry();
         entry.name = name;
         entry.pos = pos;
@@ -65,7 +67,8 @@ public class Compression {
      * @return The position of the name, or -1 if not found.
      */
     public int get(Name name) {
-        int row = (name.hashCode() & 0x7FFFFFFF) % TABLE_SIZE;
+        int hashCode = caseSensitiveCompression ? name.hashCodeCaseSensitive() : name.hashCode();
+        int row = (hashCode & 0x7FFFFFFF) % TABLE_SIZE;
         int pos = -1;
         for (Entry entry = table[row]; entry != null; entry = entry.next) {
             if (entry.name.equals(name)) {

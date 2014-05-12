@@ -43,6 +43,7 @@ import org.junit.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.Flag;
@@ -73,10 +74,17 @@ public class MessageTest {
 
             // Test wired frame conversion with and without conversion.
             Message message1 = new Message(message.toWire());
-            Message message2 = new Message(message.toWireWithoutCompression());
+
+            // Enable case-sensitive name compression.
+            Options.set("case-sensitive-compression");
+            Message message2 = new Message(message.toWire());
             Assert.assertArrayEquals(message1.getSectionArray(Section.ANSWER),
                     message2.getSectionArray(Section.ANSWER));
+
+            // Name without compression
             MXRecord mxRecord1 = (MXRecord) message1.getSectionArray(Section.ANSWER)[1];
+
+            // Name with case-sensitive name compression
             MXRecord mxRecord2 = (MXRecord) message2.getSectionArray(Section.ANSWER)[1];
 
             // The name compression

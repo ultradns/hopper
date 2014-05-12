@@ -426,10 +426,6 @@ public class Message implements Cloneable {
         toWireInternal(out, c);
     }
 
-    void toWireWithoutCompression(DNSOutput out) {
-        toWireInternal(out, null);
-    }
-
     private void toWireInternal(DNSOutput out, Compression c) {
         header.toWire(out);
         for (int i = 0; i < 4; i++) {
@@ -536,17 +532,6 @@ public class Message implements Cloneable {
     public byte[] toWire() {
         DNSOutput out = new DNSOutput();
         toWire(out);
-        size = out.current();
-        return out.toByteArray();
-    }
-
-    /**
-     * Returns an array containing the wire format representation of the
-     * Message.
-     */
-    public byte[] toWireWithoutCompression() {
-        DNSOutput out = new DNSOutput();
-        toWireWithoutCompression(out);
         size = out.current();
         return out.toByteArray();
     }

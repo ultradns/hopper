@@ -33,18 +33,7 @@ public class DNSMessageEncoder extends OneToOneEncoder {
 
         LOGGER.debug("Encoding {}", channel.getId());
 
-        // Get message
-        Message msg = ((Message) message);
-        byte[] wireMessage = null;
-
-        // This is a patch for now, we need to come up better solution for
-        // disabling name compression without breaking TSIG.
-        if (msg.getTSIG() == null) {
-            wireMessage = ((Message) message).toWireWithoutCompression();
-        } else {
-            wireMessage = ((Message) message).toWire();
-        }
-        return ChannelBuffers.copiedBuffer(wireMessage);
+        return ChannelBuffers.copiedBuffer(((Message) message).toWire());
     }
 }
 
