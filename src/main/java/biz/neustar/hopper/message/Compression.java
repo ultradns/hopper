@@ -71,7 +71,9 @@ public class Compression {
         int row = (hashCode & 0x7FFFFFFF) % TABLE_SIZE;
         int pos = -1;
         for (Entry entry = table[row]; entry != null; entry = entry.next) {
-            if (entry.name.equals(name)) {
+            boolean isEqual = caseSensitiveCompression ? entry.name.equalsCaseSensitive(name)
+                    : entry.name.equals(name);
+            if (isEqual) {
                 pos = entry.pos;
             }
         }

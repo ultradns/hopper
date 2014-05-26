@@ -817,6 +817,25 @@ public class Name implements Comparable<Name>, Serializable {
         return true;
     }
 
+    private final boolean equalsCaseSensitive(byte[] b, int bpos) {
+        int labels = labels();
+        for (int i = 0, pos = offset(0); i < labels; i++) {
+            if (name[pos] != b[bpos]) {
+                return false;
+            }
+            int len = name[pos++];
+            bpos++;
+            if (len > MAXLABEL) {
+                throw new IllegalStateException("invalid label");
+            }
+            for (int j = 0; j < len; j++)
+                if ((name[pos++] & 0xFF) != (b[bpos++] & 0xFF)) {
+                    return false;
+                }
+        }
+        return true;
+    }
+
     /**
      * Are these two Names equivalent?
      */
@@ -841,6 +860,32 @@ public class Name implements Comparable<Name>, Serializable {
             return false;
         }
         return equals(d.name, d.offset(0));
+    }
+
+    /**
+     * Are these two Names equivalent?
+     */
+    public boolean equalsCaseSensitive(Object arg) {
+        if (arg == this) {
+            return true;
+        }
+        if (arg == null || !(arg instanceof Name)) {
+            return false;
+        }
+        Name d = (Name) arg;
+        if (d.hashcode == 0) {
+            d.hashCode();
+        }
+        if (hashcode == 0) {
+            hashCode();
+        }
+        if (d.hashcode != hashcode) {
+            return false;
+        }
+        if (d.labels() != labels()) {
+            return false;
+        }
+        return equalsCaseSensitive(d.name, d.offset(0));
     }
 
     /**
