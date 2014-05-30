@@ -20,7 +20,7 @@ public class TcpIdleChannelHandler extends IdleStateAwareChannelHandler {
             final IdleStateEvent e) {
         LOGGER.debug("IdleStateEvent occured for channel {}",
                 e.getChannel().getId());
-        if (e.getState() == IdleState.ALL_IDLE) {
+        if (IdleState.ALL_IDLE.equals(e.getState())) {
             LOGGER.debug("Closing channel after idle channel timeout {}",
                     e.getChannel().getId());
             e.getChannel().close();

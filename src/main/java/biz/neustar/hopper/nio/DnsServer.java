@@ -411,19 +411,25 @@ public class DnsServer {
                             new TCPDecoder(), new TCPEncoder(),
                             new DNSMessageDecoder(),
                             new DNSMessageEncoder(),
-                            new ExecutionHandler(builder.tcpExecutor),
-                            getTcpServerHandler(builder),
                             new IdleStateHandler(timer, 0, 0, 10),
-                            new TcpIdleChannelHandler());
+                            new TcpIdleChannelHandler(),
+                            // The Execution handler should be added after
+                            // IdleState and IdleChannel handlers.
+                            // Otherwise, it leads to NPE under high load.
+                            new ExecutionHandler(builder.tcpExecutor),
+                            getTcpServerHandler(builder));
                 } else {
                     return Channels.pipeline(
                             new TCPDecoder(), new TCPEncoder(),
                             new DNSMessageDecoder(),
                             new DNSMessageEncoder(),
-                            new ExecutionHandler(builder.tcpExecutor),
-                            getTcpServerHandler(builder),
                             new IdleStateHandler(timer, 0, 0, 10),
-                            new TcpIdleChannelHandler());
+                            new TcpIdleChannelHandler(),
+                            // The Execution handler should be added after
+                            // IdleState and IdleChannel handlers.
+                            // Otherwise, it leads to NPE under high load.
+                            new ExecutionHandler(builder.tcpExecutor),
+                            getTcpServerHandler(builder));
                 }
             }
         };
