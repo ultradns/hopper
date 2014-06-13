@@ -28,6 +28,19 @@ public class NAPTRRecord extends Record {
     private byte[] flags, service, regexp;
     private Name replacement;
 
+    static byte [] EMPTY;
+    static final Name DOT;
+    static {
+        try {
+            EMPTY = byteArrayFromString("");
+            DOT = new Name(".");
+        } catch (TextParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    
+
+
     public NAPTRRecord() {
     }
 
@@ -63,13 +76,13 @@ public class NAPTRRecord extends Record {
         this.order = checkU16("order", order);
         this.preference = checkU16("preference", preference);
         try {
-            this.flags = byteArrayFromString(flags);
-            this.service = byteArrayFromString(service);
-            this.regexp = byteArrayFromString(regexp);
+            this.flags = (null == flags) ? EMPTY : byteArrayFromString(flags);
+            this.service = (null == service) ? EMPTY : byteArrayFromString(service);
+            this.regexp = (null == regexp) ? EMPTY : byteArrayFromString(regexp);
         } catch (TextParseException e) {
             throw new IllegalArgumentException(e.getMessage());
         }
-        this.replacement = checkName("replacement", replacement);
+        this.replacement = (null == replacement) ? DOT : checkName("replacement", replacement);
     }
 
     protected void rrFromWire(DNSInput in) throws IOException {
@@ -144,10 +157,33 @@ public class NAPTRRecord extends Record {
     public void rrToWire(DNSOutput out, Compression c, boolean canonical) {
         out.writeU16(order);
         out.writeU16(preference);
-        out.writeCountedString(flags);
-        out.writeCountedString(service);
-        out.writeCountedString(regexp);
-        replacement.toWire(out, null, canonical);
+
+        // Handle NULL flags
+        if (flags == null) {
+            out.writeCountedString(EMPTY);
+        } else {
+            out.writeCountedString(flags);
+        }
+
+        if (service == null) {
+            out.writeCountedString(EMPTY);
+        } else {
+            out.writeCountedString(service);
+        }
+
+        // Handle null regex
+        if (regexp == null)  {
+            out.writeCountedString(EMPTY);
+        } else {
+            out.writeCountedString(regexp);
+        }
+
+        // Handle null replacement
+        if (replacement == null) {
+            DOT.toWire(out, null, canonical);
+        } else {
+            replacement.toWire(out, null, canonical);
+        }
     }
 
     public Name getAdditionalName() {
