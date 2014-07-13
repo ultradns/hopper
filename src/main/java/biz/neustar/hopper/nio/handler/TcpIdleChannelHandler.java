@@ -17,11 +17,11 @@ public class TcpIdleChannelHandler extends IdleStateAwareChannelHandler {
 
     @Override
     public void channelIdle(final ChannelHandlerContext ctx,
-            final IdleStateEvent e) {
-        LOGGER.debug("IdleStateEvent occured for channel {}",
+            final IdleStateEvent e) throws Exception {
+        LOGGER.info("IdleStateEvent occured for channel {}",
                 e.getChannel().getId());
         if (IdleState.ALL_IDLE.equals(e.getState())) {
-            LOGGER.debug("Closing channel after idle channel timeout {}",
+            LOGGER.info("Closing channel after idle channel timeout {}",
                     e.getChannel().getId());
             e.getChannel().close();
         }
@@ -33,5 +33,6 @@ public class TcpIdleChannelHandler extends IdleStateAwareChannelHandler {
         LOGGER.warn("Error occurred during idle processing of channel id '{}'."
                 + " The reason of error is : '{}'",
                 e.getChannel().getId(), e.getCause());
+        e.getChannel().close();
     }
 }
