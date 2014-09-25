@@ -6,6 +6,8 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
+import com.google.common.base.Objects;
+
 import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.record.Record;
@@ -555,7 +557,7 @@ public class TSIG {
         return (name.length() + 10 + alg.length() + 8 + // time signed, fudge
                 18 + // 2 byte MAC length, 16 byte MAC
                 4 + // original id, error
-        8); // 2 byte error length, 6 byte max error field.
+                8); // 2 byte error length, 6 byte max error field.
     }
 
     public static class StreamVerifier {
@@ -676,5 +678,10 @@ public class TSIG {
             return Rcode.NOERROR;
         }
     }
-
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).add("tsigKeyValue", getKey())
+                .add("tsigKeyName", getName())
+                .add("tsigAlgorithm", getAlgorithm()).toString();
+    }
 }
