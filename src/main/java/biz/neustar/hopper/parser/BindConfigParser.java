@@ -127,6 +127,14 @@ public class BindConfigParser {
             LOGGER.debug("Zones name input file option is enabled");
             ++index;
         }
+
+        if (cmd.hasOption(ZONES_FILE_OPTION) && !cmd.hasOption(CONF_FILE_OPTION)) {         
+            LOGGER.error((ExitCode.MISSING_CONFIG_FILE).getDescription());
+            argumentsParsingResult.setArgumentErrorMessage((ExitCode.MISSING_CONFIG_FILE).getDescription());
+            argumentsParsingResult.setArgumentErrorCode((ExitCode.MISSING_CONFIG_FILE).getCode());
+            return argumentsParsingResult;
+        }
+
         if (index == 0) {
             LOGGER.error("Invalid command line!. One of the options -c, -f or -help must be specified");
             argumentsParsingResult.setArgumentErrorMessage((ExitCode.NO_ARGUMENT).getDescription());
@@ -170,7 +178,7 @@ public class BindConfigParser {
      * @return zonesName Set of zones name.
      * @throws Exception In case of any error.
      */
-    private  Set<String> extractZonesNameFromFile(final String zonesFile) throws Exception {
+    public  Set<String> extractZonesNameFromFile(final String zonesFile) throws Exception {
         Set<String> zonesName = Sets.newLinkedHashSet();
         FileInputStream  fs = new FileInputStream(zonesFile);
         BufferedReader br = new BufferedReader(new InputStreamReader(fs));
@@ -434,7 +442,9 @@ public class BindConfigParser {
         NO_ARGUMENT(2,"Invalid command line!. One of the options -c, -f or -help must be specified"),
         INVALID_NO_OF_ARGUMENTS(3,"Invalid command line!. Only two from these options -c, -f or -help can be specified"),
         ARGUMENT_FILE_NOT_FOUND(4,"Invalid command line! Input file does not exist"),
-        HELP_ARGUMENT(5,"Tool help");
+        HELP_ARGUMENT(5,"Tool help"),
+        MISSING_CONFIG_FILE(6,"Invalid command line! Configuration file is missing");
+
         private final int code;
         private final String description;
 

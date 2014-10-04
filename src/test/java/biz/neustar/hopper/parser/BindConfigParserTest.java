@@ -76,6 +76,12 @@ public class BindConfigParserTest {
         Assert.assertEquals(5, argumentsParsingResult.getArgumentErrorCode());
         Assert.assertEquals("Tool help",
                 argumentsParsingResult.getArgumentErrorMessage());
+        
+        //configuration file is not present
+        argumentsParsingResult = bindConfigParser.validateArguments(new String[]{"-fD:/zones.txt"});
+        Assert.assertEquals(6, argumentsParsingResult.getArgumentErrorCode());
+        Assert.assertEquals("Invalid command line! Configuration file is missing",
+                argumentsParsingResult.getArgumentErrorMessage());
     }
 
     /**
