@@ -248,7 +248,7 @@ public class AddressTest extends TestCase {
 		// TODO: mock this so it doesnt actually rely on outside resources
 
 		String hostAddress = out.getHostAddress();
-		boolean expectedMatch = hostAddress.equals("128.138.202.103") || hostAddress.equals("128.138.201.71");
+		boolean expectedMatch = hostAddress.equals("128.138.202.103") || hostAddress.equals("128.138.201.71") || hostAddress.equals("128.138.72.229");
 
 		assertTrue(expectedMatch);
 	}
@@ -276,7 +276,7 @@ public class AddressTest extends TestCase {
 		assertEquals("epic.cs.colorado.edu", out[0].getCanonicalHostName());
 		// TODO: mock this out so it doesnt actal rely on outside resources
 		String hostAddress = out[0].getHostAddress();
-		boolean expectedMatch = hostAddress.equals("128.138.201.71") || hostAddress.equals("128.138.202.103");
+		boolean expectedMatch = hostAddress.equals("128.138.201.71") || hostAddress.equals("128.138.202.103") || hostAddress.equals("128.138.72.229");
 
 		assertTrue(expectedMatch);
 
