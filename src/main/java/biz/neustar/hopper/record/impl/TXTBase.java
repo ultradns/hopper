@@ -4,6 +4,7 @@ package biz.neustar.hopper.record.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -28,7 +29,7 @@ public abstract class TXTBase extends Record {
 
     private static final long serialVersionUID = -4319510507246305931L;
 
-    protected List<byte[]> strings;
+    private List<byte[]> strings = Collections.emptyList();
 
     protected TXTBase() {
     }

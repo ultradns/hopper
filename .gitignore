@@ -12,3 +12,14 @@ lib/default
 .gradle
 .settings
 tmp
+
+lib/nio/logback-classic.jar
+
+lib/nio/logback-core.jar
+
+lib/nio/netty.jar
+
+lib/nio/slf4j-api.jar
+.idea
+*.iml
+out/
