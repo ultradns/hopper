@@ -65,7 +65,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      */
     protected abstract Record getObject();
 
-    private static final Record getEmptyRecord(Name name, int type, DClass dclass,
+    private static Record getEmptyRecord(Name name, int type, DClass dclass,
             long ttl, boolean hasData) {
         Record proto, rec;
 
@@ -382,6 +382,9 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      */
     protected static byte[] byteArrayFromString(String s)
             throws TextParseException {
+        if(s==null) {
+            s = "";
+        }
         byte[] array = s.getBytes();
         boolean escaped = false;
         boolean hasEscapes = false;
@@ -696,7 +699,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
     /**
      * Compares this Record to another Object.
      * 
-     * @param o
+     * @param arg
      *            The Object to be compared.
      * @return The value 0 if the argument is a record equivalent to this
      *         record; a value less than 0 if the argument is less than this
