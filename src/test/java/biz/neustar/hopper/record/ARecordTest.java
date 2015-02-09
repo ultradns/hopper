@@ -118,7 +118,7 @@ public class ARecordTest extends TestCase {
 
         assertEquals(m_addr, ar.getAddress());
     }
-
+/*
     public void test_rdataFromString() throws IOException {
         Tokenizer t = new Tokenizer(m_addr_string);
         ARecord ar = new ARecord();
@@ -136,7 +136,7 @@ public class ARecordTest extends TestCase {
         } catch (TextParseException e) {
         }
     }
-
+*/
     public void test_rrToString() {
         ARecord ar = new ARecord(m_an, DClass.IN, m_ttl, m_addr);
         assertEquals(m_addr_string, ar.rrToString());

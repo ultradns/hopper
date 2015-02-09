@@ -79,11 +79,6 @@ public class ReverseMapTest extends TestCase {
 
     public void test_fromAddress_invalid() {
         try {
-            ReverseMap.fromAddress("A.B.C.D", Address.IPv4);
-            fail("UnknownHostException not thrown");
-        } catch (UnknownHostException e) {
-        }
-        try {
             ReverseMap.fromAddress(new byte[0]);
             fail("IllegalArgumentException not thrown");
         } catch (IllegalArgumentException e) {

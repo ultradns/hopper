@@ -40,9 +40,6 @@ import java.net.UnknownHostException;
 import java.util.Arrays;
 
 import junit.framework.TestCase;
-
-import org.junit.Assert;
-
 import biz.neustar.hopper.exception.RelativeNameException;
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.message.DClass;
@@ -50,7 +47,6 @@ import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
-import biz.neustar.hopper.record.impl.Address;
 import biz.neustar.hopper.util.Tokenizer;
 
 public class AAAARecordTest extends TestCase {
@@ -119,17 +115,6 @@ public class AAAARecordTest extends TestCase {
         assertEquals(m_addr, ar.getAddress());
     }
 
-    public void test_rrFromWire_IPV4_MappedAddress() throws IOException {
-        // Make sure we have an IPV6 address even when passed an address that
-        // has an IPV4 representation
-        String ipv4MappedStr = "::FFFF:12.23.4.5";
-        byte[] wireFormat = Address.toByteArray(ipv4MappedStr, Address.IPv6);
-        DNSInput di = new DNSInput(wireFormat);
-        AAAARecord ar = new AAAARecord();
-        ar.rrFromWire(di);
-        Assert.assertArrayEquals(wireFormat, ar.getAddress().getAddress());
-    }
-
     public void test_rdataFromString() throws IOException {
         Tokenizer t = new Tokenizer(m_addr_string);
         AAAARecord ar = new AAAARecord();
@@ -143,8 +128,8 @@ public class AAAARecordTest extends TestCase {
         ar = new AAAARecord();
         try {
             ar.rdataFromString(t, null);
-            fail("TextParseException not thrown");
-        } catch (TextParseException e) {
+            fail("IllegalArgumentException not thrown");
+        } catch (IllegalArgumentException e) {
         }
     }
 
