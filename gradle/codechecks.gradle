@@ -8,18 +8,24 @@
  
 // checks
 apply plugin: 'findbugs'
-apply plugin: 'pmd'
+//apply plugin: 'pmd'
 apply plugin: 'checkstyle'  
 apply from: file('gradle/jacoco.gradle')
 
-
 checkstyle {
-  // ignoreFailures = true
+  ignoreFailures = true
   configFile = rootProject.file('gradle/config/checkstyle.xml')
 }
-// exclude the checkstyle, findbugsTest, pmdTest on test source.. 
-gradle.startParameter.excludedTaskNames += ["checkstyleTest", "findbugsTest", "pmdTest"]
 
+// exclude the checkstyle, findbugsTest, pmdTest on test source.. 
+//gradle.startParameter.excludedTaskNames += ["checkstyleTest", "findbugsTest", "pmdTest"]
+gradle.startParameter.excludedTaskNames += ["checkstyleTest", "findbugsTest"]
+/*
 pmd {
+  ignoreFailures = true
   ruleSetFiles = files('gradle/config/pmd.xml')
+}*/
+
+findbugs {
+  ignoreFailures = true
 }
