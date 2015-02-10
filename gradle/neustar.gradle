@@ -141,7 +141,7 @@ allprojects {
     configuration = configurations.uploadJar
     repositories.mavenDeployer {
       configuration = configurations.uploadJar
-      repository(url: "http://stulhdebuild3.ultra.neustar.com:8081/nexus" + "/content/repositories/releases") {
+      repository(url: "http://repo.nexgen.neustar.biz/nexus" + "/content/repositories/releases") {
         authentication(userName: rootProject.ldapUsername, password: rootProject.ldapPassword)
       }
     }
