@@ -47,7 +47,7 @@ def buildId = rootProject.tasks.gitBuildId.output()
 // load properties for neustar ldap user & passwd
 task loadNeustarCredentials {
   description = "Load neustar credentials from the neustar.properties file"
-  def credsFileName = "${project.gradle.gradleUserHomeDir}/neustar.properties"
+  def credsFileName = "neustar.properties"
   
   if (!loadProperties(credsFileName)) {
     def exampleContents = """\
