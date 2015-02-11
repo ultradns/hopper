@@ -5,6 +5,7 @@ package biz.neustar.hopper.util;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Routines for converting between Strings of base32-encoded data and arrays
@@ -139,7 +140,7 @@ public class base32 {
             }
         }
 
-        return new String(os.toByteArray());
+        return new String(os.toByteArray(), StandardCharsets.UTF_8);
     }
 
     /**
@@ -151,7 +152,7 @@ public class base32 {
     public byte[]
     fromString(String str) {
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        byte [] raw = str.getBytes();
+        byte [] raw = str.getBytes(StandardCharsets.UTF_8);
         for (int i = 0; i < raw.length; i++) {
             char c = (char) raw[i];
             if (!Character.isWhitespace(c)) {

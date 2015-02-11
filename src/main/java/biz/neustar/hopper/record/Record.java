@@ -5,6 +5,7 @@ package biz.neustar.hopper.record;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
@@ -385,7 +386,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
         if(s==null) {
             s = "";
         }
-        byte[] array = s.getBytes();
+        byte[] array = s.getBytes(StandardCharsets.UTF_8);
         boolean escaped = false;
         boolean hasEscapes = false;
 

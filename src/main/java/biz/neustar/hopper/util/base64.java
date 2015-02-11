@@ -5,6 +5,7 @@ package biz.neustar.hopper.util;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Routines for converting between Strings of base64-encoded data and arrays of
@@ -59,7 +60,7 @@ public class base64 {
                 os.write(Base64.charAt(t[j]));
             }
         }
-        return new String(os.toByteArray());
+        return new String(os.toByteArray(), StandardCharsets.UTF_8);
     }
 
     /**
@@ -98,7 +99,7 @@ public class base64 {
     public static byte []
     fromString(String str) {
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        byte [] raw = str.getBytes();
+        byte [] raw = str.getBytes(StandardCharsets.UTF_8);
         for (int i = 0; i < raw.length; i++) {
             if (!Character.isWhitespace((char)raw[i])) {
                 bs.write(raw[i]);

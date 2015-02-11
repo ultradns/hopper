@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Stack;
 import java.util.StringTokenizer;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.GnuParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -181,7 +183,7 @@ public class BindConfigParser {
     public  Set<String> extractZonesNameFromFile(final String zonesFile) throws Exception {
         Set<String> zonesName = Sets.newLinkedHashSet();
         FileInputStream  fs = new FileInputStream(zonesFile);
-        BufferedReader br = new BufferedReader(new InputStreamReader(fs));
+        BufferedReader br = new BufferedReader(new InputStreamReader(fs, StandardCharsets.UTF_8));
         try {
             String line = null;
             while ((line = br.readLine()) != null) {
@@ -244,7 +246,7 @@ public class BindConfigParser {
     private  void parseConfFile(FileInputStream fileInputStream,
             Map<String, Map<String,String>> zonesPartialMetaData, Map<String, TSIG> tsigNameToTSIGMap,
             Set<String> zonesName) {
-        BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream));
+        BufferedReader br = new BufferedReader(new InputStreamReader(fileInputStream, StandardCharsets.UTF_8));
         Map<String, String> masterToTsigNameMap = Maps.newLinkedHashMap();
         String line = null;
         Stack<String> zonesNameStack = new Stack<String>();

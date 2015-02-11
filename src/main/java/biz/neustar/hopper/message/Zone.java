@@ -39,7 +39,7 @@ public class Zone implements Serializable {
     private Map<Name, Object> data;
     private Name origin;
     private Object originNode; // TODO: hmm.. what's in this mystical "Object" 
-    private DClass dclass = DClass.IN;
+    private transient DClass dclass = DClass.IN;
     private RRSet NS;
     private SOARecord SOA;
     private boolean hasWild;

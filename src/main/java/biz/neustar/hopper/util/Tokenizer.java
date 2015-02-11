@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.PushbackInputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 
 import biz.neustar.hopper.exception.RelativeNameException;
 import biz.neustar.hopper.exception.TextParseException;
@@ -173,7 +174,7 @@ public class Tokenizer {
      *            The String to tokenize.
      */
     public Tokenizer(String s) {
-        this(new ByteArrayInputStream(s.getBytes()));
+        this(new ByteArrayInputStream(s.getBytes(StandardCharsets.UTF_8)));
     }
 
     /**

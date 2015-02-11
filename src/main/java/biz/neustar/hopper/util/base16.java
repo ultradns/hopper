@@ -5,6 +5,7 @@ package biz.neustar.hopper.util;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Routines for converting between Strings of hex-encoded data and arrays of
@@ -37,7 +38,7 @@ public class base16 {
             os.write(Base16.charAt(high));
             os.write(Base16.charAt(low));
         }
-        return new String(os.toByteArray());
+        return new String(os.toByteArray(), StandardCharsets.UTF_8);
     }
 
     /**

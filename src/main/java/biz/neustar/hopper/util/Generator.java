@@ -3,6 +3,7 @@
 package biz.neustar.hopper.util;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,7 +115,7 @@ public class Generator {
 
     private String substitute(String spec, long n) throws IOException {
         boolean escaped = false;
-        byte[] str = spec.getBytes();
+        byte[] str = spec.getBytes(StandardCharsets.UTF_8);
         StringBuffer sb = new StringBuffer();
 
         for (int i = 0; i < str.length; i++) {

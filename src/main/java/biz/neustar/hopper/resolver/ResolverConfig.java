@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -239,7 +240,7 @@ public class ResolverConfig {
         } catch (FileNotFoundException e) {
             return;
         }
-        InputStreamReader isr = new InputStreamReader(in);
+        InputStreamReader isr = new InputStreamReader(in, StandardCharsets.UTF_8);
         BufferedReader br = new BufferedReader(isr);
         List<String> lserver = new ArrayList<String>(0);
         List<Name> lsearch = new ArrayList<Name>(0);
@@ -314,7 +315,7 @@ public class ResolverConfig {
         String dns_suffix = res.getString("dns_suffix");
         String dns_servers = res.getString("dns_servers");
 
-        BufferedReader br = new BufferedReader(new InputStreamReader(in));
+        BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
         try {
             List<String> lserver = new ArrayList<String>();
             List<Name> lsearch = new ArrayList<Name>();
@@ -450,7 +451,7 @@ public class ResolverConfig {
             String line;
             Process p = Runtime.getRuntime().exec("getprop");
             InputStream in = p.getInputStream();
-            InputStreamReader isr = new InputStreamReader(in);
+            InputStreamReader isr = new InputStreamReader(in, StandardCharsets.UTF_8);
             BufferedReader br = new BufferedReader(isr);
             while ((line = br.readLine()) != null) {
                 StringTokenizer t = new StringTokenizer(line, ":");

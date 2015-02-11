@@ -3,6 +3,7 @@
 package biz.neustar.hopper.record;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.exception.WireParseException;
@@ -58,9 +59,9 @@ public class GPOSRecord extends Record {
             double latitude, double altitude) {
         super(name, Type.GPOS, in, ttl);
         validate(longitude, latitude);
-        this.longitude = Double.toString(longitude).getBytes();
-        this.latitude = Double.toString(latitude).getBytes();
-        this.altitude = Double.toString(altitude).getBytes();
+        this.longitude = Double.toString(longitude).getBytes(StandardCharsets.UTF_8);
+        this.latitude = Double.toString(latitude).getBytes(StandardCharsets.UTF_8);
+        this.altitude = Double.toString(altitude).getBytes(StandardCharsets.UTF_8);
     }
 
     /**
