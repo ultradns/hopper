@@ -3,6 +3,7 @@
 package biz.neustar.hopper.apps;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -10,9 +11,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.InterruptedIOException;
-import java.io.PrintStream;
+import java.io.OutputStreamWriter;
 import java.io.Reader;
+import java.io.Writer;
 import java.net.SocketException;
+import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -44,12 +47,18 @@ public class Update {
 	private Name zone = Name.root;
 	private long defaultTTL;
 	private DClass defaultClass = DClass.IN;
-	private PrintStream log = null;
+	private Writer log = null;
 
 	void print(Object o) {
 		System.out.println(o);
-		if (log != null)
-			log.println(o);
+		if (log != null) {
+			try {
+			log.write(o.toString());
+			} catch (IOException e) {
+				System.err.println("Error writing to log.");
+				e.printStackTrace();
+			}
+		}
 	}
 
 	public Message newMessage() {
@@ -64,7 +73,7 @@ public class Update {
 
 		query = newMessage();
 
-		InputStreamReader isr = new InputStreamReader(in);
+		InputStreamReader isr = new InputStreamReader(in, StandardCharsets.UTF_8);
 		BufferedReader br = new BufferedReader(isr);
 
 		inputs.add(br);
@@ -92,7 +101,7 @@ public class Update {
 				} while (line == null);
 
 				if (log != null)
-					log.println("> " + line);
+					print("> " + line);
 
 				if (line.length() == 0 || line.charAt(0) == '#')
 					continue;
@@ -452,7 +461,7 @@ public class Update {
 				is = new FileInputStream(s);
 			}
 			istreams.add(0, is);
-			inputs.add(0, new BufferedReader(new InputStreamReader(is)));
+			inputs.add(0, new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8)));
 		} catch (FileNotFoundException e) {
 			print(s + " not found");
 		}
@@ -461,8 +470,8 @@ public class Update {
 	void doLog(Tokenizer st) throws IOException {
 		String s = st.getString();
 		try {
-			FileOutputStream fos = new FileOutputStream(s);
-			log = new PrintStream(fos);
+			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(s), StandardCharsets.UTF_8));
+			log = writer;
 		} catch (Exception e) {
 			print("Error opening " + s);
 		}

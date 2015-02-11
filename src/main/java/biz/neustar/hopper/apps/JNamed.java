@@ -15,6 +15,7 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -70,7 +71,7 @@ public class JNamed {
 		List<InetAddress> addresses = new ArrayList<InetAddress>();
 		try {
 			fs = new FileInputStream(conffile);
-			isr = new InputStreamReader(fs);
+			isr = new InputStreamReader(fs, StandardCharsets.UTF_8);
 			br = new BufferedReader(isr);
 		} catch (Exception e) {
 			System.out.println("Cannot open " + conffile);
