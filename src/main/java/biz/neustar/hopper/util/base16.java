@@ -51,7 +51,7 @@ public class base16 {
      */
     public static byte[] fromString(String str) {
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        byte[] raw = str.getBytes();
+        byte[] raw = str.getBytes(StandardCharsets.UTF_8);
         for (int i = 0; i < raw.length; i++) {
             if (!Character.isWhitespace((char) raw[i])) {
                 bs.write(raw[i]);

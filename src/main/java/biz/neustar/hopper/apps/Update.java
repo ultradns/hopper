@@ -41,7 +41,7 @@ import biz.neustar.hopper.util.Tokenizer;
 
 public class Update {
 
-    private Message query, response;
+	private Message query, response;
 	private Resolver res;
 	private String server = null;
 	private Name zone = Name.root;
@@ -53,7 +53,7 @@ public class Update {
 		System.out.println(o);
 		if (log != null) {
 			try {
-			log.write(o.toString());
+				log.write(o.toString());
 			} catch (IOException e) {
 				System.err.println("Error writing to log.");
 				e.printStackTrace();
@@ -73,7 +73,8 @@ public class Update {
 
 		query = newMessage();
 
-		InputStreamReader isr = new InputStreamReader(in, StandardCharsets.UTF_8);
+		InputStreamReader isr = new InputStreamReader(in,
+				StandardCharsets.UTF_8);
 		BufferedReader br = new BufferedReader(isr);
 
 		inputs.add(br);
@@ -95,26 +96,31 @@ public class Update {
 						br.close();
 						inputs.remove(0);
 						istreams.remove(0);
-						if (inputs.isEmpty())
+						if (inputs.isEmpty()) {
 							return;
+						}
 					}
 				} while (line == null);
 
-				if (log != null)
+				if (log != null) {
 					print("> " + line);
+				}
 
-				if (line.length() == 0 || line.charAt(0) == '#')
+				if (line.length() == 0 || line.charAt(0) == '#') {
 					continue;
+				}
 
 				/* Allows cut and paste from other update sessions */
-				if (line.charAt(0) == '>')
+				if (line.charAt(0) == '>') {
 					line = line.substring(1);
+				}
 
 				Tokenizer st = new Tokenizer(line);
 				Tokenizer.Token token = st.get();
 
-				if (token.isEOL())
+				if (token.isEOL()) {
 					continue;
+				}
 				String operation = token.value;
 
 				if (operation.equals("server")) {
@@ -125,95 +131,73 @@ public class Update {
 						String portstr = token.value;
 						res.setPort(Short.parseShort(portstr));
 					}
-				}
-
-				else if (operation.equals("key")) {
+				} else if (operation.equals("key")) {
 					String keyname = st.getString();
 					String keydata = st.getString();
-					if (res == null)
+					if (res == null) {
 						res = new SimpleResolver(server);
+					}
 					res.setTSIGKey(new TSIG(keyname, keydata));
-				}
-
-				else if (operation.equals("edns")) {
-					if (res == null)
+				} else if (operation.equals("edns")) {
+					if (res == null) {
 						res = new SimpleResolver(server);
+					}
 					res.setEDNS(st.getUInt16());
-				}
-
-				else if (operation.equals("port")) {
-					if (res == null)
+				} else if (operation.equals("port")) {
+					if (res == null) {
 						res = new SimpleResolver(server);
+					}
 					res.setPort(st.getUInt16());
-				}
-
-				else if (operation.equals("tcp")) {
-					if (res == null)
+				} else if (operation.equals("tcp")) {
+					if (res == null) {
 						res = new SimpleResolver(server);
+					}
 					res.setTCP(true);
-				}
-
-				else if (operation.equals("class")) {
+				} else if (operation.equals("class")) {
 					String classStr = st.getString();
 					try {
-					    defaultClass = DClass.valueOf(classStr);
+						defaultClass = DClass.valueOf(classStr);
 					} catch (RuntimeException ex) {
-					    print("Error converting class: " + classStr);
-					    throw ex; // rethrow
+						print("Error converting class: " + classStr);
+						throw ex; // rethrow
 					}
-				}
-
-				else if (operation.equals("ttl"))
+				} else if (operation.equals("ttl")) {
 					defaultTTL = st.getTTL();
-
-				else if (operation.equals("origin") || operation.equals("zone")) {
+				} else if (operation.equals("origin")
+						|| operation.equals("zone")) {
 					zone = st.getName(Name.root);
-				}
-
-				else if (operation.equals("require"))
+				} else if (operation.equals("require")) {
 					doRequire(st);
-
-				else if (operation.equals("prohibit"))
+				} else if (operation.equals("prohibit")) {
 					doProhibit(st);
-
-				else if (operation.equals("add"))
+				} else if (operation.equals("add")) {
 					doAdd(st);
-
-				else if (operation.equals("delete"))
+				} else if (operation.equals("delete")) {
 					doDelete(st);
-
-				else if (operation.equals("glue"))
+				} else if (operation.equals("glue")) {
 					doGlue(st);
-
-				else if (operation.equals("help") || operation.equals("?")) {
+				} else if (operation.equals("help") || operation.equals("?")) {
 					token = st.get();
-					if (token.isString())
+					if (token.isString()) {
 						help(token.value);
-					else
+					} else {
 						help(null);
-				}
-
-				else if (operation.equals("echo"))
+					}
+				} else if (operation.equals("echo")) {
 					print(line.substring(4).trim());
-
-				else if (operation.equals("send")) {
+				} else if (operation.equals("send")) {
 					sendUpdate();
 					query = newMessage();
-				}
-
-				else if (operation.equals("show")) {
+				} else if (operation.equals("show")) {
 					print(query);
-				}
-
-				else if (operation.equals("clear"))
+				} else if (operation.equals("clear")) {
 					query = newMessage();
-
-				else if (operation.equals("query"))
+				} else if (operation.equals("query")) {
 					doQuery(st);
-
-				else if (operation.equals("quit") || operation.equals("q")) {
-					if (log != null)
+				} else if (operation.equals("quit") || operation.equals("q")) {
+					if (log != null) {
 						log.close();
+					}
 					Iterator<Reader> it = inputs.iterator();
 					while (it.hasNext()) {
 						BufferedReader tbr;
@@ -221,38 +205,30 @@ public class Update {
 						tbr.close();
 					}
 					System.exit(0);
-				}
-
-				else if (operation.equals("file"))
+				} else if (operation.equals("file")) {
 					doFile(st, inputs, istreams);
-
-				else if (operation.equals("log"))
+				} else if (operation.equals("log")) {
 					doLog(st);
-
-				else if (operation.equals("assert")) {
-					if (doAssert(st) == false)
+				} else if (operation.equals("assert")) {
+					if (doAssert(st) == false) {
 						return;
-				}
-
-				else if (operation.equals("sleep")) {
+					}
+				} else if (operation.equals("sleep")) {
 					long interval = st.getUInt32();
 					try {
 						Thread.sleep(interval);
 					} catch (InterruptedException e) {
 					}
-				}
-
-				else if (operation.equals("date")) {
+				} else if (operation.equals("date")) {
 					Date now = new Date();
 					token = st.get();
 					if (token.isString() && token.value.equals("-ms"))
 						print(Long.toString(now.getTime()));
 					else
 						print(now);
-				}
-
-				else
+				} else {
 					print("invalid keyword: " + operation);
+				}
 			} catch (TextParseException tpe) {
 				System.out.println(tpe.getMessage());
 			} catch (InterruptedIOException iioe) {
@@ -279,7 +255,8 @@ public class Update {
 				for (int i = 0; i < recs.length; i++) {
 					if (updzone == null)
 						updzone = new Name(recs[i].getName(), 1);
-					if (recs[i].getDClass() != DClass.NONE && recs[i].getDClass() != DClass.ANY) {
+					if (recs[i].getDClass() != DClass.NONE
+							&& recs[i].getDClass() != DClass.ANY) {
 						dclass = recs[i].getDClass();
 						break;
 					}
@@ -298,7 +275,8 @@ public class Update {
 	/*
 	 * <name> [ttl] [class] <type> <data> Ignore the class, if present.
 	 */
-	Record parseRR(Tokenizer st, DClass classValue, long TTLValue) throws IOException {
+	Record parseRR(Tokenizer st, DClass classValue, long TTLValue)
+			throws IOException {
 		Name name = st.getName(zone);
 		long ttl;
 		int type;
@@ -318,7 +296,7 @@ public class Update {
 		if ((classToUse = DClass.valueOf(s)) != null) {
 			s = st.getString();
 		} else {
-		    classToUse = classValue;
+			classToUse = classValue;
 		}
 
 		if ((type = Type.value(s)) < 0)
@@ -346,7 +324,8 @@ public class Update {
 			boolean iseol = token.isEOL();
 			st.unget();
 			if (!iseol) {
-				record = Record.fromString(name, type, defaultClass, 0, st, zone);
+				record = Record.fromString(name, type, defaultClass, 0, st,
+						zone);
 			} else {
 				record = Record.newRecord(name, type, DClass.ANY, 0);
 			}
@@ -402,7 +381,8 @@ public class Update {
 			boolean iseol = token.isEOL();
 			st.unget();
 			if (!iseol) {
-				record = Record.fromString(name, type, DClass.NONE, 0, st, zone);
+				record = Record
+						.fromString(name, type, DClass.NONE, 0, st, zone);
 			} else
 				record = Record.newRecord(name, type, DClass.ANY, 0);
 		} else
@@ -451,7 +431,8 @@ public class Update {
 		print(response);
 	}
 
-	void doFile(Tokenizer st, List<Reader> inputs, List<InputStream> istreams) throws IOException {
+	void doFile(Tokenizer st, List<Reader> inputs, List<InputStream> istreams)
+			throws IOException {
 		String s = st.getString();
 		InputStream is;
 		try {
@@ -461,7 +442,8 @@ public class Update {
 				is = new FileInputStream(s);
 			}
 			istreams.add(0, is);
-			inputs.add(0, new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8)));
+			inputs.add(0, new BufferedReader(new InputStreamReader(is,
+					StandardCharsets.UTF_8)));
 		} catch (FileNotFoundException e) {
 			print(s + " not found");
 		}
@@ -470,7 +452,8 @@ public class Update {
 	void doLog(Tokenizer st) throws IOException {
 		String s = st.getString();
 		try {
-			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(s), StandardCharsets.UTF_8));
+			BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
+					new FileOutputStream(s), StandardCharsets.UTF_8));
 			log = writer;
 		} catch (Exception e) {
 			print("Error opening " + s);
@@ -546,72 +529,97 @@ public class Update {
 					+ "add      assert   class    clear    date     delete\n"
 					+ "echo     edns     file     glue     help     key\n"
 					+ "log      port     prohibit query    quit     require\n"
-					+ "send     server   show     sleep    tcp      ttl\n" + "zone     #\n");
+					+ "send     server   show     sleep    tcp      ttl\n"
+					+ "zone     #\n");
 			return;
 		}
 		topic = topic.toLowerCase();
 
 		if (topic.equals("add"))
-			System.out.println("add <name> [ttl] [class] <type> <data>\n\n" + "specify a record to be added\n");
+			System.out.println("add <name> [ttl] [class] <type> <data>\n\n"
+					+ "specify a record to be added\n");
 		else if (topic.equals("assert"))
-			System.out.println("assert <field> <value> [msg]\n\n" + "asserts that the value of the field in the last\n"
+			System.out.println("assert <field> <value> [msg]\n\n"
+					+ "asserts that the value of the field in the last\n"
 					+ "response matches the value specified.  If not,\n"
 					+ "the message is printed (if present) and the\n"
 					+ "program exits.  The field may be any of <rcode>,\n"
 					+ "<serial>, <tsig>, <qu>, <an>, <au>, or <ad>.\n");
 		else if (topic.equals("class"))
-			System.out.println("class <class>\n\n" + "class of the zone to be updated (default: IN)\n");
+			System.out.println("class <class>\n\n"
+					+ "class of the zone to be updated (default: IN)\n");
 		else if (topic.equals("clear"))
-			System.out.println("clear\n\n" + "clears the current update packet\n");
+			System.out.println("clear\n\n"
+					+ "clears the current update packet\n");
 		else if (topic.equals("date"))
-			System.out.println("date [-ms]\n\n" + "prints the current date and time in human readable\n"
-					+ "format or as the number of milliseconds since the\n" + "epoch");
+			System.out.println("date [-ms]\n\n"
+					+ "prints the current date and time in human readable\n"
+					+ "format or as the number of milliseconds since the\n"
+					+ "epoch");
 		else if (topic.equals("delete"))
-			System.out.println("delete <name> [ttl] [class] <type> <data> \n" + "delete <name> <type> \n"
-					+ "delete <name>\n\n" + "specify a record or set to be deleted, or that\n"
+			System.out.println("delete <name> [ttl] [class] <type> <data> \n"
+					+ "delete <name> <type> \n" + "delete <name>\n\n"
+					+ "specify a record or set to be deleted, or that\n"
 					+ "all records at a name should be deleted\n");
 		else if (topic.equals("echo"))
 			System.out.println("echo <text>\n\n" + "prints the text\n");
 		else if (topic.equals("edns"))
-			System.out.println("edns <level>\n\n" + "EDNS level specified when sending messages\n");
+			System.out.println("edns <level>\n\n"
+					+ "EDNS level specified when sending messages\n");
 		else if (topic.equals("file"))
-			System.out.println("file <file>\n\n" + "opens the specified file as the new input source\n"
+			System.out.println("file <file>\n\n"
+					+ "opens the specified file as the new input source\n"
 					+ "(- represents stdin)\n");
 		else if (topic.equals("glue"))
-			System.out.println("glue <name> [ttl] [class] <type> <data>\n\n" + "specify an additional record\n");
+			System.out.println("glue <name> [ttl] [class] <type> <data>\n\n"
+					+ "specify an additional record\n");
 		else if (topic.equals("help"))
-			System.out.println("help\n" + "help [topic]\n\n" + "prints a list of commands or help about a specific\n"
+			System.out.println("help\n" + "help [topic]\n\n"
+					+ "prints a list of commands or help about a specific\n"
 					+ "command\n");
 		else if (topic.equals("key"))
-			System.out.println("key <name> <data>\n\n" + "TSIG key used to sign messages\n");
+			System.out.println("key <name> <data>\n\n"
+					+ "TSIG key used to sign messages\n");
 		else if (topic.equals("log"))
-			System.out.println("log <file>\n\n" + "opens the specified file and uses it to log output\n");
+			System.out.println("log <file>\n\n"
+					+ "opens the specified file and uses it to log output\n");
 		else if (topic.equals("port"))
-			System.out.println("port <port>\n\n" + "UDP/TCP port messages are sent to (default: 53)\n");
+			System.out.println("port <port>\n\n"
+					+ "UDP/TCP port messages are sent to (default: 53)\n");
 		else if (topic.equals("prohibit"))
-			System.out.println("prohibit <name> <type> \n" + "prohibit <name>\n\n"
+			System.out.println("prohibit <name> <type> \n"
+					+ "prohibit <name>\n\n"
 					+ "require that a set or name is not present\n");
 		else if (topic.equals("query"))
-			System.out.println("query <name> [type [class]] \n\n" + "issues a query\n");
+			System.out.println("query <name> [type [class]] \n\n"
+					+ "issues a query\n");
 		else if (topic.equals("q") || topic.equals("quit"))
 			System.out.println("quit\n\n" + "quits the program\n");
 		else if (topic.equals("require"))
-			System.out.println("require <name> [ttl] [class] <type> <data> \n" + "require <name> <type> \n"
-					+ "require <name>\n\n" + "require that a record, set, or name is present\n");
+			System.out.println("require <name> [ttl] [class] <type> <data> \n"
+					+ "require <name> <type> \n" + "require <name>\n\n"
+					+ "require that a record, set, or name is present\n");
 		else if (topic.equals("send"))
-			System.out.println("send\n\n" + "sends and resets the current update packet\n");
+			System.out.println("send\n\n"
+					+ "sends and resets the current update packet\n");
 		else if (topic.equals("server"))
-			System.out.println("server <name> [port]\n\n" + "server that receives send updates/queries\n");
+			System.out.println("server <name> [port]\n\n"
+					+ "server that receives send updates/queries\n");
 		else if (topic.equals("show"))
-			System.out.println("show\n\n" + "shows the current update packet\n");
+			System.out
+					.println("show\n\n" + "shows the current update packet\n");
 		else if (topic.equals("sleep"))
-			System.out.println("sleep <milliseconds>\n\n" + "pause for interval before next command\n");
+			System.out.println("sleep <milliseconds>\n\n"
+					+ "pause for interval before next command\n");
 		else if (topic.equals("tcp"))
-			System.out.println("tcp\n\n" + "TCP should be used to send all messages\n");
+			System.out.println("tcp\n\n"
+					+ "TCP should be used to send all messages\n");
 		else if (topic.equals("ttl"))
-			System.out.println("ttl <ttl>\n\n" + "default ttl of added records (default: 0)\n");
+			System.out.println("ttl <ttl>\n\n"
+					+ "default ttl of added records (default: 0)\n");
 		else if (topic.equals("zone") || topic.equals("origin"))
-			System.out.println("zone <zone>\n\n" + "zone to update (default: .\n");
+			System.out.println("zone <zone>\n\n"
+					+ "zone to update (default: .\n");
 		else if (topic.equals("#"))
 			System.out.println("# <text>\n\n" + "a comment\n");
 		else
