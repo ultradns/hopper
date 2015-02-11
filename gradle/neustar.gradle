@@ -137,11 +137,11 @@ allprojects {
   }
     
   // Upload to ultra maven repo ( Ultra Nexus )
-  task uploadArchivesToUltraNexus (type: Upload, dependsOn: jar) {
+  task publishToNexus (type: Upload, dependsOn: jar) {
     configuration = configurations.uploadJar
     repositories.mavenDeployer {
       configuration = configurations.uploadJar
-      repository(url: "http://stulhdebuild3.ultra.neustar.com:8081/nexus" + "/content/repositories/releases") {
+      repository(url: repoBaseUrl + "/content/repositories/releases") {
         authentication(userName: rootProject.ldapUsername, password: rootProject.ldapPassword)
       }
     }
