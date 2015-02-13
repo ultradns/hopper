@@ -503,7 +503,7 @@ public class Update {
 		} else if ((section = Section.value(field)) >= 0) {
 			int count = response.getHeader().getCount(section);
 			if (count != Integer.parseInt(expected)) {
-				value = new Integer(count).toString();
+				value = String.valueOf(count);
 				flag = false;
 			}
 		} else

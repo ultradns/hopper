@@ -200,6 +200,10 @@ public class AddressTest extends TestCase {
 				(byte) 0, (byte) 0xC0, (byte) 0xA8, (byte) 0x59, (byte) 0x09 };
 		ret = Address.toByteArray("::192.168.89.9", Address.IPv6);
 		assertEquals(exp, ret);
+		
+		exp = new byte[] { (byte)108, (byte)162, (byte)204, (byte)31 };
+		ret = Address.toByteArray("0000:0000:0000:0000:0000:FFFF:6CA2:CC1F", Address.IPv6);
+		assertEquals(exp, ret);
 	}
 
 	public void test_toByteArray_IPv6_invalid() {

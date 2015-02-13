@@ -121,7 +121,7 @@ public class JNamed {
 			}
 
 			if (ports.size() == 0)
-				ports.add(new Integer(53));
+				ports.add(53);
 
 			if (addresses.size() == 0)
 				addresses.add(Address.getByAddress("0.0.0.0"));
@@ -139,7 +139,7 @@ public class JNamed {
 			}
 			System.out.println("jnamed: running");
 		} finally {
-			fs.close();
+			br.close();
 		}
 	}
 
