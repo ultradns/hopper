@@ -6,6 +6,7 @@ import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
 
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.message.Name;
@@ -15,7 +16,10 @@ import biz.neustar.hopper.record.PTRRecord;
 import biz.neustar.hopper.record.Record;
 import biz.neustar.hopper.resolver.Lookup;
 import biz.neustar.hopper.util.ReverseMap;
+
 import org.apache.commons.validator.routines.InetAddressValidator;
+
+import com.google.common.net.InetAddresses;
 
 /**
  * Routines dealing with IP addresses. Includes functions similar to those in
@@ -44,6 +48,9 @@ public final class Address {
 		if (InetAddressValidator.getInstance().isValidInet6Address(s)
 				|| InetAddressValidator.getInstance().isValidInet4Address(s)) {
 			try {
+				if(InetAddresses.isMappedIPv4Address(s)) {
+					return getMappedAddress(s);
+				}
 				InetAddress addr = InetAddress.getByName(s);
 				return addr.getAddress();
 			} catch (UnknownHostException e) {
@@ -53,6 +60,28 @@ public final class Address {
 		} else {
 			return null;
 		}
+	}
+	
+	/**
+	 * By default, Java parses IPv4 mapped IPv6 addresses to Inet4Address
+	 * However, our AAAA records only take Inet6Address records
+	 * So we're doctoring a byte array to get an Inet6Address from an
+	 * IPv4 mapped IPv6 address.  Kind of a hack.
+	 * @param s - the IPv4 mapped IPv6 address in string form
+	 * @return A 16 byte array containing the IPv6 address
+	 */
+	private static byte[] getMappedAddress(String s) {
+		byte [] addr = new byte[16];
+		Arrays.fill(addr, (byte)0);
+		addr[10] = (byte)0xF;
+		addr[11] = (byte)0xF;
+		try {
+			InetAddress inet = InetAddress.getByName(s);
+			System.arraycopy(inet.getAddress(), 0, addr, 12, 4); 			
+		} catch (UnknownHostException e){
+			//should never be thrown
+		}
+		return addr;
 	}
 
 	/**

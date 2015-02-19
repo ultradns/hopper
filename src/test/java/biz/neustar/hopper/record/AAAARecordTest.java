@@ -39,6 +39,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
+import org.junit.Assert;
+
 import junit.framework.TestCase;
 import biz.neustar.hopper.exception.RelativeNameException;
 import biz.neustar.hopper.exception.TextParseException;
@@ -47,108 +49,120 @@ import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
+import biz.neustar.hopper.record.impl.Address;
 import biz.neustar.hopper.util.Tokenizer;
 
 public class AAAARecordTest extends TestCase {
-    Name m_an, m_rn;
-    InetAddress m_addr;
-    String m_addr_string;
-    byte[] m_addr_bytes;
-    long m_ttl;
+	Name m_an, m_rn;
+	InetAddress m_addr;
+	String m_addr_string;
+	byte[] m_addr_bytes;
+	long m_ttl;
 
-    protected void setUp() throws TextParseException, UnknownHostException {
-        m_an = Name.fromString("My.Absolute.Name.");
-        m_rn = Name.fromString("My.Relative.Name");
-        m_addr_string = "2001:db8:85a3:8d3:1319:8a2e:370:7334";
-        m_addr = InetAddress.getByName(m_addr_string);
-        m_addr_bytes = m_addr.getAddress();
-        m_ttl = 0x13579;
-    }
+	protected void setUp() throws TextParseException, UnknownHostException {
+		m_an = Name.fromString("My.Absolute.Name.");
+		m_rn = Name.fromString("My.Relative.Name");
+		m_addr_string = "2001:db8:85a3:8d3:1319:8a2e:370:7334";
+		m_addr = InetAddress.getByName(m_addr_string);
+		m_addr_bytes = m_addr.getAddress();
+		m_ttl = 0x13579;
+	}
 
-    public void test_ctor_0arg() throws UnknownHostException {
-        AAAARecord ar = new AAAARecord();
-        assertNull(ar.getName());
-        assertEquals(0, ar.getType());
-        assertNull(ar.getDClass());
-        assertEquals(0, ar.getTTL());
-        assertNull(ar.getAddress());
-    }
+	public void test_rrFromWire_IPV4_MappedAddress() throws IOException {
+		// Make sure we have an IPV6 address even when passed an address that
+		// has an IPV4 representation
+		String ipv4MappedStr = "::FFFF:12.23.4.5";
+		byte[] wireFormat = Address.toByteArray(ipv4MappedStr, Address.IPv6);
+		DNSInput di = new DNSInput(wireFormat);
+		AAAARecord ar = new AAAARecord();
+		ar.rrFromWire(di);
+		Assert.assertArrayEquals(wireFormat, ar.getAddress().getAddress());
+	}
 
-    public void test_getObject() {
-        AAAARecord ar = new AAAARecord();
-        Record r = ar.getObject();
-        assertTrue(r instanceof AAAARecord);
-    }
+	public void test_ctor_0arg() throws UnknownHostException {
+		AAAARecord ar = new AAAARecord();
+		assertNull(ar.getName());
+		assertEquals(0, ar.getType());
+		assertNull(ar.getDClass());
+		assertEquals(0, ar.getTTL());
+		assertNull(ar.getAddress());
+	}
 
-    public void test_ctor_4arg() {
-        AAAARecord ar = new AAAARecord(m_an, DClass.IN, m_ttl, m_addr);
-        assertEquals(m_an, ar.getName());
-        assertEquals(Type.AAAA, ar.getType());
-        assertEquals(DClass.IN, ar.getDClass());
-        assertEquals(m_ttl, ar.getTTL());
-        assertEquals(m_addr, ar.getAddress());
+	public void test_getObject() {
+		AAAARecord ar = new AAAARecord();
+		Record r = ar.getObject();
+		assertTrue(r instanceof AAAARecord);
+	}
 
-        // a relative name
-        try {
-            new AAAARecord(m_rn, DClass.IN, m_ttl, m_addr);
-            fail("RelativeNameException not thrown");
-        } catch (RelativeNameException e) {
-        }
+	public void test_ctor_4arg() {
+		AAAARecord ar = new AAAARecord(m_an, DClass.IN, m_ttl, m_addr);
+		assertEquals(m_an, ar.getName());
+		assertEquals(Type.AAAA, ar.getType());
+		assertEquals(DClass.IN, ar.getDClass());
+		assertEquals(m_ttl, ar.getTTL());
+		assertEquals(m_addr, ar.getAddress());
 
-        // an IPv4 address
-        try {
-            new AAAARecord(m_an, DClass.IN, m_ttl,
-                    InetAddress.getByName("192.168.0.1"));
-            fail("IllegalArgumentException not thrown");
-        } catch (IllegalArgumentException e) {
-        } catch (UnknownHostException e) {
-            fail(e.getMessage());
-        }
-    }
+		// a relative name
+		try {
+			new AAAARecord(m_rn, DClass.IN, m_ttl, m_addr);
+			fail("RelativeNameException not thrown");
+		} catch (RelativeNameException e) {
+		}
 
-    public void test_rrFromWire() throws IOException {
-        DNSInput di = new DNSInput(m_addr_bytes);
-        AAAARecord ar = new AAAARecord();
+		// an IPv4 address
+		try {
+			new AAAARecord(m_an, DClass.IN, m_ttl,
+					InetAddress.getByName("192.168.0.1"));
+			fail("IllegalArgumentException not thrown");
+		} catch (IllegalArgumentException e) {
+		} catch (UnknownHostException e) {
+			fail(e.getMessage());
+		}
+	}
 
-        ar.rrFromWire(di);
+	public void test_rrFromWire() throws IOException {
+		DNSInput di = new DNSInput(m_addr_bytes);
+		AAAARecord ar = new AAAARecord();
 
-        assertEquals(m_addr, ar.getAddress());
-    }
+		ar.rrFromWire(di);
 
-    public void test_rdataFromString() throws IOException {
-        Tokenizer t = new Tokenizer(m_addr_string);
-        AAAARecord ar = new AAAARecord();
+		assertEquals(m_addr, ar.getAddress());
+	}
 
-        ar.rdataFromString(t, null);
+	public void test_rdataFromString() throws IOException {
+		Tokenizer t = new Tokenizer(m_addr_string);
+		AAAARecord ar = new AAAARecord();
 
-        assertEquals(m_addr, ar.getAddress());
+		ar.rdataFromString(t, null);
 
-        // invalid address
-        t = new Tokenizer("193.160.232.1");
-        ar = new AAAARecord();
-        try {
-            ar.rdataFromString(t, null);
-            fail("IllegalArgumentException not thrown");
-        } catch (IllegalArgumentException e) {
-        }
-    }
+		assertEquals(m_addr, ar.getAddress());
 
-    public void test_rrToString() {
-        AAAARecord ar = new AAAARecord(m_an, DClass.IN, m_ttl, m_addr);
-        assertEquals(m_addr_string, ar.rrToString());
-    }
+		// invalid address
+		t = new Tokenizer("193.160.232.1");
+		ar = new AAAARecord();
+		try {
+			ar.rdataFromString(t, null);
+			fail("IllegalArgumentException not thrown");
+		} catch (IllegalArgumentException e) {
+		}
+	}
 
-    public void test_rrToWire() {
-        AAAARecord ar = new AAAARecord(m_an, DClass.IN, m_ttl, m_addr);
+	public void test_rrToString() {
+		AAAARecord ar = new AAAARecord(m_an, DClass.IN, m_ttl, m_addr);
+		assertEquals(m_addr_string, ar.rrToString());
+	}
 
-        // canonical
-        DNSOutput dout = new DNSOutput();
-        ar.rrToWire(dout, null, true);
-        assertTrue(Arrays.equals(m_addr_bytes, dout.toByteArray()));
+	public void test_rrToWire() {
+		AAAARecord ar = new AAAARecord(m_an, DClass.IN, m_ttl, m_addr);
 
-        // case sensitive
-        dout = new DNSOutput();
-        ar.rrToWire(dout, null, false);
-        assertTrue(Arrays.equals(m_addr_bytes, dout.toByteArray()));
-    }
+		// canonical
+		DNSOutput dout = new DNSOutput();
+		ar.rrToWire(dout, null, true);
+		assertTrue(Arrays.equals(m_addr_bytes, dout.toByteArray()));
+
+		// case sensitive
+		dout = new DNSOutput();
+		ar.rrToWire(dout, null, false);
+		assertTrue(Arrays.equals(m_addr_bytes, dout.toByteArray()));
+	}
 }

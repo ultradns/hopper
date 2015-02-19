@@ -201,11 +201,15 @@ public class AddressTest extends TestCase {
 		ret = Address.toByteArray("::192.168.89.9", Address.IPv6);
 		assertEquals(exp, ret);
 		
-		exp = new byte[] { (byte)108, (byte)162, (byte)204, (byte)31 };
+		exp = new byte[] {(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+				(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0xF,
+				(byte) 0xF,  (byte)108, (byte)162, (byte)204, (byte)31 };
 		ret = Address.toByteArray("0000:0000:0000:0000:0000:FFFF:6CA2:CC1F", Address.IPv6);
 		assertEquals(exp, ret);
 		
-		exp = new byte[] { (byte)108, (byte)162, (byte)204, (byte)31 };
+		exp = new byte[] {(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
+				(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0xF,
+				(byte) 0xF,  (byte)108, (byte)162, (byte)204, (byte)31 };
 		ret = Address.toByteArray("::FFFF:6CA2:CC1F", Address.IPv6);
 		assertEquals(exp, ret);
 	}
