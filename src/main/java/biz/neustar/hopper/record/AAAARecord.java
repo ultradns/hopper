@@ -59,7 +59,8 @@ public class AAAARecord extends Record {
     }
 
     protected void rdataFromString(Tokenizer st, Name origin) throws IOException {
-        InetAddress shouldBeIPV6 = st.getAddress(Address.IPv6);
+    	String token = st.getString();
+    	InetAddress shouldBeIPV6 = Address.getByAddress(token, Address.IPv6);
         if (!(shouldBeIPV6 instanceof Inet6Address)) {
             throw new IllegalArgumentException("invalid IPv6 address");
         }
