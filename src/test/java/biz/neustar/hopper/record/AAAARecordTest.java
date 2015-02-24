@@ -56,6 +56,7 @@ public class AAAARecordTest extends TestCase {
 	Name m_an, m_rn;
 	InetAddress m_addr;
 	String m_addr_string;
+	private final String mappedIPv4 = "::FFFF:12.23.4.5";
 	byte[] m_addr_bytes;
 	long m_ttl;
 
@@ -145,6 +146,17 @@ public class AAAARecordTest extends TestCase {
 			fail("IllegalArgumentException not thrown");
 		} catch (IllegalArgumentException e) {
 		}
+		
+
+	}
+	
+	public void test_rdataFromStringIPv4Mapped() throws IOException {
+		Tokenizer t= new Tokenizer(mappedIPv4);
+		AAAARecord ar = new AAAARecord();
+		ar.rdataFromString(t, null);
+		
+		//Use canonical form for assertion
+		assertEquals("0:0:0:0:0:ffff:c17:405%0", ar.getAddress().getHostAddress());
 	}
 
 	public void test_rrToString() {

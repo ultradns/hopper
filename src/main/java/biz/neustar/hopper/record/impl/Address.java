@@ -73,8 +73,8 @@ public final class Address {
 	private static byte[] getMappedAddress(String s) {
 		byte [] addr = new byte[16];
 		Arrays.fill(addr, (byte)0);
-		addr[10] = (byte)0xF;
-		addr[11] = (byte)0xF;
+		addr[10] = (byte)0xFF;
+		addr[11] = (byte)0xFF;
 		try {
 			InetAddress inet = InetAddress.getByName(s);
 			System.arraycopy(inet.getAddress(), 0, addr, 12, 4); 			
@@ -249,12 +249,12 @@ public final class Address {
 			throws UnknownHostException {
 		byte[] bytes;
 		bytes = toByteArray(addr, IPv4);
-		if (bytes != null) {
+		if (bytes != null && bytes.length == 4) {
 			return InetAddress.getByAddress(bytes);
 		}
 		bytes = toByteArray(addr, IPv6);
-		if (bytes != null) {
-			return InetAddress.getByAddress(bytes);
+		if (bytes != null && bytes.length == 16) {
+			return Inet6Address.getByAddress(null, bytes, 0);
 		}
 		throw new UnknownHostException("Invalid address: " + addr);
 	}
@@ -279,8 +279,10 @@ public final class Address {
 		}
 		byte[] bytes;
 		bytes = toByteArray(addr, family);
-		if (bytes != null) {
+		if (bytes != null && bytes.length == 4) {
 			return InetAddress.getByAddress(bytes);
+		} else if (bytes != null && bytes.length == 16) {
+			return Inet6Address.getByAddress(null, bytes, 0);
 		}
 		throw new UnknownHostException("Invalid address: " + addr);
 	}
