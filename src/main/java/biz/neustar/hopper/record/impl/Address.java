@@ -282,7 +282,7 @@ public final class Address {
 		if (bytes != null && bytes.length == 4) {
 			return InetAddress.getByAddress(bytes);
 		} else if (bytes != null && bytes.length == 16) {
-			return Inet6Address.getByAddress(null, bytes, 0);
+			return Inet6Address.getByAddress(null, bytes, null);
 		}
 		throw new UnknownHostException("Invalid address: " + addr);
 	}
