@@ -62,7 +62,7 @@ public class AAAARecord extends Record {
     	String token = st.getString();
     	InetAddress shouldBeIPV6 = Address.getByAddress(token, Address.IPv6);
         if (!(shouldBeIPV6 instanceof Inet6Address)) {
-            throw new IllegalArgumentException("invalid IPv6 address");
+            throw new IllegalArgumentException("invalid IPv6 address " + shouldBeIPV6.toString());
         }
         address = (Inet6Address) shouldBeIPV6;
     }
