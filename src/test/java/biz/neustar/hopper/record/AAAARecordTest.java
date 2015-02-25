@@ -156,7 +156,7 @@ public class AAAARecordTest extends TestCase {
 		ar.rdataFromString(t, null);
 		
 		//Use canonical form for assertion
-		assertEquals("0:0:0:0:0:ffff:c17:405%0", ar.getAddress().getHostAddress());
+		assertEquals("0:0:0:0:0:ffff:c17:405", ar.getAddress().getHostAddress());
 	}
 
 	public void test_rrToString() {
