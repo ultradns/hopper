@@ -69,9 +69,6 @@ public class BytePresentationFormat {
                 } else if (digits > 0 && digits < 3) {
                     throw new TextParseException("'" + input
                         + "': bad escape-insufficient digits.");
-                } else if (!ArrayUtils.contains(specialCharacters, (char) b)) {
-                    throw new TextParseException("'" + input
-                        + "': bad escape-not a special character.");
                 }
                 octets[octetsLength++] = b;
                 escaped = false;
