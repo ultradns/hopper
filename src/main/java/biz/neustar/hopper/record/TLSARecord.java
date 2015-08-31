@@ -9,6 +9,7 @@
 package biz.neustar.hopper.record;
 
 import java.io.IOException;
+import java.util.Locale;
 
 import biz.neustar.hopper.exception.TextParseException;
 import biz.neustar.hopper.message.Compression;
@@ -47,7 +48,7 @@ public class TLSARecord extends Record {
     public TLSARecord() {
     }
 
-    public TLSARecord(Name name, DClass dlcass, long ttl, int certUsage,
+    public TLSARecord(Name name, DClass dclass, long ttl, int certUsage,
             int selector, int matchingType, String certAssocData) 
             throws TextParseException {
         super(name, Type.TLSA, dclass, ttl);
@@ -91,7 +92,7 @@ public class TLSARecord extends Record {
     }
 
     public String getCertAssocDataPresentationFormat() {
-        return Hex.encode(certAssocData);
+        return Hex.encode(certAssocData).toLowerCase(Locale.US);
     }
 
     public byte[] getCertAssocData() {
@@ -124,6 +125,6 @@ public class TLSARecord extends Record {
         out.writeU8(certUsage);
         out.writeU8(selector);
         out.writeU8(matchingType);
-        out.writeByteArray(certUsageData);
+        out.writeByteArray(certAssocData);
     }
 }
