@@ -1,3 +1,6 @@
+8/25/2015
+    - Added TLSA record support.
+
 6/9/2011
 	- TypeBitmap.toString() failed if no bits were set.
 	  (patch from Jeffrey Damick <Jeffrey.Damick@neustar.biz>)
@@ -606,7 +609,7 @@
 	  constructors with new versions that properly return exceptions.
 
 12/6/2003
-	- Make the J2SE javadoc link a property in build.xml.  (Ville Skyttä)
+	- Make the J2SE javadoc link a property in build.xml.  (Ville Skyttï¿½)
 
 11/24/2003
 	- Lookup should check that the name, type, and class in the question
