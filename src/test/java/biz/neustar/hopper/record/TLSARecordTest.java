@@ -42,7 +42,7 @@ public class TLSARecordTest extends TestCase {
 	
 	byte[] wireFormat = tlsaRecord.rdataToWireCanonical();
 	Assert.assertArrayEquals(expectedWireFormat, wireFormat);
-	Assert.assertEquals("tlsa.com.    120  IN  TLSA  3 1 2 aabbccddeeff", tlsaRecord.toString().replaceAll("\t", "  "));
+	Assert.assertEquals("tlsa.com. 120 IN TLSA 3 1 2 aabbccddeeff", tlsaRecord.toString().replaceAll("\\s+", " "));
     }
 
     public void test_tokenizer() throws IOException {
