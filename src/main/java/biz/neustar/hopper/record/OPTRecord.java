@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import biz.neustar.hopper.message.Compression;
+import biz.neustar.hopper.message.DClass;
 import biz.neustar.hopper.message.DNSInput;
 import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.EDNSOption;
@@ -73,14 +74,14 @@ public class OPTRecord extends Record {
     public OPTRecord(int payloadSize, int xrcode, int version, int flags,
             List<EDNSOption> options) {
 
-        super(Name.root, Type.OPT, null, 0);
+        super(Name.root, Type.OPT, DClass.valueOf(payloadSize),
+                ((long) xrcode << 24) + ((long) version << 16) + flags);
         this.payloadSize = payloadSize;
         
         checkU16("payloadSize", payloadSize);
         checkU8("xrcode", xrcode);
         checkU8("version", version);
         checkU16("flags", flags);
-        setTTL(((long) xrcode << 24) + ((long) version << 16) + flags);
         if (options != null) {
             this.options = new ArrayList<EDNSOption>(options);
         }
@@ -116,6 +117,7 @@ public class OPTRecord extends Record {
     }
 
     protected void rrFromWire(DNSInput in) throws IOException {
+        this.payloadSize = this.dclass.getValue();
         if (in.remaining() > 0) {
             options = new ArrayList<EDNSOption>();
         }
