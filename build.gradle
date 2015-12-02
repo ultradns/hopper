@@ -6,6 +6,8 @@ allprojects {
   version = '0.1.0'
 }
 
+apply plugin: 'eclipse'
+
 // apply the common neustar gradle tasks to setup artifact repos, etc.
 apply from: file('gradle/neustar.gradle')
 

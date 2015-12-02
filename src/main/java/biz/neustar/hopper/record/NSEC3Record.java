@@ -71,7 +71,8 @@ public class NSEC3Record extends Record {
     public NSEC3Record() {
     }
 
-    protected Record getObject() {
+    @Override
+	protected Record getObject() {
         return new NSEC3Record();
     }
 
@@ -123,7 +124,8 @@ public class NSEC3Record extends Record {
         this.types = new TypeBitmap(types);
     }
 
-    protected void rrFromWire(DNSInput in) throws IOException {
+    @Override
+	protected void rrFromWire(DNSInput in) throws IOException {
         hashAlg = in.readU8();
         flags = in.readU8();
         iterations = in.readU16();
@@ -140,7 +142,8 @@ public class NSEC3Record extends Record {
         types = new TypeBitmap(in);
     }
 
-    public void rrToWire(DNSOutput out, Compression c, boolean canonical) {
+    @Override
+	public void rrToWire(DNSOutput out, Compression c, boolean canonical) {
         out.writeU8(hashAlg);
         out.writeU8(flags);
         out.writeU16(iterations);
@@ -157,7 +160,8 @@ public class NSEC3Record extends Record {
         types.toWire(out);
     }
 
-    protected void rdataFromString(Tokenizer st, Name origin) throws IOException {
+    @Override
+	protected void rdataFromString(Tokenizer st, Name origin) throws IOException {
         hashAlg = st.getUInt8();
         flags = st.getUInt8();
         iterations = st.getUInt16();
@@ -178,7 +182,8 @@ public class NSEC3Record extends Record {
     }
 
     /** Converts rdata to a String */
-    public String rrToString() {
+    @Override
+	public String rrToString() {
         StringBuffer sb = new StringBuffer();
         sb.append(hashAlg);
         sb.append(' ');

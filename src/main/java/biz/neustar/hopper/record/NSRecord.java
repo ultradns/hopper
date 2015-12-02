@@ -20,7 +20,8 @@ public class NSRecord extends SingleCompressedNameBase {
     public NSRecord() {
     }
 
-    protected Record getObject() {
+    @Override
+	protected Record getObject() {
         return new NSRecord();
     }
 
@@ -39,7 +40,8 @@ public class NSRecord extends SingleCompressedNameBase {
         return getSingleName();
     }
 
-    public Name getAdditionalName() {
+    @Override
+	public Name getAdditionalName() {
         return getSingleName();
     }
 

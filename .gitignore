@@ -12,6 +12,9 @@ lib/default
 .gradle
 .settings
 tmp
+build.gradle
+neustar.properties
+.gitignore
 
 lib/nio/logback-classic.jar
 
@@ -23,3 +26,5 @@ lib/nio/slf4j-api.jar
 .idea
 *.iml
 out/
+/bin/
+/build-eclipse/

@@ -35,7 +35,8 @@ public class NSECRecord extends Record {
     public NSECRecord() {
     }
 
-    protected Record getObject() {
+    @Override
+	protected Record getObject() {
         return new NSECRecord();
     }
 
@@ -56,25 +57,29 @@ public class NSECRecord extends Record {
         this.types = new TypeBitmap(types);
     }
 
-    protected void rrFromWire(DNSInput in) throws IOException {
+    @Override
+	protected void rrFromWire(DNSInput in) throws IOException {
         next = new Name(in);
         types = new TypeBitmap(in);
     }
 
-    public void rrToWire(DNSOutput out, Compression c, boolean canonical) {
+    @Override
+	public void rrToWire(DNSOutput out, Compression c, boolean canonical) {
         // Note: The next name is not lowercased.
         next.toWire(out, null, false);
         types.toWire(out);
     }
 
-    protected void rdataFromString(Tokenizer st, Name origin)
+    @Override
+	protected void rdataFromString(Tokenizer st, Name origin)
             throws IOException {
         next = st.getName(origin);
         types = new TypeBitmap(st);
     }
 
     /** Converts rdata to a String */
-    public String rrToString() {
+    @Override
+	public String rrToString() {
         StringBuffer sb = new StringBuffer();
         sb.append(next);
         if (!types.empty()) {

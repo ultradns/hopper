@@ -29,7 +29,8 @@ public class RRSIGRecord extends SIGBase {
     public RRSIGRecord() {
     }
 
-    protected Record getObject() {
+    @Override
+	protected Record getObject() {
         return new RRSIGRecord();
     }
 
