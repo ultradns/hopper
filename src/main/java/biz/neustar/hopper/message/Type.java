@@ -10,6 +10,7 @@ import biz.neustar.hopper.record.AAAARecord;
 import biz.neustar.hopper.record.AFSDBRecord;
 import biz.neustar.hopper.record.APLRecord;
 import biz.neustar.hopper.record.ARecord;
+import biz.neustar.hopper.record.CAARecord;
 import biz.neustar.hopper.record.CERTRecord;
 import biz.neustar.hopper.record.CNAMERecord;
 import biz.neustar.hopper.record.DHCIDRecord;
@@ -53,6 +54,7 @@ import biz.neustar.hopper.record.SPFRecord;
 import biz.neustar.hopper.record.SRVRecord;
 import biz.neustar.hopper.record.SSHFPRecord;
 import biz.neustar.hopper.record.TKEYRecord;
+import biz.neustar.hopper.record.TLSARecord;
 import biz.neustar.hopper.record.TSIGRecord;
 import biz.neustar.hopper.record.TXTRecord;
 import biz.neustar.hopper.record.WKSRecord;
@@ -216,6 +218,9 @@ public final class Type {
     public static final int NSEC3 = 50;
 
     public static final int NSEC3PARAM = 51;
+    
+    /** TLSA (DANE) record */
+    public static final int TLSA = 52;
 
     /** Sender Policy Framework (experimental) */
     public static final int SPF = 99;
@@ -240,6 +245,9 @@ public final class Type {
 
     /** Matches any type */
     public static final int ANY = 255;
+
+    /** Certification Authority Restriction type */
+    public static final int CAA = 257;
 
     /** DNSSEC Lookaside Validation, RFC 4431 . */
     public static final int DLV = 32769;
@@ -330,7 +338,9 @@ public final class Type {
         types.add(MAILB, "MAILB");
         types.add(MAILA, "MAILA");
         types.add(ANY, "ANY");
+        types.add(CAA, "CAA", new CAARecord());
         types.add(DLV, "DLV", new DLVRecord());
+        types.add(TLSA, "TLSA", new TLSARecord());
     }
 
     private Type() {

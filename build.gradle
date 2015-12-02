@@ -33,6 +33,7 @@ allprojects {
     // logging
     compile 'org.slf4j:slf4j-api:1.7.+'
     compile 'commons-validator:commons-validator:1.4.+'
+    compile 'org.apache.commons:commons-lang3:3.4+'
     compile 'commons-collections:commons-collections:3.2.1'
     compile 'commons-cli:commons-cli:1.2'
     compile 'com.google.guava:guava:17.0'
