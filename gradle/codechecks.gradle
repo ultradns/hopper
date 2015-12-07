@@ -14,13 +14,14 @@ apply from: rootProject.file('gradle/jacoco.gradle')
 
 
 checkstyle {
-  // ignoreFailures = true
+  ignoreFailures = true
   configFile = rootProject.file('gradle/config/checkstyle.xml')
 }
 // exclude the checkstyle, findbugsTest, pmdTest on test source.. 
 gradle.startParameter.excludedTaskNames += ["checkstyleTest", "findbugsTest", "pmdTest"]
 
 pmd {
+  ignoreFailures = true
   ruleSetFiles = rootProject.files('gradle/config/pmd.xml')
 }
 
