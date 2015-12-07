@@ -1,0 +1,44 @@
+/**
+ * Copyright 2012-2013 NeuStar, Inc. All rights reserved.
+ * NeuStar, the Neustar logo and related names and logos are registered
+ * trademarks, service marks or tradenames of NeuStar, Inc. All other
+ * product names, company names, marks, logos and symbols may be trademarks
+ * of their respective owners.
+ */
+
+package biz.neustar.@projectNameLower@;
+
+import biz.neustar.dropwizard.core.recipes.BasicInitializer;
+import com.yammer.dropwizard.Service;
+import com.yammer.dropwizard.config.Bootstrap;
+import com.yammer.dropwizard.config.Environment;
+
+
+/**
+ * Service for @projectName.
+ */
+public class @projectNameCamel@Service extends Service<@projectNameCamel@Configuration> {
+
+    /**
+     * Main entry point to start the service.
+     */
+    public static void main(String[] args) throws Exception {
+        new @projectNameCamel@Service().run(args);
+    }
+    
+    @Override
+    public void initialize(Bootstrap<@projectNameCamel@Configuration> bootstrap) {
+        bootstrap.setName("@projectName@");
+        BasicInitializer.bootstrap(this, bootstrap);
+        
+        // TODO: ?
+    }
+
+    @Override
+    public void run(@projectNameCamel@Configuration configuration,
+                    Environment environment) {
+
+        // TODO: add resources here
+    }
+
+}

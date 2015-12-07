@@ -1,6 +1,9 @@
 // Hopper
 /////////
 
+plugins {
+	id "com.github.samueltbrown.cucumber" version "0.9"
+}
 
 allprojects {
   version = '0.1.0'

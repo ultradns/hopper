@@ -1,0 +1,32 @@
+// Customize this file for your project as needed
+/////////////////////////////////////////////////
+
+// If you rename your packages, feel free to rename this..
+mainClassName = ext.serviceClassName
+
+// Add dependencies below..
+// For help with gradle, consult: http://www.gradle.org/docs/current/userguide/userguide_single.html
+dependencies {
+  compile project(':@projectNameLower@-api')
+  compile project(':@projectNameLower@-client')
+
+  // dropwizard
+  compile "com.yammer.dropwizard:dropwizard-core:$dropwizVer"
+  compile "com.yammer.dropwizard:dropwizard-client:$dropwizVer" // should provide a client
+  compile "com.yammer.dropwizard:dropwizard-migrations:$dropwizVer" // optional if you have a DB, use this.
+  compile "com.yammer.dropwizard:dropwizard-db:$dropwizVer" // optional
+  // compile 'com.yammer.dropwizard:dropwizard-hibernate:$dropwizVer" // optional
+  // compile 'com.yammer.dropwizard:dropwizard-jdbi:$dropwizVer" // optional
+  compile "com.yammer.dropwizard:dropwizard-views:$dropwizVer"
+  compile "com.yammer.dropwizard:dropwizard-auth:$dropwizVer"
+
+  testCompile "com.yammer.dropwizard:dropwizard-testing:$dropwizVer"
+
+  // utilities
+  compile 'com.google.guava:guava:14.0.+'
+  
+  // neustar goodies
+  // TODO:
+  compile "biz.neustar:dropwizard-misc:$dropwizAddonsVer"
+}
+

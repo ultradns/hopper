@@ -275,7 +275,7 @@ public final class Lookup {
      *            The type of the desired records
      * @throws IllegalArgumentException
      *             The type is a meta type other than ANY.
-     * @see #Lookup(Name,int,int)
+     * @see #Lookup(Name,int,DClass)
      */
     public Lookup(Name name, int type) {
         this(name, type, DClass.IN);
@@ -287,7 +287,7 @@ public final class Lookup {
      * 
      * @param name
      *            The name of the desired records
-     * @see #Lookup(Name,int,int)
+     * @see #Lookup(Name,int,DClass)
      */
     public Lookup(Name name) {
         this(name, Type.A, DClass.IN);
@@ -307,7 +307,7 @@ public final class Lookup {
      *             The name is not a valid DNS name
      * @throws IllegalArgumentException
      *             The type is a meta type other than ANY.
-     * @see #Lookup(Name,int,int)
+     * @see #Lookup(String,int,DClass)
      */
     public Lookup(String name, int type, DClass dclass) throws TextParseException {
         this(Name.fromString(name), type, dclass);
@@ -325,7 +325,7 @@ public final class Lookup {
      *             The name is not a valid DNS name
      * @throws IllegalArgumentException
      *             The type is a meta type other than ANY.
-     * @see #Lookup(Name,int,int)
+     * @see #Lookup(Name,int,DClass)
      */
     public Lookup(String name, int type) throws TextParseException {
         this(Name.fromString(name), type, DClass.IN);
@@ -339,7 +339,7 @@ public final class Lookup {
      *            The name of the desired records
      * @throws TextParseException
      *             The name is not a valid DNS name
-     * @see #Lookup(Name,int,int)
+     * @see #Lookup(Name,int,DClass)
      */
     public Lookup(String name) throws TextParseException {
         this(Name.fromString(name), Type.A, DClass.IN);

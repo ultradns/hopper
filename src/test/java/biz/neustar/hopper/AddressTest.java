@@ -34,25 +34,37 @@
 //
 package biz.neustar.hopper;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 
-import junit.framework.TestCase;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
+
 import biz.neustar.hopper.record.impl.Address;
 
-public class AddressTest extends TestCase {
-	private void assertEquals(byte[] exp, byte[] act) {
+@RunWith(JUnit4.class)
+public class AddressTest {
+	private void assertEqualsBA(byte[] exp, byte[] act) {
 		assertTrue(Arrays.equals(exp, act));
 	}
 
-	private void assertEquals(int[] exp, int[] act) {
+	private void assertEqualsIA(int[] exp, int[] act) {
 		assertEquals(exp.length, act.length);
 		for (int i = 0; i < exp.length; ++i) {
 			assertEquals("i=" + i, exp[i], act[i]);
 		}
 	}
 
+	@Test
 	public void test_toByteArray_invalid() {
 		try {
 			Address.toByteArray("doesn't matter", 3);
@@ -61,19 +73,21 @@ public class AddressTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void test_toByteArray_IPv4() {
 		byte[] exp = new byte[] { (byte) 198, (byte) 121, (byte) 10, (byte) 234 };
 		byte[] ret = Address.toByteArray("198.121.10.234", Address.IPv4);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		exp = new byte[] { 0, 0, 0, 0 };
 		ret = Address.toByteArray("0.0.0.0", Address.IPv4);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		exp = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 		ret = Address.toByteArray("255.255.255.255", Address.IPv4);
 	}
 
+	@Test
 	public void test_toByteArray_IPv4_invalid() {
 		assertNull(Address.toByteArray("A.B.C.D", Address.IPv4));
 
@@ -111,7 +125,8 @@ public class AddressTest extends TestCase {
 
 		assertNull(Address.toByteArray("", Address.IPv4));
 	}
-
+	
+	@Test
 	public void test_toByteArray_IPv6() {
 		byte[] exp = new byte[] { (byte) 32, (byte) 1, (byte) 13, (byte) 184,
 				(byte) 133, (byte) 163, (byte) 8, (byte) 211, (byte) 19,
@@ -119,17 +134,17 @@ public class AddressTest extends TestCase {
 				(byte) 115, (byte) 52 };
 		byte[] ret = Address.toByteArray(
 				"2001:0db8:85a3:08d3:1319:8a2e:0370:7334", Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 		ret = Address.toByteArray("2001:db8:85a3:8d3:1319:8a2e:370:7334",
 				Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 		ret = Address.toByteArray("2001:DB8:85A3:8D3:1319:8A2E:370:7334",
 				Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		exp = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 		ret = Address.toByteArray("0:0:0:0:0:0:0:0", Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		exp = new byte[] { (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
@@ -137,7 +152,7 @@ public class AddressTest extends TestCase {
 				(byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
 		ret = Address.toByteArray("FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF:FFFF",
 				Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		exp = new byte[] { (byte) 32, (byte) 1, (byte) 13, (byte) 184,
 				(byte) 0, (byte) 0, (byte) 8, (byte) 211, (byte) 19, (byte) 25,
@@ -145,11 +160,11 @@ public class AddressTest extends TestCase {
 				(byte) 52 };
 		ret = Address.toByteArray("2001:0db8:0000:08d3:1319:8a2e:0370:7334",
 				Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		ret = Address.toByteArray("2001:0db8::08d3:1319:8a2e:0370:7334",
 				Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		exp = new byte[] { (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 133,
 				(byte) 163, (byte) 8, (byte) 211, (byte) 19, (byte) 25,
@@ -157,10 +172,10 @@ public class AddressTest extends TestCase {
 				(byte) 52 };
 		ret = Address.toByteArray("0000:0000:85a3:08d3:1319:8a2e:0370:7334",
 				Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 		ret = Address.toByteArray("::85a3:08d3:1319:8a2e:0370:7334",
 				Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		exp = new byte[] { (byte) 32, (byte) 1, (byte) 13, (byte) 184,
 				(byte) 133, (byte) 163, (byte) 8, (byte) 211, (byte) 19,
@@ -168,24 +183,24 @@ public class AddressTest extends TestCase {
 				(byte) 0 };
 		ret = Address.toByteArray("2001:0db8:85a3:08d3:1319:8a2e:0:0",
 				Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		ret = Address.toByteArray("2001:0db8:85a3:08d3:1319:8a2e::",
 				Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		exp = new byte[] { (byte) 32, (byte) 1, (byte) 13, (byte) 184,
 				(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
 				(byte) 0, (byte) 0, (byte) 3, (byte) 112, (byte) 115, (byte) 52 };
 		ret = Address.toByteArray("2001:0db8:0000:0000:0000:0000:0370:7334",
 				Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 		ret = Address.toByteArray("2001:0db8:0:0:0:0:0370:7334", Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 		ret = Address.toByteArray("2001:0db8::0:0370:7334", Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 		ret = Address.toByteArray("2001:db8::370:7334", Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		exp = new byte[] { (byte) 32, (byte) 1, (byte) 13, (byte) 184,
 				(byte) 133, (byte) 163, (byte) 8, (byte) 211, (byte) 19,
@@ -193,27 +208,28 @@ public class AddressTest extends TestCase {
 				(byte) 0x59, (byte) 0x09 };
 		ret = Address.toByteArray("2001:0db8:85a3:08d3:1319:8a2e:192.168.89.9",
 				Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		exp = new byte[] { (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
 				(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
 				(byte) 0, (byte) 0xC0, (byte) 0xA8, (byte) 0x59, (byte) 0x09 };
 		ret = Address.toByteArray("::192.168.89.9", Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 		
 		exp = new byte[] {(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
 				(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0xFF,
 				(byte) 0xFF,  (byte)108, (byte)162, (byte)204, (byte)31 };
 		ret = Address.toByteArray("0000:0000:0000:0000:0000:FFFF:6CA2:CC1F", Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 		
 		exp = new byte[] {(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0,
 				(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0xFF,
 				(byte) 0xFF,  (byte)108, (byte)162, (byte)204, (byte)31 };
 		ret = Address.toByteArray("::FFFF:6CA2:CC1F", Address.IPv6);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 	}
 
+	@Test
 	public void test_toByteArray_IPv6_invalid() {
 		// not enough groups
 		assertNull(Address.toByteArray("2001:0db8:85a3:08d3:1319:8a2e:0370",
@@ -242,31 +258,35 @@ public class AddressTest extends TestCase {
 
 	}
 
+	@Test
 	public void test_toArray() {
 		int[] exp = new int[] { 1, 2, 3, 4 };
 		int[] ret = Address.toArray("1.2.3.4", Address.IPv4);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		exp = new int[] { 0, 0, 0, 0 };
 		ret = Address.toArray("0.0.0.0", Address.IPv4);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 
 		exp = new int[] { 255, 255, 255, 255 };
 		ret = Address.toArray("255.255.255.255", Address.IPv4);
-		assertEquals(exp, ret);
+		assertTrue(Arrays.equals(exp, ret));
 	}
 
+	@Test
 	public void test_toArray_invalid() {
 		assertNull(Address.toArray("128.121.58.249.1", Address.IPv4));
 
 		assertNull(Address.toArray(""));
 	}
 
+	@Test
 	public void test_isDottedQuad() {
 		assertTrue(Address.isDottedQuad("1.2.3.4"));
 		assertFalse(Address.isDottedQuad("256.2.3.4"));
 	}
 
+	@Test
 	public void test_toDottedQuad() {
 		assertEquals(
 				"128.176.201.1",
@@ -277,6 +297,7 @@ public class AddressTest extends TestCase {
 				Address.toDottedQuad(new int[] { 200, 1, 255, 128 }));
 	}
 
+	@Test
 	public void test_addressLength() {
 		assertEquals(4, Address.addressLength(Address.IPv4));
 		assertEquals(16, Address.addressLength(Address.IPv6));
@@ -288,6 +309,9 @@ public class AddressTest extends TestCase {
 		}
 	}
 
+	@Ignore
+	@Test
+	//This host no longer exists, breaking this test
 	public void test_getByName() throws UnknownHostException {
 		InetAddress out = Address.getByName("128.145.198.231");
 		assertEquals("128.145.198.231", out.getHostAddress());
@@ -304,6 +328,7 @@ public class AddressTest extends TestCase {
 		assertTrue(expectedMatch);
 	}
 
+	@Test
 	public void test_getByName_invalid() throws UnknownHostException {
 		try {
 			Address.getByName("bogushost.com");
@@ -317,6 +342,9 @@ public class AddressTest extends TestCase {
 		}
 	}
 
+	@Ignore
+	@Test
+	//This host no longer exists, breaking this test
 	public void test_getAllByName() throws UnknownHostException {
 		InetAddress[] out = Address.getAllByName("128.145.198.231");
 		assertEquals(1, out.length);
@@ -340,6 +368,7 @@ public class AddressTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void test_getAllByName_invalid() throws UnknownHostException {
 		try {
 			Address.getAllByName("bogushost.com");
@@ -353,6 +382,7 @@ public class AddressTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void test_familyOf() throws UnknownHostException {
 		assertEquals(Address.IPv4,
 				Address.familyOf(InetAddress.getByName("192.168.0.1")));

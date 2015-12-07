@@ -7,7 +7,7 @@ package biz.neustar.hopper.resolver;
  * data's source. The constants NORMAL and ANY should be used by most callers.
  * 
  * @see Cache
- * @see Section
+ * @see biz.neustar.hopper.message.Section
  * 
  * @author Brian Wellington
  */

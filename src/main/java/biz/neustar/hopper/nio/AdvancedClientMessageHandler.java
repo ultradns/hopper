@@ -11,8 +11,9 @@ import biz.neustar.hopper.message.Message;
 /**
  * Handler definition for client side message processing.
  * <p>
- * Send a message by invoking {@link DnsClient#send(Message)}. When the server
- * responds the handleResponse method of this class is invoked.
+ * Send a message by invoking {@link DnsClient#sendTCP(Message)} or
+ * {@link DnsClient#sendUDP(Message)}. When the server responds the
+ * handleResponse method of this class is invoked.
  * </p>
  */
 public interface AdvancedClientMessageHandler {

@@ -8,24 +8,36 @@
  
 // checks
 apply plugin: 'findbugs'
-//apply plugin: 'pmd'
+apply plugin: 'pmd'
 apply plugin: 'checkstyle'  
-apply from: file('gradle/jacoco.gradle')
+apply from: rootProject.file('gradle/jacoco.gradle')
+
 
 checkstyle {
-  ignoreFailures = true
+  // ignoreFailures = true
   configFile = rootProject.file('gradle/config/checkstyle.xml')
 }
-
 // exclude the checkstyle, findbugsTest, pmdTest on test source.. 
-//gradle.startParameter.excludedTaskNames += ["checkstyleTest", "findbugsTest", "pmdTest"]
-gradle.startParameter.excludedTaskNames += ["checkstyleTest", "findbugsTest"]
-/*
-pmd {
-  ignoreFailures = true
-  ruleSetFiles = files('gradle/config/pmd.xml')
-}*/
+gradle.startParameter.excludedTaskNames += ["checkstyleTest", "findbugsTest", "pmdTest"]
 
-findbugs {
-  ignoreFailures = true
+pmd {
+  ruleSetFiles = rootProject.files('gradle/config/pmd.xml')
 }
+
+// even if the task fails (doesn't pass checks), we still try to write out the html report
+gradle.taskGraph.afterTask { task, TaskState state ->
+   if (task.name.equals(checkstyleMain.name) &&
+       file("$task.project.checkstyle.reportsDir/main.xml").exists()) {
+         ant.xslt(in: "$task.project.checkstyle.reportsDir/main.xml",
+                 style: rootProject.file("gradle/config/checkstyle.xsl"),
+                 out: "$task.project.checkstyle.reportsDir/main.html") { // to pass parameters to the xsl
+          param(name:"output.dir", expression: "$task.project.checkstyle.reportsDir")
+       }
+   } else if (task.name.equals(findbugsMain.name) &&
+              file("$task.project.findbugs.reportsDir/main.xml").exists()) {
+      ant.xslt(in: "$task.project.findbugs.reportsDir/main.xml",
+               style: rootProject.file("gradle/config/findbugs.xsl"),
+               out:"$task.project.findbugs.reportsDir/main.html")
+   }
+}
+

@@ -1,0 +1,46 @@
+/**
+ * Copyright 2012-2013 NeuStar, Inc. All rights reserved.
+ * NeuStar, the Neustar logo and related names and logos are registered
+ * trademarks, service marks or tradenames of NeuStar, Inc. All other
+ * product names, company names, marks, logos and symbols may be trademarks
+ * of their respective owners.
+ */
+
+package biz.neustar.@projectNameLower@;
+
+import javax.validation.constraints.NotNull;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.yammer.dropwizard.config.Configuration;
+import com.datasift.dropwizard.config.GraphiteConfiguration;
+import com.datasift.dropwizard.config.GraphiteReportingConfiguration;
+import biz.neustar.dropwizard.core.logging.DefaultGelfConfiguration;
+
+/**
+ * Configuration for service @projectName.
+ */
+public class @projectNameCamel@Configuration extends Configuration implements GraphiteReportingConfiguration {
+
+    @JsonProperty
+    @NotNull
+    private GraphiteConfiguration graphite;
+
+    @JsonProperty
+    private DefaultGelfConfiguration gelf = new DefaultGelfConfiguration();
+
+    
+    @Override
+    public GraphiteConfiguration getGraphite() {
+        return graphite;
+    }
+
+    public DefaultGelfConfiguration getGelfConfiguration() {
+        return gelf;
+    }
+
+    public void setGelfConfiguration(DefaultGelfConfiguration gelf) {
+        this.gelf = gelf;
+    }
+    
+  // TODO: fill me in
+}
+

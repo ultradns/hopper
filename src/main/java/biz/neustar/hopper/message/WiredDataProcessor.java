@@ -1,7 +1,7 @@
 package biz.neustar.hopper.message;
 
 /**
- * Interface to handle wired format AXFR & IXFR.
+ * Interface to handle wired format AXFR &amp; IXFR.
  */
 public interface WiredDataProcessor {
     /**

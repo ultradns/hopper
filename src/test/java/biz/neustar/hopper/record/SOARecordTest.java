@@ -67,7 +67,8 @@ public class SOARecordTest {
         private Name m_an, m_rn, m_host, m_admin;
         private long m_ttl, m_serial, m_refresh, m_retry, m_expire, m_minimum;
 
-        protected void setUp() throws TextParseException, UnknownHostException {
+        @Override
+		protected void setUp() throws TextParseException, UnknownHostException {
             m_an = Name.fromString("My.Absolute.Name.");
             m_rn = Name.fromString("My.Relative.Name");
             m_host = Name.fromString("My.Host.Name.");
@@ -239,7 +240,8 @@ public class SOARecordTest {
         private Name m_host, m_admin;
         private long m_serial, m_refresh, m_retry, m_expire, m_minimum;
 
-        protected void setUp() throws TextParseException, UnknownHostException {
+        @Override
+		protected void setUp() throws TextParseException, UnknownHostException {
             m_host = Name.fromString("M.h.N.");
             m_admin = Name.fromString("M.a.n.");
             m_serial = 0xABCDEF12L;
@@ -277,7 +279,8 @@ public class SOARecordTest {
         private Name m_host, m_admin, m_origin;
         private long m_serial, m_refresh, m_retry, m_expire, m_minimum;
 
-        protected void setUp() throws TextParseException, UnknownHostException {
+        @Override
+		protected void setUp() throws TextParseException, UnknownHostException {
             m_origin = Name.fromString("O.");
             m_host = Name.fromString("M.h", m_origin);
             m_admin = Name.fromString("M.a.n.");
@@ -323,7 +326,8 @@ public class SOARecordTest {
         private Name m_an, m_host, m_admin;
         private long m_ttl, m_serial, m_refresh, m_retry, m_expire, m_minimum;
 
-        protected void setUp() throws TextParseException {
+        @Override
+		protected void setUp() throws TextParseException {
             m_an = Name.fromString("My.absolute.name.");
             m_ttl = 0x13A8;
             m_host = Name.fromString("M.h.N.");
@@ -368,7 +372,8 @@ public class SOARecordTest {
         private Name m_an, m_host, m_admin;
         private long m_ttl, m_serial, m_refresh, m_retry, m_expire, m_minimum;
 
-        protected void setUp() throws TextParseException {
+        @Override
+		protected void setUp() throws TextParseException {
             m_an = Name.fromString("My.Abs.Name.");
             m_ttl = 0x13A8;
             m_host = Name.fromString("M.h.N.");

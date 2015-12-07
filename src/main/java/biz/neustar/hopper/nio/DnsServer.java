@@ -41,7 +41,7 @@ import biz.neustar.hopper.nio.handler.TcpIdleChannelHandler;
 
 /**
  * A Server for the DNS protocol that handles TCP and UPD request. Register a
- * ServerMessageHandler to process client request.<br/>
+ * ServerMessageHandler to process client request.
  *
  * Create a message Handler:
  *

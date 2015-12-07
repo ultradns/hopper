@@ -29,7 +29,7 @@ public class ServerMessageHandlerTCPInvoker extends SimpleChannelUpstreamHandler
     }
 
     /**
-     * Invoked when a message object (e.g: {@link ChannelBuffer}) was received
+     * Invoked when a message object was received
      * from a remote peer.
      *
      * @param ctx The channel context.
@@ -54,7 +54,7 @@ public class ServerMessageHandlerTCPInvoker extends SimpleChannelUpstreamHandler
 
     /**
      * Invoked when an exception was raised by an I/O thread or a
-     * {@link ChannelHandler}.
+     * {@link org.jboss.netty.channel.ChannelHandler}.
      *
      * @param ctx The channel context.
      * @param e The exception event.

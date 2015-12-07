@@ -21,7 +21,7 @@ import biz.neustar.hopper.record.TSIGRecord;
  * client and server of a DNS operation. A message consists of a Header and 4
  * message sections.
  * 
- * @see Resolver
+ * @see biz.neustar.hopper.resolver.Resolver
  * @see Header
  * @see Section
  * 
@@ -612,7 +612,8 @@ public class Message implements Cloneable {
     /**
      * Converts the Message to a String.
      */
-    public String toString() {
+    @Override
+	public String toString() {
         StringBuffer sb = new StringBuffer();
         OPTRecord opt = getOPT();
         if (opt != null) {
@@ -645,11 +646,12 @@ public class Message implements Cloneable {
      * Creates a copy of this Message. This is done by the Resolver before
      * adding TSIG and OPT records, for example.
      * 
-     * @see Resolver
+     * @see biz.neustar.hopper.resolver.Resolver
      * @see TSIGRecord
      * @see OPTRecord
      */
-    public Object clone() {
+    @Override
+	public Object clone() {
         Message m = new Message();
         for (int i = 0; i < sections.length; i++) {
             if (sections[i] != null) {

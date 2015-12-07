@@ -38,23 +38,29 @@ tasks.addRule("Pattern: bootstrap<ProjectType>#<ProjectName>") { String taskName
           println "Bootstrapping Project: " + projectName + ' type: ' + projectType
           // setup the default directory structure & files
           // Copy a template-ized settings file
-          copy {
-            from 'settings.gradle.templ'
-            rename '(.*)\\.templ', '$1'
-            into '.'
-            filter(ReplaceTokens, tokens:[projectName: projectName, 
-              projectNameLower: projectNameLower,
-              projectNameCamel: projectNameCamel])
+          // don't overwrite 
+          if (!(new File('settings.gradle')).canRead()) {
+            copy {
+              from 'settings.gradle.templ'
+              rename '(.*)\\.templ', '$1'
+              into '.'
+              filter(ReplaceTokens, tokens:[projectName: projectName, 
+                projectNameLower: projectNameLower,
+                projectNameCamel: projectNameCamel])
+            }
           }
           delete { 'settings.gradle.templ' }
-          
-          copy {
-            from 'bin/projectName.sh.templ'
-            rename '(.*)\\.templ', projectNameLower + '.sh'
-            into 'bin'
-            filter(ReplaceTokens, tokens:[projectName: projectName, 
-              projectNameLower: projectNameLower,
-              projectNameCamel: projectNameCamel])
+         
+          // don't overwrite 
+          if (!(new File('bin/' + projectNameLower + '.sh')).canRead()) {
+            copy {
+              from 'bin/projectName.sh.templ'
+              rename '(.*)\\.templ', projectNameLower + '.sh'
+              into 'bin'
+              filter(ReplaceTokens, tokens:[projectName: projectName, 
+                projectNameLower: projectNameLower,
+                projectNameCamel: projectNameCamel])
+            }
           }
           delete { 'bin/projectName.sh.templ' }
 
@@ -90,31 +96,74 @@ task generateTool << {
 
 task generateService(dependsOn: generateBare) << {
   println "Generating Service..."
-  
+
   def templatesDir = 'gradle/templates'
+  def templateTokens = [projectName: rootProject.ext.projectName, 
+    projectNameLower: rootProject.ext.projectNameLower,
+    projectNameCamel: rootProject.ext.projectNameCamel]
+
+  // API
+  //////
+  
+  def apiDir = "$rootProject.ext.projectNameLower-api"
+  file(apiDir).mkdirs()
+  copy {
+    from 'src'
+    into apiDir
+  }
+  
+  copyTemplateFile("$templatesDir/build_api.templ", apiDir, 'build.gradle', templateTokens)
+  
+  // Client
+  /////////
+  
+  def clientDir = "$rootProject.ext.projectNameLower-client"
+  file(clientDir).mkdirs()
+  copy {
+    from 'src'
+    into clientDir
+  }
+  
+  copyTemplateFile("$templatesDir/build_client.templ", clientDir, 'build.gradle', templateTokens)
+  
+  // Service
+  //////////
+
+  def serviceDir = "$rootProject.ext.projectNameLower-service"
+  file(serviceDir).mkdirs()
   
   copyTemplateFile("$templatesDir/Configuration.java.templ", 
     'src/main/java/biz/neustar/' + rootProject.ext.projectNameLower, 
-    rootProject.ext.projectNameCamel + '$1',
-    [projectName: rootProject.ext.projectName, 
-      projectNameLower: rootProject.ext.projectNameLower,
-      projectNameCamel: rootProject.ext.projectNameCamel])
+    rootProject.ext.projectNameCamel + '$1', templateTokens)
     
   copyTemplateFile("$templatesDir/Service.java.templ", 
     'src/main/java/biz/neustar/' + rootProject.ext.projectNameLower, 
-    rootProject.ext.projectNameCamel + '$1',
-    [projectName: rootProject.ext.projectName, 
-      projectNameLower: rootProject.ext.projectNameLower,
-      projectNameCamel: rootProject.ext.projectNameCamel])
+    rootProject.ext.projectNameCamel + '$1', templateTokens)
 
-  copyTemplateFile("$templatesDir/example.yml.templ",
-    "conf/", rootProject.ext.projectNameLower + '.yml', [:])
+  copy {
+    from 'src'
+    into "$serviceDir/src"
+  }
+  delete { 'src' }
+  
+  copy {
+    from 'conf'
+    into "$serviceDir/conf"
+  }
+  delete { 'conf' }
+  
+  copy {
+    from 'bin'
+    into "$serviceDir/bin"
+  }
+  delete { 'bin' }
+  
+  copyTemplateFile("$templatesDir/build_service.templ", serviceDir, 'build.gradle', templateTokens)
+  
+  copyTemplateFile("$templatesDir/example.yml.templ", "$serviceDir/conf/", 
+    rootProject.ext.projectNameLower + '.yml', templateTokens)
     
-  copyTemplateFile("$templatesDir/start.sh.templ",
-      "bin/",
-      [projectName: rootProject.ext.projectName, 
-        projectNameLower: rootProject.ext.projectNameLower,
-        projectNameCamel: rootProject.ext.projectNameCamel])
+  copyTemplateFile("$templatesDir/start.sh.templ", "$serviceDir/bin/", templateTokens)        
 }
 
 task generateUpdate << {

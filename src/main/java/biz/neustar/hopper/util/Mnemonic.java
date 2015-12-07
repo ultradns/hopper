@@ -151,10 +151,8 @@ public class Mnemonic {
     /**
      * Copies all mnemonics from one table into another.
      * 
-     * @param val
-     *            The numeric value
-     * @param string
-     *            The text string
+     * @param source
+     *            The Mnemonic
      * @throws IllegalArgumentException
      *             The wordcases of the Mnemonics do not match.
      */

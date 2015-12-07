@@ -1,0 +1,41 @@
+
+import org.apache.tools.ant.filters.ReplaceTokens
+
+
+mainClassName = ""
+
+configurations {
+  ingredients
+}
+
+task packageIngredients(type:  Zip) {
+  from(files("cookbooks")) {
+    into 'cookbooks'
+  }
+  
+  from(files("roles")) {
+    into 'roles'
+  }
+  
+  from(files('nodes/node.rb')) {
+    into 'nodes'
+    filter(ReplaceTokens, 
+           tokens:[project_name: project.name.replaceAll(/\-.*/,""),
+                   on_deck: rootProject.version,
+                   on_deck_on: (new Date()).toString()])
+  }
+}
+
+task uploadIngredients(type: Upload, dependsOn: packageIngredients) {
+  configuration = configurations.ingredients
+  repositories.mavenDeployer {
+      configuration = configurations.ingredients
+      repository(url: repoBaseUrl + "/content/repositories/services/") {
+        authentication(userName: rootProject.ldapUsername, password: rootProject.ldapPassword)
+      }
+  }
+}
+
+artifacts {
+  ingredients packageIngredients
+}

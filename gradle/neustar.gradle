@@ -9,7 +9,7 @@
 
 task createWrapper(type: Wrapper) {
   description = "Create a gradle wrapper for you project"
-  gradleVersion = '1.3'
+  gradleVersion = '1.10'
 }
 
 
@@ -21,21 +21,27 @@ apply from: file('gradle/generators.gradle')
 // version
 apply from: file('gradle/version.gradle')
 
-
-
 task gitBuildId {
   description = "Determine the build id from git"
   def buildIdOut = new ByteArrayOutputStream()
+  def errorsOut = new ByteArrayOutputStream()
+  def extraInfo = ""
   try {
     exec {
       // TODO: use a java git library?
       standardOutput = buildIdOut
+      errorOutput = errorsOut
       commandLine 'git', 'log', '-1', '--pretty=format:%ct', 'HEAD'
     }
   } catch (Exception e) {
     buildIdOut.write('0'.getBytes())
+    if (errorsOut.toString().contains("Not a git repository")) {
+      extraInfo = "(Not a git repository and/or no commits found)\n" +
+        "Type: git init; git add *; git commit *;"
+    }
   }
-  println "buildId = ${buildIdOut.toString()}"
+  //OR? def buildIdOut = (long) ((new Date()).getTime() / 1000)
+  println "buildId = ${buildIdOut.toString()} ${extraInfo}"
   ext.output = {
     return buildIdOut.toString()
   }
@@ -47,17 +53,29 @@ def buildId = rootProject.tasks.gitBuildId.output()
 // load properties for neustar ldap user & passwd
 task loadNeustarCredentials {
   description = "Load neustar credentials from the neustar.properties file"
-  def credsFileName = "neustar.properties"
-  
-  if (!loadProperties(credsFileName)) {
-    def exampleContents = """\
+  def credsFileName = "${project.gradle.gradleUserHomeDir}/neustar.properties"
+
+  if (!(rootProject.hasProperty('ldapUsername') && rootProject.hasProperty('ldapPassword')) && !loadProperties(credsFileName)) {
+    def errorHeader = """\
+Missing Credentials for Artifact Repository
+-------------------------------------------"""
+    if (!rootProject.hasProperty('ldapUsername') && !rootProject.hasProperty('ldapPassword')) {
+      def exampleContents = """\
 Example File Contents:
     ldapUsername = yourldapname
     ldapPassword = yourldappassword
     """
-    throw new GradleException(
-      "Properties file not found.\nPlease create '${credsFileName}' file with appropriate credentials set\n" + 
-      exampleContents)
+      throw new GradleException("""\
+${errorHeader}
+Cannot find: ${credsFileName} or command line: -PldapUsername=\"your_ldap_name\" -PldapPassword=\"your_ldap_password\"
+Properties file not found.\nPlease create '${credsFileName}' file with appropriate credentials set
+""" + exampleContents)
+    } else {
+      throw new GradleException("""\
+${errorHeader}
+Specify both username & password by command line: -PldapUsername=\"your_ldap_name\" -PldapPassword=\"your_ldap_password\"
+""")
+    }
   }
 }
 
@@ -65,26 +83,39 @@ Example File Contents:
 allprojects {
   apply plugin: 'java'
   apply plugin: 'maven'
-  apply plugin: 'signing'
-  
+  apply plugin: 'signing'  
   
   // update runtime classpath to include conf dir BEFORE applying application to make this easy
+  def conf_dir = project.file("conf")
   sourceSets.all {
-    it.runtimeClasspath = it.runtimeClasspath + fileTree(dir: 'conf')
+    if (conf_dir.isDirectory()) {
+      it.runtimeClasspath = it.runtimeClasspath + files('conf') + fileTree(dir: 'conf') + files(project.projectDir)
+    }
+  }
+
+  dependencies {
+    if (conf_dir.isDirectory()) {
+      runtime files('conf')
+    }
   }
   
   apply plugin: 'application'
   
   // IDE support
-  apply from: file('gradle/ide.gradle')
+  apply from: rootProject.file('gradle/ide.gradle')
   
   // code checks
-  apply from: file('gradle/codechecks.gradle')
+  apply from: rootProject.file('gradle/codechecks.gradle')
+
+  def projectNameNoService = project.name.replace("-service","")
   
+  // default for running a service app 
+  def conf_file = project.file(["conf", projectNameNoService.toLowerCase() + '.yml'].join(File.separator))
+  run.args = ["server", conf_file]
 
   // best guess ..
-  project.ext.mainPackageName = project.name.toLowerCase()
-  project.ext.mainServiceName = project.name.capitalize()
+  project.ext.mainPackageName = projectNameNoService.toLowerCase()
+  project.ext.mainServiceName = projectNameNoService.capitalize()
   project.ext.serviceClassName = "biz.neustar." + ext.mainPackageName + '.' + ext.mainServiceName + "Service"
 
   // If you want to specify a version, do so before applying this otherwise 
@@ -125,27 +156,11 @@ allprojects {
     }
   }
   
-
   configurations {
     service
-    uploadJar
+    optional // added optional scope
   }
   
-  artifacts {
-    service distZip
-    uploadJar jar
-  }
-    
-  // Upload to ultra maven repo ( Ultra Nexus )
-  task publishToNexus (type: Upload, dependsOn: jar) {
-    configuration = configurations.uploadJar
-    repositories.mavenDeployer {
-      configuration = configurations.uploadJar
-      repository(url: repoBaseUrl + "/content/repositories/releases") {
-        authentication(userName: rootProject.ldapUsername, password: rootProject.ldapPassword)
-      }
-    }
-  }
 
   task uploadDistZip(type: Upload, dependsOn: distZip) {
     configuration = configurations.service
@@ -158,7 +173,35 @@ allprojects {
   }
   
   task uploadService(dependsOn: uploadDistZip)
-  
+
+  task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+  }
+
+  task docJar(type: Jar, dependsOn: 'javadoc') {
+    from javadoc.destinationDir
+  }
+
+  artifacts { // define the artifacts for a service
+    archives sourcesJar { classifier "sources" }
+    archives docJar { classifier "javadoc" }
+    service distZip
+  }
+
+  // optional dependencies
+  sourceSets.main.compileClasspath += configurations.optional
+  idea {
+    module{
+      testSourceDirs += project.projectDir
+      scopes.PROVIDED.plus += configurations.optional
+    }
+  }
+
+  eclipse {
+    classpath {
+      plusConfigurations += configurations.optional
+    }
+  }
 
   group = 'biz.neustar'
   def vendor = 'Neustar, Inc.'
@@ -178,6 +221,10 @@ allprojects {
   //////////////////////
   
   distZip.doFirst {
+    delete {
+      fileTree(dir:"src/dist/conf")
+      fileTree(dir:"src/dist/bin")
+    }
     // copy in the conf dir
     copy {
       from file("conf")
@@ -204,10 +251,14 @@ allprojects {
       }
       
       // setup the heap dump path
+      unixScript.text = unixScript.text.replace('\nCLASSPATH=', '\nCLASSPATH=$APP_HOME/conf:')
+      windowsScript.text = windowsScript.text.replace('set CLASSPATH=', 'set CLASSPATH=%APP_HOME%\\conf;')
 //      unixScript.text = unixScript.text.replace('\nCLASSPATH=', '\n. $APP_HOME/bin/proj_opts.sh\n\nCLASSPATH=')
 //      windowsScript.text = windowsScript.text.replace('%DEFAULT_JVM_OPTS% ', '%DEFAULT_JVM_OPTS% -XX:HeapDumpPath="%APP_HOME%\\log" ')
     }
   }
+  // Apply bakery here so the repo and everything is all setup.
+  apply from: rootProject.file('gradle/bakery.gradle')
 }
 
 
@@ -234,15 +285,23 @@ buildscript {
 
 
 task checkVersion {
-  // Should look like: nexus/service/local/artifact/maven/content?r=releases&g=biz.neustar&a=neuproject&v=LATEST
-  def restClient = new groovyx.net.http.RESTClient(rootProject.ext.repoBaseUrl + "/service/local/artifact/maven/content")
-  restClient.auth.basic( rootProject.ldapUsername, rootProject.ldapPassword )
-  def resp = restClient.head([ query: [ r: "releases", g: "biz.neustar", a: "neuproject", v: "LATEST"]])
-  def latestVersion = resp.getLastHeader('Content-Disposition').getValue().replaceAll('.*neuproject-', '').replaceAll('\\.jar.*','')
+  try {
+    // Should look like: nexus/service/local/artifact/maven/content?r=releases&g=biz.neustar&a=neuproject&v=LATEST
+    def restClient = new groovyx.net.http.RESTClient(rootProject.ext.repoBaseUrl + "/service/local/artifact/maven/content")
+    restClient.auth.basic( rootProject.ldapUsername, rootProject.ldapPassword )
+    def resp = restClient.head([ query: [ r: "releases", g: "biz.neustar", a: "neuproject", v: "LATEST"]])
+    def latestVersion = resp.getLastHeader('Content-Disposition').getValue().replaceAll('.*neuproject-', '').replaceAll('\\.jar.*','')
   
-  if (newerVersionCheck(rootProject.ext.neustarScriptVersion, latestVersion)) {
-    println "[WARNING] Newer version ($latestVersion) of gradle scripts are available. Currently running: " + neustarScriptVersion
-    println "[WARNING] Go to: https://confluence.nexgen.neustar.biz/display/NGSERVICES/Project+Creation"
+    if (newerVersionCheck(rootProject.ext.neustarScriptVersion, latestVersion)) {
+      println "[WARNING] Newer version ($latestVersion) of gradle scripts are available. Currently running: " + neustarScriptVersion
+      println "[WARNING] Go to: https://confluence.nexgen.neustar.biz/display/NGSERVICES/Project+Creation"
+    }
+  } catch (e) {
+    if (!rootProject.hasProperty('ignoreUpdateCheck')) {
+      throw e;
+    } else {
+      println "Caught Exception, but ignoring: " + e
+    }
   }
 }
 
