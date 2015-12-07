@@ -9,7 +9,7 @@
 
 task createWrapper(type: Wrapper) {
   description = "Create a gradle wrapper for you project"
-  gradleVersion = '1.10'
+  gradleVersion = '2.7'
 }
 
 
