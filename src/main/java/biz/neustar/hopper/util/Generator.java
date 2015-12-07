@@ -54,8 +54,6 @@ public class Generator {
     /**
      * Indicates whether generation is supported for this type.
      * 
-     * @throws InvalidTypeException
-     *             The type is out of range.
      */
     public static boolean supportedType(int type) {
         Type.check(type);

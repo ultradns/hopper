@@ -216,8 +216,6 @@ public class DnsJavaZoneTransferIn {
 	 * @param key
 	 *            The TSIG key used to authenticate the transfer, or null.
 	 * @return The ZoneTransferIn object.
-	 * @throws UnknownHostException
-	 *             The host does not exist.
 	 */
 	public static DnsJavaZoneTransferIn newAXFR(Name zone, SocketAddress address, TSIG key) {
 		return new DnsJavaZoneTransferIn(zone, Type.AXFR, 0, false, address, key);
@@ -276,8 +274,6 @@ public class DnsJavaZoneTransferIn {
 	 * @param key
 	 *            The TSIG key used to authenticate the transfer, or null.
 	 * @return The ZoneTransferIn object.
-	 * @throws UnknownHostException
-	 *             The host does not exist.
 	 */
 	public static DnsJavaZoneTransferIn newIXFR(Name zone, long serial, boolean fallback, SocketAddress address,
 			TSIG key) {

@@ -121,7 +121,7 @@ public class Mnemonic {
      * 
      * @param val
      *            The numeric value
-     * @param string
+     * @param str
      *            The text string
      */
     public void add(int val, String str) {
@@ -138,7 +138,7 @@ public class Mnemonic {
      * 
      * @param val
      *            The numeric value
-     * @param string
+     * @param str
      *            The text string
      */
     public void addAlias(int val, String str) {

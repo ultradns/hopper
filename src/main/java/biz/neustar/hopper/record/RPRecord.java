@@ -16,7 +16,7 @@ import biz.neustar.hopper.util.Tokenizer;
  * Responsible Person Record - lists the mail address of a responsible person
  * and a domain where TXT records are available.
  * 
- * @author Tom Scola @literal(<tscola@research.att.com>)
+ * @author Tom Scola &lt;tscola@research.att.com&gt;
  * @author Brian Wellington
  */
 

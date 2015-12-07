@@ -47,7 +47,7 @@ public abstract class EDNSOption {
          * Converts a textual representation of an EDNS Option Code into its
          * numeric value.
          * 
-         * @param s
+         * @param code
          *            The textual representation of the option code
          * @return The option code, or -1 on error.
          */
@@ -114,7 +114,7 @@ public abstract class EDNSOption {
      * Converts the wire format of an EDNS Option (including code and length)
      * into the type-specific format.
      * 
-     * @param out
+     * @param in
      *            The input stream.
      */
     public static EDNSOption fromWire(DNSInput in) throws IOException {
