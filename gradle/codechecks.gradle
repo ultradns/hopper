@@ -25,6 +25,10 @@ pmd {
   ruleSetFiles = rootProject.files('gradle/config/pmd.xml')
 }
 
+findbugs {
+  ignoreFailures = true
+}
+
 // even if the task fails (doesn't pass checks), we still try to write out the html report
 gradle.taskGraph.afterTask { task, TaskState state ->
    if (task.name.equals(checkstyleMain.name) &&
