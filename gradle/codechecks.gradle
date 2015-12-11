@@ -10,8 +10,6 @@
 apply plugin: 'findbugs'
 apply plugin: 'pmd'
 apply plugin: 'checkstyle'  
-apply from: rootProject.file('gradle/jacoco.gradle')
-
 
 checkstyle {
   ignoreFailures = true

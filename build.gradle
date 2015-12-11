@@ -10,6 +10,7 @@ task wrapper(type: Wrapper) {
 }
 
 apply plugin: 'eclipse'
+apply plugin: 'jacoco'
 
 // apply the common neustar gradle tasks to setup artifact repos, etc.
 apply from: file('gradle/neustar.gradle')
@@ -23,6 +24,7 @@ apply from: file('gradle/neustar.gradle')
 
 // If you rename your packages, feel free to rename this..
 mainClassName = ext.serviceClassName
+def jacocoVer = "0.7.4.201502262128"
 
 allprojects {
   dependencies {
@@ -46,6 +48,27 @@ allprojects {
     testRuntime 'org.slf4j:log4j-over-slf4j:1.7.+'
     testRuntime 'ch.qos.logback:logback-core:1.0.+'
     testRuntime 'ch.qos.logback:logback-classic:1.0.+'
+	
+	//JaCoCo
+	testCompile "org.jacoco:org.jacoco.core:$jacocoVer"
+	testCompile "org.jacoco:org.jacoco.report:$jacocoVer"
+	testCompile "org.jacoco:org.jacoco.agent:$jacocoVer"
   }
 }
 
+jacoco {
+    toolVersion = "$jacocoVer"
+    reportsDir = file("$buildDir/reports/jacoco")
+}
+
+jacocoTestReport {
+    group = "Reporting"
+    description = "Generate Jacoco coverage reports after running tests."
+    additionalSourceDirs = files(sourceSets.main.allJava.srcDirs)
+	executionData = fileTree(dir: 'build/jacoco', include: '*.exec')
+}
+
+jacocoTestReport.doFirst {
+   classDirectories = fileTree(dir: 'build/classes/main')
+   sourceDirectories = files('src/main/java')
+}
