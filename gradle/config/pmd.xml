@@ -18,7 +18,9 @@
     <exclude name="NcssMethodCount"/>
     <exclude name="NcssTypeCount"/>
   </rule>
-  <rule ref="rulesets/java/design.xml"/>
+  <rule ref="rulesets/java/design.xml">
+	<exclude name="UncommentedEmptyConstructor"/>
+  <rule>
   <rule ref="rulesets/java/braces.xml"/>
   <rule ref="rulesets/java/imports.xml"/>
   <rule ref="rulesets/java/finalizers.xml"/>
