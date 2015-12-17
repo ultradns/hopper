@@ -21,33 +21,20 @@ apply from: file('gradle/generators.gradle')
 // version
 apply from: file('gradle/version.gradle')
 
-task gitBuildId {
-  description = "Determine the build id from git"
-  def buildIdOut = new ByteArrayOutputStream()
-  def errorsOut = new ByteArrayOutputStream()
-  def extraInfo = ""
-  try {
-    exec {
-      // TODO: use a java git library?
-      standardOutput = buildIdOut
-      errorOutput = errorsOut
-      commandLine 'git', 'log', '-1', '--pretty=format:%ct', 'HEAD'
-    }
-  } catch (Exception e) {
-    buildIdOut.write('0'.getBytes())
-    if (errorsOut.toString().contains("Not a git repository")) {
-      extraInfo = "(Not a git repository and/or no commits found)\n" +
-        "Type: git init; git add *; git commit *;"
-    }
-  }
-  //OR? def buildIdOut = (long) ((new Date()).getTime() / 1000)
-  println "buildId = ${buildIdOut.toString()} ${extraInfo}"
-  ext.output = {
-    return buildIdOut.toString()
-  }
+def gitBuildId() {
+	def cmd = "git rev-parse --short HEAD"
+	def proc = cmd.execute()
+	def hash = proc.text.trim()
+	return hash
 }
 
-def buildId = rootProject.tasks.gitBuildId.output()
+def getDate() {
+    def date = new Date()
+    def formattedDate = date.format('yyyyMMddHHmmss')
+    return formattedDate
+}
+
+def buildId = gitBuildId() + "-" + getDate()
 
 
 // load properties for neustar ldap user & passwd
