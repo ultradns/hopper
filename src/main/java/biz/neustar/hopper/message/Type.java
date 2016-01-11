@@ -44,7 +44,6 @@ import biz.neustar.hopper.record.NXTRecord;
 import biz.neustar.hopper.record.OPTRecord;
 import biz.neustar.hopper.record.PTRRecord;
 import biz.neustar.hopper.record.PXRecord;
-import biz.neustar.hopper.record.RNAMERecord;
 import biz.neustar.hopper.record.RPRecord;
 import biz.neustar.hopper.record.RRSIGRecord;
 import biz.neustar.hopper.record.RTRecord;
@@ -253,9 +252,6 @@ public final class Type {
     /** DNSSEC Lookaside Validation, RFC 4431 . */
     public static final int DLV = 32769;
 
-    /** CNAME@apex internal record type */
-    public static final int RNAME = 65282;
-
     private static class TypeMnemonic extends Mnemonic {
         private HashMap<Integer, Record> objects;
 
@@ -345,7 +341,6 @@ public final class Type {
         types.add(CAA, "CAA", new CAARecord());
         types.add(DLV, "DLV", new DLVRecord());
         types.add(TLSA, "TLSA", new TLSARecord());
-        types.add(RNAME, "RNAME", new RNAMERecord());
     }
 
     private Type() {
