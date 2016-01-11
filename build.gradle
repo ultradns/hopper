@@ -24,7 +24,7 @@ apply from: file('gradle/neustar.gradle')
 
 // If you rename your packages, feel free to rename this..
 mainClassName = ext.serviceClassName
-def jacocoVer = "0.7.4.201502262128"
+def jacocoVer = "0.7.5.201505241946"
 
 allprojects {
   dependencies {
