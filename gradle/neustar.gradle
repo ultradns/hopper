@@ -34,7 +34,7 @@ def getDate() {
     return formattedDate
 }
 
-def buildId = gitBuildId() + "-" + getDate()
+def buildId = getDate() + "-" + gitBuildId()
 
 
 // load properties for neustar ldap user & passwd
