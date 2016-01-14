@@ -34,6 +34,8 @@
 //
 package biz.neustar.hopper;
 
+import biz.neustar.hopper.record.Record;
+import biz.neustar.hopper.record.impl.SingleNameBase;
 import junit.framework.TestCase;
 import biz.neustar.hopper.message.Type;
 
@@ -73,5 +75,48 @@ public class TypeTest extends TestCase {
     public void test_isRR() {
         assertTrue(Type.isRR(Type.CNAME));
         assertFalse(Type.isRR(Type.IXFR));
+    }
+
+    public void test_addType() {
+        int val = 65283;
+        String str = "MYREC";
+        assertEquals("TYPE" + val, Type.string(val));
+        assertEquals(-1, Type.value(str));
+        Type.addType(val, str, new MyRecord());
+        assertEquals(str, Type.string(val));
+        assertEquals(val, Type.value(str));
+    }
+
+    public void test_addExistingVal() {
+        int val = 1;
+        String str = "NEWA";
+        try {
+            Type.addType(val, str, new MyRecord());
+            fail("Should have failed");
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), "Type: cannot add " + val);
+        } catch (Exception e) {
+            fail("Wrong exception");
+        }
+    }
+
+    public void test_addExistingStr() {
+        int val = 65283;
+        String str = "A";
+        try {
+            Type.addType(val, str, new MyRecord());
+            fail("Should have failed");
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), "Type: cannot add " + str);
+        } catch (Exception e) {
+            fail("Wrong exception");
+        }
+    }
+
+    private class MyRecord extends SingleNameBase {
+        @Override
+        protected Record getObject() {
+            return new MyRecord();
+        }
     }
 }

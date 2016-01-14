@@ -118,16 +118,38 @@ public class Mnemonic {
 
     /**
      * Defines the text representation of a numeric value.
-     * 
+     *
      * @param val
      *            The numeric value
      * @param str
      *            The text string
      */
     public void add(int val, String str) {
+        add(val, str, false);
+    }
+
+    /**
+     * Defines the text representation of a numeric value.
+     *
+     * @param val
+     *            The numeric value
+     * @param str
+     *            The text string
+     * @param checkExisting
+     *            Iff true, check for existing
+     */
+    public void add(int val, String str, boolean checkExisting) {
         check(val);
         Integer value = toInteger(val);
         str = sanitize(str);
+        if (checkExisting) {
+            if (strings.containsKey(str)) {
+                throw new IllegalArgumentException(description + ": cannot add " + str);
+            }
+            if (values.containsKey(value)) {
+                throw new IllegalArgumentException(description + ": cannot add " + val);
+            }
+        }
         strings.put(str, value);
         values.put(value, str);
     }

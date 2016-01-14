@@ -282,4 +282,35 @@ public class MnemonicTest extends TestCase
 	value = m_mn.getValue("THIRTY");
 	assertEquals(30, value);
     }
+
+    public void test_addExistingVal() {
+        m_mn = new Mnemonic("test_addExistingVal", Mnemonic.CASE_UPPER);
+        int val = 1;
+        String str = "A";
+        m_mn.add(val, "OLDA");
+        try {
+            m_mn.add(val, str, true);
+            fail("Should have failed");
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), "test_addExistingVal: cannot add " + val);
+        } catch (Exception e) {
+            fail("Wrong exception");
+        }
+    }
+
+    public void test_addExistingStr() {
+        m_mn = new Mnemonic("test_addExistingStr", Mnemonic.CASE_UPPER);
+        int val = 1;
+        String str = "A";
+        m_mn.add(0, str);
+        try {
+            m_mn.add(val, str, true);
+            fail("Should have failed");
+        } catch (IllegalArgumentException e) {
+            assertEquals(e.getMessage(), "test_addExistingStr: cannot add " + str);
+        } catch (Exception e) {
+            fail("Wrong exception");
+        }
+    }
+
 }
