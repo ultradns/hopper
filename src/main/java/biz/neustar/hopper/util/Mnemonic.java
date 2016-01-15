@@ -141,17 +141,17 @@ public class Mnemonic {
     public void add(int val, String str, boolean checkExisting) {
         check(val);
         Integer value = toInteger(val);
-        str = sanitize(str);
+        String sanitized = sanitize(str);
         if (checkExisting) {
-            if (strings.containsKey(str)) {
+            if (strings.containsKey(sanitized)) {
                 throw new IllegalArgumentException(description + ": cannot add " + str);
             }
             if (values.containsKey(value)) {
                 throw new IllegalArgumentException(description + ": cannot add " + val);
             }
         }
-        strings.put(str, value);
-        values.put(value, str);
+        strings.put(sanitized, value);
+        values.put(value, sanitized);
     }
 
     /**
@@ -166,8 +166,8 @@ public class Mnemonic {
     public void addAlias(int val, String str) {
         check(val);
         Integer value = toInteger(val);
-        str = sanitize(str);
-        strings.put(str, value);
+        String sanitized = sanitize(str);
+        strings.put(sanitized, value);
     }
 
     /**
@@ -214,21 +214,21 @@ public class Mnemonic {
      * @return The corresponding numeric value, or -1 if there is none
      */
     public int getValue(String str) {
-        str = sanitize(str);
-        Integer value = strings.get(str);
+        String sanitized = sanitize(str);
+        Integer value = strings.get(sanitized);
         if (value != null) {
             return value.intValue();
         }
         if (prefix != null) {
-            if (str.startsWith(prefix)) {
-                int val = parseNumeric(str.substring(prefix.length()));
+            if (sanitized.startsWith(prefix)) {
+                int val = parseNumeric(sanitized.substring(prefix.length()));
                 if (val >= 0) {
                     return val;
                 }
             }
         }
         if (numericok) {
-            return parseNumeric(str);
+            return parseNumeric(sanitized);
         }
         return -1;
     }
