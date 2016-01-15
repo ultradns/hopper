@@ -219,12 +219,10 @@ public class Mnemonic {
         if (value != null) {
             return value.intValue();
         }
-        if (prefix != null) {
-            if (sanitized.startsWith(prefix)) {
-                int val = parseNumeric(sanitized.substring(prefix.length()));
-                if (val >= 0) {
-                    return val;
-                }
+        if (prefix != null && sanitized.startsWith(prefix)) {
+            int val = parseNumeric(sanitized.substring(prefix.length()));
+            if (val >= 0) {
+                return val;
             }
         }
         if (numericok) {
