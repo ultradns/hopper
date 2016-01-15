@@ -262,7 +262,7 @@ public final class Type {
         }
 
         public void add(int val, String str, Record proto) {
-            super.add(val, str);
+            super.add(val, str, true);
             objects.put(Mnemonic.toInteger(val), proto);
         }
 
@@ -341,6 +341,11 @@ public final class Type {
         types.add(CAA, "CAA", new CAARecord());
         types.add(DLV, "DLV", new DLVRecord());
         types.add(TLSA, "TLSA", new TLSARecord());
+    }
+
+    // Private record types can be added through this venue
+    public static void addType(int val, String str, Record proto) {
+        types.add(val, str, proto);
     }
 
     private Type() {

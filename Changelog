@@ -1,5 +1,5 @@
-11/18/2015
-    - Added RNAME record support.
+1/14/2016
+    - Method to add types at runtime.
 
 8/25/2015
     - Added TLSA record support.
