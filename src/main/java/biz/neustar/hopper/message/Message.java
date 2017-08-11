@@ -663,4 +663,12 @@ public class Message implements Cloneable {
         return m;
     }
 
+    /**
+     * This method sets the size of array.
+     *
+     * @param size The size
+     */
+    protected void setSize(int size) {
+        this.size = size;
+    }
 }
