@@ -15,12 +15,6 @@ task createWrapper(type: Wrapper) {
 
 defaultTasks ''
 
-// Generators
-apply from: file('gradle/generators.gradle')
-
-// version
-apply from: file('gradle/version.gradle')
-
 def gitBuildId() {
 	def cmd = "git rev-parse --short HEAD"
 	def proc = cmd.execute()
@@ -249,14 +243,16 @@ allprojects {
 }
 
 
-task showRepos << {
-  description = "List the current repositories"
-  println "Repositories: "
-  println repositories.collect { it.name }
+task showRepos {
+  doFirst {
+    description = "List the current repositories"
+    println "Repositories: "
+    println repositories.collect { it.name }
+  }
 }
 
 // compile target for java, should narrow this to just java type projects..
-task compile << {
+task compile {
   dependsOn compileJava, compileTestJava
 }
 
@@ -268,41 +264,6 @@ buildscript {
    dependencies {
        classpath group: 'org.codehaus.groovy.modules.http-builder', name: 'http-builder', version: '0.5.1'
    }
-}
-
-
-task checkVersion {
-  try {
-    // Should look like: nexus/service/local/artifact/maven/content?r=releases&g=biz.neustar&a=neuproject&v=LATEST
-    def restClient = new groovyx.net.http.RESTClient(rootProject.ext.repoBaseUrl + "/service/local/artifact/maven/content")
-    restClient.auth.basic( rootProject.ldapUsername, rootProject.ldapPassword )
-    def resp = restClient.head([ query: [ r: "releases", g: "biz.neustar", a: "neuproject", v: "LATEST"]])
-    def latestVersion = resp.getLastHeader('Content-Disposition').getValue().replaceAll('.*neuproject-', '').replaceAll('\\.jar.*','')
-  
-    if (newerVersionCheck(rootProject.ext.neustarScriptVersion, latestVersion)) {
-      println "[WARNING] Newer version ($latestVersion) of gradle scripts are available. Currently running: " + neustarScriptVersion
-      println "[WARNING] Go to: https://confluence.nexgen.neustar.biz/display/NGSERVICES/Project+Creation"
-    }
-  } catch (e) {
-    if (!rootProject.hasProperty('ignoreUpdateCheck')) {
-      throw e;
-    } else {
-      println "Caught Exception, but ignoring: " + e
-    }
-  }
-}
-
-def newerVersionCheck(currentVer, remoteVer) {
-  // only check for version changes, not builds
-  try {
-    if (!currentVer.equals('latest') && 
-        !currentVer.replaceAll('-.*', '').equals(remoteVer.replaceAll('-.*', ''))) {
-      return true;
-    }
-  } catch (Exception ex) {
-    ex.printStackTrace();
-  }
-  return false;
 }
 
 // Utility method

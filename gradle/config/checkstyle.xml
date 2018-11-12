@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!DOCTYPE module PUBLIC
-    "-//Puppy Crawl//DTD Check Configuration 1.2//EN"
-    "http://www.puppycrawl.com/dtds/configuration_1_2.dtd">
+    "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+    "http://checkstyle.sourceforge.net/dtds/configuration_1_3.dtd">
 
 <module name="Checker">
 	<property name="severity" value="warning"/>
@@ -146,12 +146,6 @@
           <property name="severity" value="warning"/>
         </module>
         <module name="MissingSwitchDefault"/>
-        <!-- Problem with finding exception types... -->
-        <module name="RedundantThrows">
-          <property name="allowUnchecked" value="true"/>
-          <property name="suppressLoadErrors" value="true"/>
-          <property name="severity" value="info"/>
-        </module>
         <module name="SimplifyBooleanExpression"/>
         <module name="SimplifyBooleanReturn"/>
 
