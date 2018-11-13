@@ -29,6 +29,8 @@ public class SSHFPRecord extends Record {
 
         public static final int RSA = 1;
         public static final int DSS = 2;
+        public static final int ECDSA = 3;
+        public static final int ED22519 = 4;
     }
 
     public static class Digest {
@@ -36,6 +38,7 @@ public class SSHFPRecord extends Record {
         }
 
         public static final int SHA1 = 1;
+        public static final int SHA256 = 2;
     }
 
     private int alg;
