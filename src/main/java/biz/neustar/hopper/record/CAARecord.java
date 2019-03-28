@@ -9,9 +9,6 @@
 package biz.neustar.hopper.record;
 
 import java.io.IOException;
-import java.util.ArrayList;
-
-import org.apache.commons.codec.binary.StringUtils;
 
 import com.google.common.base.CharMatcher;
 import com.google.common.base.Charsets;
@@ -87,7 +84,7 @@ public class CAARecord extends Record {
                 "Tag length should be non-zero and fitting unsigned 8.");
         }
 
-        if (!CharMatcher.ASCII.matchesAllOf(input)) {
+        if (!CharMatcher.ascii().matchesAllOf(input)) {
             throw new IllegalArgumentException(
                     "Tag should be a sequence of US-ASCII characters.");
         }

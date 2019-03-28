@@ -2,7 +2,7 @@
 /////////
 
 allprojects {
-  version = '0.1.0'
+  version = '1.0.0'
 }
 
 apply plugin: 'eclipse'
@@ -37,7 +37,7 @@ allprojects {
     compile 'org.apache.commons:commons-lang3:3.4+'
     compile 'commons-collections:commons-collections:3.2.1'
     compile 'commons-cli:commons-cli:1.2'
-    compile 'com.google.guava:guava:17.0'
+    compile 'com.google.guava:guava:27.0.1-jre'
     testRuntime 'org.slf4j:slf4j-ext:1.7.+'
     testRuntime 'org.slf4j:jcl-over-slf4j:1.7.+'
     testRuntime 'org.slf4j:jul-to-slf4j:1.7.+'
