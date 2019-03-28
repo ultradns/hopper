@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.exception.TextParseException;
@@ -680,7 +680,7 @@ public class TSIG {
     }
     @Override
     public String toString() {
-        return Objects.toStringHelper(this).add("tsigKeyValue", getKey())
+        return MoreObjects.toStringHelper(this).add("tsigKeyValue", getKey())
                 .add("tsigKeyName", getName())
                 .add("tsigAlgorithm", getAlgorithm()).toString();
     }
