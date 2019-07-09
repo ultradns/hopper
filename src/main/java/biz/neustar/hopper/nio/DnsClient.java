@@ -5,6 +5,8 @@ import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
@@ -17,7 +19,6 @@ import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 import org.jboss.netty.handler.execution.ExecutionHandler;
-import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import org.jboss.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +78,7 @@ public class DnsClient {
          * Execturor to make sure the events from the same Channel are executed
          * sequentially.
          */
-        private OrderedMemoryAwareThreadPoolExecutor omaThreadPoolExecutor;
+        private Executor threadPoolExecutor;
 
         /**
          * Factory to create a client-side NIO-based SocketChannel. It utilizes
@@ -94,7 +95,7 @@ public class DnsClient {
         /**
          * Options to set for channels.
          */
-        private Map<String, Object> options = new HashMap<String, Object>();
+        private Map<String, Object> options = new HashMap<>();
 
         /**
          * Flag to close connection after receiving message.
@@ -117,9 +118,21 @@ public class DnsClient {
         private final ChannelPipeline tcpChannelPipeline = Channels.pipeline();
 
         /**
+         * UDP options.
+         */
+        private Map<String, Object> udpOptions = new HashMap<>();
+
+        /**
+         * Default UDP buffer size.
+         */
+        private static final int UDP_BUF_SIZE = 16777216;
+
+        /**
          * The build constructor.
          */
         private Builder() {
+            udpOptions.put("receiveBufferSize", UDP_BUF_SIZE);
+            udpOptions.put("sendBufferSize", UDP_BUF_SIZE);
         }
 
         /**
@@ -148,13 +161,13 @@ public class DnsClient {
          * Set the application thread pool executor. threadPoolSize is ignored
          * when this is set.
          * 
-         * @param omaThreadPoolExecutorArg
+         * @param threadPoolExecutorArg
          *            The thread pool executor to set.
          * @return the builder
          */
-        public Builder orderedMemoryAwareThreadPoolExecutor(
-                final OrderedMemoryAwareThreadPoolExecutor omaThreadPoolExecutorArg) {
-            this.omaThreadPoolExecutor = omaThreadPoolExecutorArg;
+        public Builder threadPoolExecutor(
+                final Executor threadPoolExecutorArg) {
+            this.threadPoolExecutor = threadPoolExecutorArg;
             return this;
         }
 
@@ -227,6 +240,18 @@ public class DnsClient {
         }
 
         /**
+         * Set the UDP options.
+         * 
+         * @param udpOptionsArg
+         *            the options arg
+         * @return the builder
+         */
+        public Builder udpOptions(final Map<String, Object> udpOptionsArg) {
+            this.udpOptions = udpOptionsArg;
+            return this;
+        }
+
+        /**
          * How long to listen for a UDP response before giving up.
          * 
          * @param udpTimeoutSecondsArg
@@ -294,9 +319,8 @@ public class DnsClient {
             }
 
             // set up the application side thread pool
-            OrderedMemoryAwareThreadPoolExecutor omaThreadPoolExecutorArg = this.omaThreadPoolExecutor != null ? this.omaThreadPoolExecutor
-                    : new OrderedMemoryAwareThreadPoolExecutor(threadPoolSize,
-                            0, 0);
+            Executor omaThreadPoolExecutorArg = this.threadPoolExecutor != null ? this.threadPoolExecutor
+                    : Executors.newFixedThreadPool(threadPoolSize);
             // client handler invoker
             ClientMessageHandlerInvoker clientMessageHandlerInvoker = new ClientMessageHandlerInvoker(
                     clientMessageHandler, closeConnectionOnMessageReceipt);
@@ -383,7 +407,7 @@ public class DnsClient {
     /**
      * Map from servers to connection open futures.
      */
-    private final ConcurrentHashMap<SocketAddress, ChannelFuture> openTcpConnections = new ConcurrentHashMap<SocketAddress, ChannelFuture>();
+    private final ConcurrentHashMap<SocketAddress, ChannelFuture> openTcpConnections = new ConcurrentHashMap<>();
 
     /**
      * Construct a new Client.
@@ -394,7 +418,7 @@ public class DnsClient {
     public DnsClient(final Builder builder) {
 
         udpBootstrap = new ConnectionlessBootstrap(builder.nioDChannelFactory);
-        udpBootstrap.setOptions(builder.options);
+        udpBootstrap.setOptions(builder.udpOptions);
         udpBootstrap.setPipelineFactory(new ChannelPipelineFactory() {
 
             @Override
