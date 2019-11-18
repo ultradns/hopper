@@ -133,6 +133,7 @@ public class DnsClient {
         private Builder() {
             udpOptions.put("receiveBufferSize", UDP_BUF_SIZE);
             udpOptions.put("sendBufferSize", UDP_BUF_SIZE);
+            udpOptions.put("broadcast", "true");
         }
 
         /**
