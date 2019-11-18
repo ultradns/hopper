@@ -2,7 +2,7 @@
 /////////
 
 allprojects {
-  version = '1.1.0'
+  version = '0.0.0'
 }
 
 apply plugin: 'eclipse'
@@ -29,7 +29,7 @@ allprojects {
     testCompile 'org.mockito:mockito-all:[1.8.5,)'
 
     compile 'commons-codec:commons-codec:1.6'
-    compile 'io.netty:netty:3.5.7.Final'
+    compile 'io.netty:netty:3.10.6.Final'
 
     // logging
     compile 'org.slf4j:slf4j-api:1.7.+'
