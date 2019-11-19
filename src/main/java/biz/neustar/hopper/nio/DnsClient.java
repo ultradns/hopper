@@ -5,6 +5,8 @@ import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
@@ -17,7 +19,6 @@ import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 import org.jboss.netty.handler.execution.ExecutionHandler;
-import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import org.jboss.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +78,7 @@ public class DnsClient {
          * Execturor to make sure the events from the same Channel are executed
          * sequentially.
          */
-        private OrderedMemoryAwareThreadPoolExecutor omaThreadPoolExecutor;
+        private Executor threadPoolExecutor;
 
         /**
          * Factory to create a client-side NIO-based SocketChannel. It utilizes
@@ -132,7 +133,6 @@ public class DnsClient {
         private Builder() {
             udpOptions.put("receiveBufferSize", UDP_BUF_SIZE);
             udpOptions.put("sendBufferSize", UDP_BUF_SIZE);
-            //udpOptions.put("broadcast", "true");
         }
 
         /**
@@ -161,13 +161,13 @@ public class DnsClient {
          * Set the application thread pool executor. threadPoolSize is ignored
          * when this is set.
          * 
-         * @param omaThreadPoolExecutorArg
+         * @param threadPoolExecutorArg
          *            The thread pool executor to set.
          * @return the builder
          */
-        public Builder orderedMemoryAwareThreadPoolExecutor(
-                final OrderedMemoryAwareThreadPoolExecutor omaThreadPoolExecutorArg) {
-            this.omaThreadPoolExecutor = omaThreadPoolExecutorArg;
+        public Builder threadPoolExecutor(
+                final Executor threadPoolExecutorArg) {
+            this.threadPoolExecutor = threadPoolExecutorArg;
             return this;
         }
 
@@ -319,9 +319,8 @@ public class DnsClient {
             }
 
             // set up the application side thread pool
-            OrderedMemoryAwareThreadPoolExecutor omaThreadPoolExecutorArg = this.omaThreadPoolExecutor != null ? this.omaThreadPoolExecutor
-                    : new OrderedMemoryAwareThreadPoolExecutor(threadPoolSize,
-                            0, 0);
+            Executor omaThreadPoolExecutorArg = this.threadPoolExecutor != null ? this.threadPoolExecutor
+                    : Executors.newCachedThreadPool();
             // client handler invoker
             ClientMessageHandlerInvoker clientMessageHandlerInvoker = new ClientMessageHandlerInvoker(
                     clientMessageHandler, closeConnectionOnMessageReceipt);
