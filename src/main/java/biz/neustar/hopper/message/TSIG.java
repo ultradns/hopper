@@ -2,6 +2,7 @@
 
 package biz.neustar.hopper.message;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
@@ -24,8 +25,12 @@ import biz.neustar.hopper.util.base64;
  * @author Brian Wellington
  */
 
-public class TSIG {
+public class TSIG implements Serializable {
 
+    /**
+     * The serial version id.
+     */
+    private static final long serialVersionUID = 3493742963789391842L;
     private static final String HMAC_MD5_STR = "HMAC-MD5.SIG-ALG.REG.INT.";
     private static final String HMAC_SHA1_STR = "hmac-sha1.";
     private static final String HMAC_SHA224_STR = "hmac-sha224.";
@@ -104,6 +109,10 @@ public class TSIG {
         } else {
             throw new IllegalArgumentException("Invalid algorithm");
         }
+    }
+    
+    public TSIG() {
+        // default constructor.
     }
 
     /**
