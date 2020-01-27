@@ -34,14 +34,16 @@
 //
 package biz.neustar.hopper.record;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.Random;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.exception.RelativeNameException;
 import biz.neustar.hopper.exception.TextParseException;
@@ -51,6 +53,9 @@ import biz.neustar.hopper.message.DNSOutput;
 import biz.neustar.hopper.message.Name;
 import biz.neustar.hopper.message.Type;
 import biz.neustar.hopper.util.Tokenizer;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 
 public class SOARecordTest {
     private final static Random m_random = new Random();
@@ -419,14 +424,68 @@ public class SOARecordTest {
             assertTrue(Arrays.equals(exp, o.toByteArray()));
         }
     }
+    
+    public static class Test_Serialization extends TestCase {
+        private Name m_an, m_host, m_admin;
+        private long m_ttl, m_serial, m_refresh, m_retry, m_expire, m_minimum;
+        
+        @Override
+        protected void setUp() throws TextParseException {
+            m_an = Name.fromString("My.absolute.name.");
+            m_ttl = 0x13A8;
+            m_host = Name.fromString("M.h.N.");
+            m_admin = Name.fromString("M.a.n.");
+            m_serial = 0xABCDEF12L;
+            m_refresh = 0xCDEF1234L;
+            m_retry = 0xEF123456L;
+            m_expire = 0x12345678L;
+            m_minimum = 0x3456789AL;
+        }
+        
+        public void test_case_sensitive() throws IOException, ClassNotFoundException {
+            
+
+            SOARecord ar = new SOARecord(m_an, DClass.IN, m_ttl, m_host,
+                    m_admin, m_serial, m_refresh, m_retry, m_expire, m_minimum);
+            
+            
+            FileOutputStream f = new FileOutputStream(new File("myObjects.txt"));
+            ObjectOutputStream o = new ObjectOutputStream(f);
+            
+            o.writeObject(ar);
+            
+            o.close();
+            f.close();
+            
+            FileInputStream fi = new FileInputStream(new File("myObjects.txt"));
+            ObjectInputStream oi = new ObjectInputStream(fi);
+            
+            SOARecord readObj = (SOARecord) oi.readObject();
+            
+            oi.close();
+            fi.close();
+            
+            assertEquals(m_host, readObj.getHost());
+            assertEquals(m_admin, readObj.getAdmin());
+            assertEquals(m_serial, readObj.getSerial());
+            assertEquals(m_refresh, readObj.getRefresh());
+            assertEquals(m_retry, readObj.getRetry());
+            assertEquals(m_expire, readObj.getExpire());
+            assertEquals(m_minimum, readObj.getMinimum());
+            assertEquals(DClass.IN, readObj.getDClass());
+        }
+    }
 
     public static Test suite() {
         TestSuite s = new TestSuite();
         s.addTestSuite(Test_init.class);
+        s.addTestSuite(Test_Serialization.class);
         s.addTestSuite(Test_rrFromWire.class);
         s.addTestSuite(Test_rdataFromString.class);
         s.addTestSuite(Test_rrToString.class);
         s.addTestSuite(Test_rrToWire.class);
         return s;
     }
+    
+    
 }
