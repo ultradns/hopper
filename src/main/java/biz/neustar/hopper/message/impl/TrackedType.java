@@ -8,17 +8,22 @@
 
 package biz.neustar.hopper.message.impl;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.Set;
 import java.util.TreeSet;
 
 import biz.neustar.hopper.message.impl.TrackedTypeRegistrar.Builder;
 
-public abstract class TrackedType {
-    private final String name;
-    private final int value;
-    private final Set<String> altNames;
+public abstract class TrackedType implements Serializable {
     
+    /**
+     * The serial version id.
+     */
+    private static final long serialVersionUID = -3435891916522346502L;
+    private String name;
+    private int value;
+    private Set<String> altNames;
     
     public TrackedType(int value, String name, String... altNames) {
         this.value = value;
