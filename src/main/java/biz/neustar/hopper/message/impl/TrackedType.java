@@ -25,11 +25,6 @@ public abstract class TrackedType implements Serializable {
     private int value;
     private Set<String> altNames;
     
-    public TrackedType() {
-        // default constructor.
-    }
-    
-    
     public TrackedType(int value, String name, String... altNames) {
         this.value = value;
         this.name = name;

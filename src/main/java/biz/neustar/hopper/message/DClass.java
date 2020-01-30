@@ -2,7 +2,6 @@
 
 package biz.neustar.hopper.message;
 
-import java.io.Serializable;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -15,11 +14,11 @@ import biz.neustar.hopper.message.impl.TrackedTypeRegistrar;
  * 
  */
 
-public final class DClass extends TrackedType implements Serializable {
+public final class DClass extends TrackedType {
     /**
      * The serial version id.
      */
-    private static final long serialVersionUID = 7520813968620219316L;
+    private static final long serialVersionUID = -5801805372046806168L;
     private static final TrackedTypeRegistrar REGISTRAR = registrarBuilder(DClass.class)
             .prefix("CLASS").allowNumericName(true).maxValue(0xFFFF).build();
     // TODO: Add method to register new class
@@ -50,10 +49,6 @@ public final class DClass extends TrackedType implements Serializable {
         registeredClasses.add("ANY");
     }
     
-    public DClass() {
-        super();
-    }
-
     public DClass(int value, String name, String ...altNames) {
         super(value, name, altNames);
     }
