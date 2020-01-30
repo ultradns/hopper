@@ -111,10 +111,6 @@ public class TSIG implements Serializable {
         }
     }
     
-    public TSIG() {
-        // default constructor.
-    }
-
     /**
      * Creates a new TSIG key, which can be used to sign or verify a message.
      * 
