@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.Arrays;
+import java.util.Objects;
 
 import biz.neustar.hopper.config.Options;
 import biz.neustar.hopper.exception.RelativeNameException;
@@ -27,7 +28,7 @@ import biz.neustar.hopper.util.base16;
 /**
  * A generic DNS resource record. The specific record types extend this class. A
  * record contains a name, type, class, ttl, and rdata.
- * 
+ *
  * @author Brian Wellington
  */
 
@@ -115,7 +116,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
 
     /**
      * Creates a new record, with the given parameters.
-     * 
+     *
      * @param name
      *            The owner name of the record.
      * @param type
@@ -154,7 +155,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
 
     /**
      * Creates a new record, with the given parameters.
-     * 
+     *
      * @param name
      *            The owner name of the record.
      * @param type
@@ -174,7 +175,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
 
     /**
      * Creates a new empty record, with the given parameters.
-     * 
+     *
      * @param name
      *            The owner name of the record.
      * @param type
@@ -199,7 +200,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      * Creates a new empty record, with the given parameters. This method is
      * designed to create records that will be added to the QUERY section of a
      * message.
-     * 
+     *
      * @param name
      *            The owner name of the record.
      * @param type
@@ -252,10 +253,10 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
     public void toWire(DNSOutput out, int section, Compression c) {
         toWire(out, section, c, name, type, dclass.getValue(), ttl);
     }
-    
-    protected void toWire(DNSOutput out, int section, Compression c, 
+
+    protected void toWire(DNSOutput out, int section, Compression c,
             Name inName, int inType, int inClass, long inTtl) {
-        
+
         inName.toWire(out, c);
         out.writeU16(inType);
         out.writeU16(inClass);
@@ -282,11 +283,11 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
     protected void toWireCanonical(DNSOutput out, boolean noTTL) {
         toWireCanonical(out, name, type, dclass.getValue(), noTTL ? 0 : ttl);
     }
-    
+
     // this is needed for overriding in the OPTRecord, which needs to reuse the CLASS as payload.
-    protected void toWireCanonical(DNSOutput out, 
+    protected void toWireCanonical(DNSOutput out,
             Name inName, int inType, int inClass, long inTtl) {
-        
+
         inName.toWireCanonical(out);
         out.writeU16(inType);
         out.writeU16(inClass);
@@ -298,7 +299,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
         int rrlength = out.current() - lengthPosition - 2;
         out.writeU16At(rrlength, lengthPosition);
     }
-  
+
 
     /*
      * Converts a Record into canonical DNS uncompressed wire format (all names
@@ -343,6 +344,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
     /**
      * Converts a Record into a String representation
      */
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(name);
@@ -484,7 +486,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
 
     /**
      * Builds a new Record from its textual representation
-     * 
+     *
      * @param name
      *            The owner name of the record.
      * @param type
@@ -537,7 +539,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
 
     /**
      * Builds a new Record from its textual representation
-     * 
+     *
      * @param name
      *            The owner name of the record.
      * @param type
@@ -561,7 +563,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
 
     /**
      * Returns the record's name
-     * 
+     *
      * @see Name
      */
     public Name getName() {
@@ -570,7 +572,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
 
     /**
      * Returns the record's type
-     * 
+     *
      * @see Type
      */
     public int getType() {
@@ -580,7 +582,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
     /**
      * Returns the type of RRset that this record would belong to. For all types
      * except RRSIG, this is equivalent to getType().
-     * 
+     *
      * @return The type of record, if not RRSIG. If the type is RRSIG, the type
      *         covered is returned.
      * @see Type
@@ -620,18 +622,19 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      * compared.
      */
     public boolean sameRRset(Record rec) {
-        return (getRRsetType() == rec.getRRsetType() && dclass == rec.dclass && name
-                .equals(rec.name));
+        return (getRRsetType() == rec.getRRsetType() && Objects.equals(dclass, rec.dclass)
+                && name.equals(rec.name));
     }
 
     /**
      * Determines if two Records are identical. This compares the name, type,
      * class, and rdata (with names canonicalized). The TTLs are not compared.
-     * 
+     *
      * @param arg
      *            The record to compare to
      * @return true if the records are equal, false otherwise.
      */
+    @Override
     public boolean equals(Object arg) {
         if (arg == null || !(arg instanceof Record)) {
             return false;
@@ -648,6 +651,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
     /**
      * Generates a hash code based on the Record's data.
      */
+    @Override
     public int hashCode() {
         byte[] array = toWireCanonical(true);
         int code = 0;
@@ -699,7 +703,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
 
     /**
      * Compares this Record to another Object.
-     * 
+     *
      * @param arg
      *            The Object to be compared.
      * @return The value 0 if the argument is a record equivalent to this
@@ -711,6 +715,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      * @throws ClassCastException
      *             if the argument is not a Record.
      */
+    @Override
     public int compareTo(Record arg) {
         if (this == arg) {
             return (0);
@@ -720,7 +725,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
         if (n != 0) {
             return (n);
         }
-        // TODO: just compare the enum value... 
+        // TODO: just compare the enum value...
         n = dclass.getValue() - arg.dclass.getValue();
         if (n != 0) {
             return (n);
@@ -744,7 +749,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
      * Returns the name for which additional data processing should be done for
      * this record. This can be used both for building responses and parsing
      * responses.
-     * 
+     *
      * @return The name to used for additional data processing, or null if this
      *         record type does not require additional data processing.
      */
@@ -753,7 +758,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
     }
 
     /////// TODO: These utility methods should be moved somewhere else
-    
+
     /* Checks that an int contains an unsigned 8 bit value */
     public static int checkU8(String field, int val) {
         if (val < 0 || val > 0xFF)
