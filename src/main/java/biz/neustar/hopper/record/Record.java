@@ -640,7 +640,7 @@ public abstract class Record implements Cloneable, Comparable<Record>, Serializa
             return false;
         }
         Record r = (Record) arg;
-        if (type != r.type || dclass != r.dclass || !name.equals(r.name)) {
+        if (type != r.type || !Objects.equals(dclass, r.dclass) || !name.equals(r.name)) {
             return false;
         }
         byte[] array1 = rdataToWireCanonical();

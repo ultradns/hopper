@@ -28,6 +28,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Iterator;
 
+import com.google.common.base.Objects;
+
 import biz.neustar.hopper.message.impl.TrackedType;
 import biz.neustar.hopper.message.impl.TrackedTypeRegistrar;
 import biz.neustar.hopper.record.DNSKEYRecord;
@@ -808,9 +810,9 @@ public class DNSSEC {
     }
 
     private static boolean matches(SIGBase sig, KEYBase key) {
-        return (key.getAlgorithm() == sig.getAlgorithm()
-                && key.getFootprint() == sig.getFootprint() && key.getName()
-                .equals(sig.getSigner()));
+        return Objects.equal(key.getAlgorithm(), sig.getAlgorithm())
+                && key.getFootprint() == sig.getFootprint()
+                && Objects.equal(key.getName(), sig.getSigner());
     }
 
     /**
