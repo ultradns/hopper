@@ -2,9 +2,15 @@
 
 package biz.neustar.hopper.message;
 
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 import java.util.TreeMap;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 
 import com.google.common.base.MoreObjects;
 
@@ -270,8 +276,10 @@ public class TSIG {
      * @param old
      *            If this message is a response, the TSIG from the request
      * @return The TSIG record to be added to the message
+     * @throws NoSuchAlgorithmException 
+     * @throws InvalidKeyException 
      */
-    public TSIGRecord generate(Message m, byte[] b, int error, TSIGRecord old) {
+    public TSIGRecord generate(Message m, byte[] b, int error, TSIGRecord old)  {
         Date timeSigned;
         if (error != Rcode.BADTIME) {
             timeSigned = new Date();
@@ -279,9 +287,23 @@ public class TSIG {
             timeSigned = old.getTimeSigned();
         }
         int fudge;
-        HMAC hmac = null;
+        //HMAC hmac = null;
+        Mac hmac = null;
         if (error == Rcode.NOERROR || error == Rcode.BADTIME) {
-            hmac = new HMAC(digest, digestBlockLength, key);
+            //hmac = new HMAC(digest, digestBlockLength, key);
+            SecretKeySpec secretkey = new SecretKeySpec(key, "HmacMD5");
+            try {
+                hmac = Mac.getInstance("HmacMD5");
+            } catch (NoSuchAlgorithmException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            try {
+                hmac.init(secretkey);
+            } catch (InvalidKeyException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
         fudge = Options.intValue("tsigfudge");
@@ -324,7 +346,7 @@ public class TSIG {
 
         byte[] signature;
         if (hmac != null) {
-            signature = hmac.sign();
+            signature = hmac.doFinal();
         } else {
             signature = new byte[0];
         }
@@ -356,7 +378,8 @@ public class TSIG {
      *            If this message is a response, the TSIG from the request
      */
     public void apply(Message m, int error, TSIGRecord old) {
-        Record r = generate(m, m.toWire(), error, old);
+        Record r = null;
+        r = generate(m, m.toWire(), error, old);
         m.addRecord(r, Section.ADDITIONAL);
         m.tsigState = Message.TSIG_SIGNED;
     }
@@ -380,6 +403,8 @@ public class TSIG {
      *            The message
      * @param old
      *            If this message is a response, the TSIG from the request
+     * @throws NoSuchAlgorithmException 
+     * @throws InvalidKeyException 
      */
     public void applyStream(Message m, TSIGRecord old, boolean first) {
         if (first) {
@@ -388,7 +413,22 @@ public class TSIG {
         }
         Date timeSigned = new Date();
         int fudge;
-        HMAC hmac = new HMAC(digest, digestBlockLength, key);
+        //HMAC hmac = new HMAC(digest, digestBlockLength, key);
+        
+        SecretKeySpec secretkey = new SecretKeySpec(key, "HmacMD5");
+        Mac hmac = null;
+        try {
+            hmac = Mac.getInstance("HmacMD5");
+        } catch (NoSuchAlgorithmException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        try {
+            hmac.init(secretkey);
+        } catch (InvalidKeyException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         fudge = Options.intValue("tsigfudge");
         if (fudge < 0 || fudge > 0x7FFF) {
@@ -413,7 +453,7 @@ public class TSIG {
 
         hmac.update(out.toByteArray());
 
-        byte[] signature = hmac.sign();
+        byte[] signature = hmac.doFinal();
         byte[] other = null;
 
         Record r = new TSIGRecord(name, DClass.ANY, 0, alg, timeSigned, fudge,
@@ -440,12 +480,28 @@ public class TSIG {
      * @param old
      *            If this message is a response, the TSIG from the request
      * @return The result of the verification (as an Rcode)
+     * @throws NoSuchAlgorithmException 
+     * @throws InvalidKeyException 
      * @see Rcode
      */
     public byte verify(Message m, byte[] b, int length, TSIGRecord old) {
         m.tsigState = Message.TSIG_FAILED;
         TSIGRecord tsig = m.getTSIG();
-        HMAC hmac = new HMAC(digest, digestBlockLength, key);
+        //HMAC hmac = new HMAC(digest, digestBlockLength, key);
+        SecretKeySpec secretkey = new SecretKeySpec(key, "HmacMD5");
+        Mac hmac = null;
+        try {
+            hmac = Mac.getInstance("HmacMD5");
+        } catch (NoSuchAlgorithmException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        try {
+            hmac.init(secretkey);
+        } catch (InvalidKeyException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         if (tsig == null) {
             return Rcode.FORMERR;
         }
@@ -503,28 +559,46 @@ public class TSIG {
         hmac.update(out.toByteArray());
 
         byte[] signature = tsig.getSignature();
-        int digestLength = hmac.digestLength();
+        int digestLength = hmac.getMacLength();
         int minDigestLength = digest.equals("md5") ? 10 : digestLength / 2;
 
         if (signature.length > digestLength) {
             if (Options.check("verbose")) {
                 System.err.println("BADSIG: signature too long");
             }
+            System.out.println("BADSIG: signature too long");
             return Rcode.BADSIG;
         } else if (signature.length < minDigestLength) {
             if (Options.check("verbose")) {
                 System.err.println("BADSIG: signature too short");
             }
+            System.out.println("BADSIG: signature too short");
             return Rcode.BADSIG;
-        } else if (!hmac.verify(signature, true)) {
+        } else if (verify(signature, true, hmac.doFinal())) {
             if (Options.check("verbose")) {
                 System.err.println("BADSIG: signature verification");
             }
+            System.out.println("BADSIG: signature verification");
             return Rcode.BADSIG;
         }
 
         m.tsigState = Message.TSIG_VERIFIED;
         return Rcode.NOERROR;
+    }
+    
+    private boolean
+    verify(byte [] signature, boolean truncation_ok, byte[] expected) {
+        System.out.println("truncation_ok " + truncation_ok);
+        if (truncation_ok && signature.length < expected.length) {
+            System.out.println("Inside if of verify");
+            byte [] truncated = new byte[signature.length];
+            System.arraycopy(expected, 0, truncated, 0, truncated.length);
+            expected = truncated;
+        }
+        System.out.println("signature " + Arrays.toString(signature));
+        System.out.println("expected array " + Arrays.toString(expected));
+        System.out.println("Result of comparision " + Arrays.equals(signature, expected));
+        return Arrays.equals(signature, expected);
     }
 
     /**
@@ -600,6 +674,7 @@ public class TSIG {
 
             if (nresponses == 1) {
                 int result = key.verify(m, b, lastTSIG);
+                System.out.println("Result new " + result + " nresponses " + nresponses);
                 if (result == Rcode.NOERROR) {
                     byte[] signature = tsig.getSignature();
                     DNSOutput out = new DNSOutput();
@@ -634,6 +709,7 @@ public class TSIG {
             } else {
                 boolean required = (nresponses - lastsigned >= 100);
                 if (required) {
+                    System.out.println("Required new " + required + " nresponses " + nresponses);
                     m.tsigState = Message.TSIG_FAILED;
                     return Rcode.FORMERR;
                 } else {
@@ -647,6 +723,7 @@ public class TSIG {
                 if (Options.check("verbose")) {
                     System.err.println("BADKEY failure");
                 }
+                System.out.println("BADKEY failure nresponses " + nresponses);
                 m.tsigState = Message.TSIG_FAILED;
                 return Rcode.BADKEY;
             }
@@ -664,6 +741,7 @@ public class TSIG {
                 if (Options.check("verbose")) {
                     System.err.println("BADSIG failure");
                 }
+                System.out.println("BADSIG failure nresponses " + nresponses);
                 m.tsigState = Message.TSIG_FAILED;
                 return Rcode.BADSIG;
             }

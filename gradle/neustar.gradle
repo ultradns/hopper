@@ -121,8 +121,8 @@ allprojects {
   repositories {
       maven {
           credentials {
-              username rootProject.ldapUsername
-              password rootProject.ldapPassword
+              username 'ci_ultra'
+              password '@@ultra'
           }
           url repoBaseUrl + "/content/groups/public/"
       }

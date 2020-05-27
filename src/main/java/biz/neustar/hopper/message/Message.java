@@ -3,6 +3,8 @@
 package biz.neustar.hopper.message;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -464,7 +466,7 @@ public class Message implements Cloneable {
     }
 
     /* Returns true if the message could be rendered. */
-    private boolean toWire(DNSOutput out, int maxLength) {
+    private boolean toWire(DNSOutput out, int maxLength) throws InvalidKeyException, NoSuchAlgorithmException {
         if (maxLength < Header.LENGTH) {
             return false;
         }
@@ -553,7 +555,12 @@ public class Message implements Cloneable {
      */
     public byte[] toWire(int maxLength) {
         DNSOutput out = new DNSOutput();
-        toWire(out, maxLength);
+        try {
+            toWire(out, maxLength);
+        } catch (InvalidKeyException | NoSuchAlgorithmException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
         size = out.current();
         return out.toByteArray();
     }
