@@ -15,6 +15,10 @@ import biz.neustar.hopper.message.impl.TrackedTypeRegistrar;
  */
 
 public final class DClass extends TrackedType {
+    /**
+     * The serial version id.
+     */
+    private static final long serialVersionUID = -5801805372046806168L;
     private static final TrackedTypeRegistrar REGISTRAR = registrarBuilder(DClass.class)
             .prefix("CLASS").allowNumericName(true).maxValue(0xFFFF).build();
     // TODO: Add method to register new class
@@ -44,7 +48,7 @@ public final class DClass extends TrackedType {
         registeredClasses.add("NONE");
         registeredClasses.add("ANY");
     }
-
+    
     public DClass(int value, String name, String ...altNames) {
         super(value, name, altNames);
     }
@@ -64,4 +68,5 @@ public final class DClass extends TrackedType {
             return null;
         }
     }
+    
 }

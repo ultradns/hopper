@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import org.jboss.netty.bootstrap.ClientBootstrap;
 import org.jboss.netty.bootstrap.ConnectionlessBootstrap;
@@ -19,6 +18,7 @@ import org.jboss.netty.channel.Channels;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioDatagramChannelFactory;
 import org.jboss.netty.handler.execution.ExecutionHandler;
+import org.jboss.netty.handler.execution.OrderedMemoryAwareThreadPoolExecutor;
 import org.jboss.netty.handler.logging.LoggingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +52,7 @@ public class DnsClient {
          */
 //        private static final int UDP_TIMEOUT = 20;
 
-        /** 
+        /**
          * The flag advanced.
          */
         private boolean advanced = false;
@@ -137,7 +137,7 @@ public class DnsClient {
 
         /**
          * Instance.
-         * 
+         *
          * @return the builder
          */
         public static Builder instance() {
@@ -146,10 +146,10 @@ public class DnsClient {
 
         /**
          * Set the application processing thread pool size.
-         * 
+         *
          * @param threadPoolSizeArg
          *            The size of thread pool to set.
-         * 
+         *
          * @return The builder.
          */
         public Builder threadPoolSize(final int threadPoolSizeArg) {
@@ -160,7 +160,7 @@ public class DnsClient {
         /**
          * Set the application thread pool executor. threadPoolSize is ignored
          * when this is set.
-         * 
+         *
          * @param threadPoolExecutorArg
          *            The thread pool executor to set.
          * @return the builder
@@ -174,7 +174,7 @@ public class DnsClient {
         /**
          * Register a client side message handler to be invoked when responses
          * are received from a server.
-         * 
+         *
          * @param clientMessageHandlerArg
          *            the client message handler arg
          * @return the builder
@@ -188,7 +188,7 @@ public class DnsClient {
         /**
          * Register a client side message handler to be invoked when responses
          * are received from a server.
-         * 
+         *
          * @param advClientMessageHandlerArg
          *            the adv client message handler arg
          * @return the builder
@@ -202,7 +202,7 @@ public class DnsClient {
         /**
          * Set the TCP channel factory. Defaults to a
          * NioClientSocketChannelFactory with CacheThreadPool executors.
-         * 
+         *
          * @param nioCSChannelFactoryArg
          *            the nio cs channel factory arg
          * @return the builder
@@ -216,7 +216,7 @@ public class DnsClient {
         /**
          * Set the UDP channel factory. Defaults to a with a CacheThreadPool
          * executor
-         * 
+         *
          * @param nioDChannelFactoryArg
          *            the nio d channel factory arg
          * @return the builder
@@ -229,7 +229,7 @@ public class DnsClient {
 
         /**
          * Set the connection options.
-         * 
+         *
          * @param optionsArg
          *            the options arg
          * @return the builder
@@ -241,7 +241,7 @@ public class DnsClient {
 
         /**
          * Set the UDP options.
-         * 
+         *
          * @param udpOptionsArg
          *            the options arg
          * @return the builder
@@ -253,7 +253,7 @@ public class DnsClient {
 
         /**
          * How long to listen for a UDP response before giving up.
-         * 
+         *
          * @param udpTimeoutSecondsArg
          *            the udp timeout seconds arg
          * @return the builder
@@ -266,7 +266,7 @@ public class DnsClient {
         /**
          * Indicate if the connection should be closed after the response is
          * received. Default is false.
-         * 
+         *
          * @param closeConnectionOnMessageReceiptArg
          *            the close connection on message receipt arg
          * @return the builder
@@ -279,7 +279,7 @@ public class DnsClient {
 
         /**
          * Logging.
-         * 
+         *
          * @param logging
          *            the logging
          * @return the builder
@@ -291,7 +291,7 @@ public class DnsClient {
 
         /**
          * Advanced.
-         * 
+         *
          * @param advancedArg
          *            the advanced arg
          * @return the builder
@@ -303,7 +303,7 @@ public class DnsClient {
 
         /**
          * Obtain a new Client.
-         * 
+         *
          * @return the dns client
          */
         public DnsClient build() {
@@ -320,7 +320,7 @@ public class DnsClient {
 
             // set up the application side thread pool
             Executor omaThreadPoolExecutorArg = this.threadPoolExecutor != null ? this.threadPoolExecutor
-                    : Executors.newFixedThreadPool(threadPoolSize);
+                    : new OrderedMemoryAwareThreadPoolExecutor(threadPoolSize, 0, 0);
             // client handler invoker
             ClientMessageHandlerInvoker clientMessageHandlerInvoker = new ClientMessageHandlerInvoker(
                     clientMessageHandler, closeConnectionOnMessageReceipt);
@@ -397,7 +397,7 @@ public class DnsClient {
 
     /**
      * Obtain a new client builder.
-     * 
+     *
      * @return the builder
      */
     public static Builder builder() {
@@ -411,7 +411,7 @@ public class DnsClient {
 
     /**
      * Construct a new Client.
-     * 
+     *
      * @param builder
      *            Which has the client configuration
      */
@@ -444,7 +444,7 @@ public class DnsClient {
 
     /**
      * Send udp.
-     * 
+     *
      * @param message
      *            the message
      * @param destination
@@ -476,7 +476,7 @@ public class DnsClient {
      * Send a message via TCP asynchronously. This method returns prior to
      * completion of the request. Add a handler in the pipeline to process the
      * returned message.
-     * 
+     *
      * @param message
      *            The DNS message
      * @param destination
@@ -522,7 +522,7 @@ public class DnsClient {
 
     /**
      * Asynchronously open a connection or return an already open connection.
-     * 
+     *
      * @param destination
      *            To which the connection should be opened
      * @return A ChannelFuture for the connection operation
