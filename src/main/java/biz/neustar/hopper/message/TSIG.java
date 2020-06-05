@@ -281,8 +281,6 @@ public class TSIG implements Serializable {
      * @param old
      *            If this message is a response, the TSIG from the request
      * @return The TSIG record to be added to the message
-     * @throws NoSuchAlgorithmException 
-     * @throws InvalidKeyException 
      */
     public TSIGRecord generate(Message m, byte[] b, int error, TSIGRecord old)  {
         Date timeSigned;
@@ -408,8 +406,6 @@ public class TSIG implements Serializable {
      *            The message
      * @param old
      *            If this message is a response, the TSIG from the request
-     * @throws NoSuchAlgorithmException 
-     * @throws InvalidKeyException 
      */
     public void applyStream(Message m, TSIGRecord old, boolean first) {
         if (first) {
@@ -485,8 +481,6 @@ public class TSIG implements Serializable {
      * @param old
      *            If this message is a response, the TSIG from the request
      * @return The result of the verification (as an Rcode)
-     * @throws NoSuchAlgorithmException 
-     * @throws InvalidKeyException 
      * @see Rcode
      */
     public byte verify(Message m, byte[] b, int length, TSIGRecord old) {
