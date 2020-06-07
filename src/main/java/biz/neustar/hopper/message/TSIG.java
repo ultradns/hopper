@@ -31,7 +31,7 @@ public class TSIG implements Serializable {
      * The serial version id.
      */
     private static final long serialVersionUID = 3493742963789391842L;
-    private static final String HMAC_MD5_STR = "HMAC-MD5.SIG-ALG.REG.INT.";
+    private static final String HMAC_MD5_STR = "hmac-md5.sig-alg.reg.int.";
     private static final String HMAC_SHA1_STR = "hmac-sha1.";
     private static final String HMAC_SHA224_STR = "hmac-sha224.";
     private static final String HMAC_SHA256_STR = "hmac-sha256.";
