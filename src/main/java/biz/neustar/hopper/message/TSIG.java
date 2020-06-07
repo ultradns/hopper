@@ -290,10 +290,8 @@ public class TSIG implements Serializable {
             timeSigned = old.getTimeSigned();
         }
         int fudge;
-        //HMAC hmac = null;
         Mac hmac = null;
         if (error == Rcode.NOERROR || error == Rcode.BADTIME) {
-            //hmac = new HMAC(digest, digestBlockLength, key);
             SecretKeySpec secretkey = new SecretKeySpec(key, "HmacMD5");
             try {
                 hmac = Mac.getInstance("HmacMD5");
@@ -379,8 +377,7 @@ public class TSIG implements Serializable {
      *            If this message is a response, the TSIG from the request
      */
     public void apply(Message m, int error, TSIGRecord old) {
-        Record r = null;
-        r = generate(m, m.toWire(), error, old);
+        Record r = generate(m, m.toWire(), error, old);
         m.addRecord(r, Section.ADDITIONAL);
         m.tsigState = Message.TSIG_SIGNED;
     }
@@ -412,7 +409,6 @@ public class TSIG implements Serializable {
         }
         Date timeSigned = new Date();
         int fudge;
-        //HMAC hmac = new HMAC(digest, digestBlockLength, key);
         
         SecretKeySpec secretkey = new SecretKeySpec(key, "HmacMD5");
         Mac hmac = null;
@@ -482,7 +478,6 @@ public class TSIG implements Serializable {
     public byte verify(Message m, byte[] b, int length, TSIGRecord old) {
         m.tsigState = Message.TSIG_FAILED;
         TSIGRecord tsig = m.getTSIG();
-        //HMAC hmac = new HMAC(digest, digestBlockLength, key);
         SecretKeySpec secretkey = new SecretKeySpec(key, "HmacMD5");
         Mac hmac = null;
         try {
