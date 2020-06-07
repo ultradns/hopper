@@ -298,14 +298,12 @@ public class TSIG implements Serializable {
             try {
                 hmac = Mac.getInstance("HmacMD5");
             } catch (NoSuchAlgorithmException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                throw new IllegalArgumentException("Invalid Algorithm");
             }
             try {
                 hmac.init(secretkey);
             } catch (InvalidKeyException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                throw new IllegalArgumentException("Invalid TSIG key");
             }
         }
 
@@ -421,14 +419,12 @@ public class TSIG implements Serializable {
         try {
             hmac = Mac.getInstance("HmacMD5");
         } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new IllegalArgumentException("Invalid Algorithm");
         }
         try {
             hmac.init(secretkey);
         } catch (InvalidKeyException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new IllegalArgumentException("Invalid TSIG key");
         }
 
         fudge = Options.intValue("tsigfudge");
@@ -492,32 +488,24 @@ public class TSIG implements Serializable {
         try {
             hmac = Mac.getInstance("HmacMD5");
         } catch (NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new IllegalArgumentException("Invalid algorithm");
         }
         try {
             hmac.init(secretkey);
         } catch (InvalidKeyException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new IllegalArgumentException("Invalid TSIG key");
         }
         if (tsig == null) {
             return Rcode.FORMERR;
         }
 
         if (!tsig.getName().equals(name) || !tsig.getAlgorithm().equals(alg)) {
-            if (Options.check("verbose")) {
-                System.err.println("BADKEY failure");
-            }
             return Rcode.BADKEY;
         }
         long now = System.currentTimeMillis();
         long then = tsig.getTimeSigned().getTime();
         long fudge = tsig.getFudge();
         if (Math.abs(now - then) > fudge * 1000) {
-            if (Options.check("verbose")) {
-                System.err.println("BADTIME failure");
-            }
             return Rcode.BADTIME;
         }
 
@@ -562,22 +550,10 @@ public class TSIG implements Serializable {
         int minDigestLength = digest.equals("md5") ? 10 : digestLength / 2;
 
         if (signature.length > digestLength) {
-            if (Options.check("verbose")) {
-                System.err.println("BADSIG: signature too long");
-            }
-            System.out.println("BADSIG: signature too long");
             return Rcode.BADSIG;
         } else if (signature.length < minDigestLength) {
-            if (Options.check("verbose")) {
-                System.err.println("BADSIG: signature too short");
-            }
-            System.out.println("BADSIG: signature too short");
             return Rcode.BADSIG;
         } else if (verify(signature, true, hmac.doFinal())) {
-            if (Options.check("verbose")) {
-                System.err.println("BADSIG: signature verification");
-            }
-            System.out.println("BADSIG: signature verification");
             return Rcode.BADSIG;
         }
 
@@ -587,16 +563,11 @@ public class TSIG implements Serializable {
     
     private boolean
     verify(byte [] signature, boolean truncation_ok, byte[] expected) {
-        System.out.println("truncation_ok " + truncation_ok);
         if (truncation_ok && signature.length < expected.length) {
-            System.out.println("Inside if of verify");
             byte [] truncated = new byte[signature.length];
             System.arraycopy(expected, 0, truncated, 0, truncated.length);
             expected = truncated;
         }
-        System.out.println("signature " + Arrays.toString(signature));
-        System.out.println("expected array " + Arrays.toString(expected));
-        System.out.println("Result of comparision " + Arrays.equals(signature, expected));
         return Arrays.equals(signature, expected);
     }
 
@@ -673,7 +644,6 @@ public class TSIG implements Serializable {
 
             if (nresponses == 1) {
                 int result = key.verify(m, b, lastTSIG);
-                System.out.println("Result new " + result + " nresponses " + nresponses);
                 if (result == Rcode.NOERROR) {
                     byte[] signature = tsig.getSignature();
                     DNSOutput out = new DNSOutput();
@@ -708,7 +678,6 @@ public class TSIG implements Serializable {
             } else {
                 boolean required = (nresponses - lastsigned >= 100);
                 if (required) {
-                    System.out.println("Required new " + required + " nresponses " + nresponses);
                     m.tsigState = Message.TSIG_FAILED;
                     return Rcode.FORMERR;
                 } else {
@@ -719,10 +688,6 @@ public class TSIG implements Serializable {
 
             if (!tsig.getName().equals(key.name)
                     || !tsig.getAlgorithm().equals(key.alg)) {
-                if (Options.check("verbose")) {
-                    System.err.println("BADKEY failure");
-                }
-                System.out.println("BADKEY failure nresponses " + nresponses);
                 m.tsigState = Message.TSIG_FAILED;
                 return Rcode.BADKEY;
             }
@@ -737,10 +702,6 @@ public class TSIG implements Serializable {
             verifier.update(out.toByteArray());
 
             if (verifier.verify(tsig.getSignature()) == false) {
-                if (Options.check("verbose")) {
-                    System.err.println("BADSIG failure");
-                }
-                System.out.println("BADSIG failure nresponses " + nresponses);
                 m.tsigState = Message.TSIG_FAILED;
                 return Rcode.BADSIG;
             }
