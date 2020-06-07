@@ -558,8 +558,7 @@ public class Message implements Cloneable {
         try {
             toWire(out, maxLength);
         } catch (InvalidKeyException | NoSuchAlgorithmException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new IllegalArgumentException("Invalid Algorithm/TSIG");
         }
         size = out.current();
         return out.toByteArray();
