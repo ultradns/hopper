@@ -6,7 +6,7 @@ import biz.neustar.hopper.util.Mnemonic;
 
 /**
  * Constants and functions relating to DNS rcodes (error values)
- * 
+ *
  * @author Brian Wellington
  */
 
@@ -71,6 +71,18 @@ public final class Rcode {
     /** The mode is invalid (TKEY extended error) */
     public static final int BADMODE = 19;
 
+    /** Duplicate key name (TKEY extended error) */
+    public static final int BADNAME = 20;
+
+    /** Algorithm not supported (TKEY extended error) */
+    public static final int BADALG = 21;
+
+    /** Bad truncation (RFC 4635) */
+    public static final int BADTRUNC = 22;
+
+    /** Bad or missing server cookie (RFC 7873) */
+    public static final int BADCOOKIE = 23;
+
     static {
         rcodes.setMaximum(0xFFF);
         rcodes.setPrefix("RESERVED");
@@ -99,6 +111,10 @@ public final class Rcode {
         tsigrcodes.add(BADKEY, "BADKEY");
         tsigrcodes.add(BADTIME, "BADTIME");
         tsigrcodes.add(BADMODE, "BADMODE");
+        tsigrcodes.add(BADNAME, "BADNAME");
+        tsigrcodes.add(BADALG, "BADALG");
+        tsigrcodes.add(BADTRUNC, "BADTRUNC");
+        tsigrcodes.add(BADCOOKIE, "BADCOOKIE");
     }
 
     private Rcode() {
