@@ -155,16 +155,11 @@ public class HMAC {
     public boolean
     verify(byte [] signature, boolean truncation_ok) {
         byte [] expected = sign();
-        System.out.println("truncation_ok " + truncation_ok);
         if (truncation_ok && signature.length < expected.length) {
-            System.out.println("Inside if of verify");
             byte [] truncated = new byte[signature.length];
             System.arraycopy(expected, 0, truncated, 0, truncated.length);
             expected = truncated;
         }
-        System.out.println("signature " + Arrays.toString(signature));
-        System.out.println("expected array " + Arrays.toString(expected));
-        System.out.println("Result of comparision " + Arrays.equals(signature, expected));
         return Arrays.equals(signature, expected);
     }
 
